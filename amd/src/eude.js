@@ -551,10 +551,11 @@
                     function modalAction() {
                         $('.abrir').click(function () {
                             var params = $(this).attr('id');
+                            var idcourse;
                             if (params.length == 12) {
-                                var idcourse = params[6];
+                                idcourse = params[6];
                             } else {
-                                var idcourse = params.substring(params.length - 5, 6);
+                                idcourse = params.substring(params.length - 5, 6);
                             }
                             var tpv = params[params.length - 4];
                             var accion = params[params.length - 2];
@@ -571,15 +572,15 @@
                                         });
                                         $('#course').attr('value', idcourse);
                                         $('input.btn')
-                                                .attr('id', 'abrirFechas(' + idcourse + ',' + tpv + ',' + accion
-                                                        + ')');
+                                                .attr('id', 'abrirFechas(' + idcourse + ',' + tpv + ',' + accion + ')');
 
                                         $('input.btn').click(function () {
                                             var params = $('input.btn').attr('id');
+                                            var idcourse;
                                             if (params.length == 12) {
-                                                var idcourse = params[12];
+                                                idcourse = params[12];
                                             } else {
-                                                var idcourse = params.substring(params.length - 5, 12);
+                                                idcourse = params.substring(params.length - 5, 12);
                                             }
                                             $('#ventana-flotante').css('display', 'block');
                                             $.ajax({
@@ -613,10 +614,11 @@
                         });
                         $('.abrirFechas').click(function () {
                             var params = $(this).attr('id');
+                            var idcourse;
                             if (params.length == 18) {
-                                var idcourse = params[12];
+                                idcourse = params[12];
                             } else {
-                                var idcourse = params.substring(params.length - 5, 12);
+                                idcourse = params.substring(params.length - 5, 12);
                             }
                             var tpv = params[params.length - 4];
                             $('#ventana-flotante').css('display', 'block');

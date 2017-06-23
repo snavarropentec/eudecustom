@@ -1386,7 +1386,7 @@ function get_intensive_action($data){
  *
  * @return string $html;
  */
-function generate_event_keys(){
+function generate_event_keys($modal = ''){
     $html = html_writer::tag('h3', get_string('eventkeytitle', 'local_eudecustom'));
     $html .= html_writer::start_tag('ul', array('class' => 'eventkey'));
 
@@ -1395,7 +1395,7 @@ function generate_event_keys(){
     $html .= html_writer::start_tag('li', array('id' => 'eventkeymodulebegin', 'class' => 'eventkey'));
     $html .= html_writer::empty_tag('input',
                     array('type' => 'checkbox', 'id' => 'cb-eventkeymodulebegin',
-                'class' => 'cb-eventkey', 'name' => 'modulebegin', 'checked' => 'checked'));
+                'class' => 'cb-eventkey', 'name' => 'modulebegin'.$modal, 'checked' => 'checked'));
     $html .= html_writer::start_tag('div',
                     array('id' => 'cd-eventkeymodulebegin',
                 'class' => 'cd-eventkey eventkeymodulebegin'));
@@ -1406,7 +1406,7 @@ function generate_event_keys(){
     $html .= html_writer::start_tag('li', array('id' => 'eventkeyactivityend', 'class' => 'eventkey'));
     $html .= html_writer::empty_tag('input',
                     array('type' => 'checkbox', 'id' => 'cb-eventkeyactivityend',
-                'class' => 'cb-eventkey', 'name' => 'activityend', 'checked' => 'checked'));
+                'class' => 'cb-eventkey', 'name' => 'activityend'.$modal, 'checked' => 'checked'));
     $html .= html_writer::start_tag('div',
                     array('id' => 'cd-eventkeyactivityend',
                 'class' => 'cd-eventkey eventkeyactivityend'));
@@ -1417,7 +1417,7 @@ function generate_event_keys(){
     $html .= html_writer::start_tag('li', array('id' => 'eventkeyquestionnairedate', 'class' => 'eventkey'));
     $html .= html_writer::empty_tag('input',
                     array('type' => 'checkbox', 'id' => 'cb-eventkeyquestionnairedate',
-                'class' => 'cb-eventkey', 'name' => 'questionnairedate', 'checked' => 'checked'));
+                'class' => 'cb-eventkey', 'name' => 'questionnairedate'.$modal, 'checked' => 'checked'));
     $html .= html_writer::start_tag('div',
                     array('id' => 'cd-eventkeyquestionnairedate',
                 'class' => 'cd-eventkey eventkeyquestionnairedate'));
@@ -1431,7 +1431,7 @@ function generate_event_keys(){
     $html .= html_writer::start_tag('li', array('id' => 'eventkeytestdate', 'class' => 'eventkey'));
     $html .= html_writer::empty_tag('input',
                     array('type' => 'checkbox', 'id' => 'cb-eventkeytestdate',
-                'class' => 'cb-eventkey', 'name' => 'testdate', 'checked' => 'checked'));
+                'class' => 'cb-eventkey', 'name' => 'testdate'.$modal, 'checked' => 'checked'));
     $html .= html_writer::start_tag('div', array('id' => 'cd-eventkeytestdate', 'class' => 'cd-eventkey eventkeytestdate'));
     $html .= html_writer::end_tag('div');
     $html .= html_writer::tag('span', get_string('eventkeytestdate', 'local_eudecustom'));
@@ -1440,7 +1440,7 @@ function generate_event_keys(){
     $html .= html_writer::start_tag('li', array('id' => 'eventkeyintensivemodulebegin', 'class' => 'eventkey'));
     $html .= html_writer::empty_tag('input',
                     array('type' => 'checkbox', 'id' => 'cb-eventkeyintensivemodulebegin',
-                'class' => 'cb-eventkey', 'name' => 'intensivemodulebegin', 'checked' => 'checked'));
+                'class' => 'cb-eventkey', 'name' => 'intensivemodulebegin'.$modal, 'checked' => 'checked'));
     $html .= html_writer::start_tag('div',
                     array('id' => 'cd-eventkeyintensivemodulebegin',
                 'class' => 'cd-eventkey eventkeyintensivemodulebegin'));
@@ -1454,7 +1454,7 @@ function generate_event_keys(){
     $html .= html_writer::start_tag('li', array('id' => 'eventkeyeudeevent', 'class' => 'eventkey'));
     $html .= html_writer::empty_tag('input',
                     array('type' => 'checkbox', 'id' => 'cb-eventkeyeudeevent',
-                'class' => 'cb-eventkey', 'name' => 'eudeevent', 'checked' => 'checked'));
+                'class' => 'cb-eventkey', 'name' => 'eudeevent'.$modal, 'checked' => 'checked'));
     $html .= html_writer::start_tag('div', array('id' => 'cd-eventkeyeudeevent', 'class' => 'cd-eventkey eventkeyeudeevent'));
     $html .= html_writer::end_tag('div');
     $html .= html_writer::tag('span', get_string('eventkeyeudeevent', 'local_eudecustom'));

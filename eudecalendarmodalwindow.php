@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -67,7 +66,7 @@ $html .= html_writer::empty_tag('input',
 $html .= html_writer::end_tag('div');
 
 // Section for the events key.
-$html .= generate_event_keys();
+$html .= generate_event_keys('_modal');
 
 // Generate event list button.
 $html .= html_writer::start_div('col-md-12');
