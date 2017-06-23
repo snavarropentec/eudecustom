@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once(__DIR__. '/../utils.php');
-
+require_once(__DIR__.'/../classes/models/local_eudecustom_eudeprofile.class.php');
 /**
  * This class is used to run the unit tests
  *
@@ -96,21 +96,21 @@ class local_eudecustom_testcase extends advanced_testcase {
                 array('name' => 'Category with only intensive courses'));
 
         // Creating several courses and assign each to one of the categories above.
-        $course1 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'Normal course 1', 'category' => $category1->id));
-        $course2 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'Normal course 2', 'category' => $category1->id));
-        $course3 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'MI.Normal course 1', 'category' => $category1->id));
-        $course4 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'MI.Normal course 2', 'category' => $category1->id));
-        $course5 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'Normal course 3', 'category' => $category2->id));
-        $course6 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'Normal course 4', 'category' => $category2->id));
-        $course7 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'MI.Other course 1', 'category' => $category3->id));
-        $course8 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'MI.Other course 2', 'category' => $category3->id));
 
         // Get the function response.
@@ -440,9 +440,9 @@ class local_eudecustom_testcase extends advanced_testcase {
         $user4 = $this->getDataGenerator()->create_user(array('username' => 'user4'));
 
         // Creating several categories for future use.
-        $category1 = $this->getDataGenerator()->create_category(array('name' => 'Category 1'));
-        $category2 = $this->getDataGenerator()->create_category(array('name' => 'Category 2'));
-        $category3 = $this->getDataGenerator()->create_category(array('name' => 'Category 3'));
+        $category1 = $this->getDataGenerator()->create_category(array('name' => 'Example Category 1'));
+        $category2 = $this->getDataGenerator()->create_category(array('name' => 'Example Category 2'));
+        $category3 = $this->getDataGenerator()->create_category(array('name' => 'Example Category 3'));
 
         // Creating courses related to the categories above.
         $course1 = $this->getDataGenerator()->create_course(
@@ -530,17 +530,17 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         // Creating courses related to the categories above.
         $course1 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 1', 'category' => $category1->id));
+                array('shortname' => 'Example C1', 'category' => $category1->id));
         $course2 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 2', 'category' => $category1->id));
+                array('shortname' => 'Example C2', 'category' => $category1->id));
         $course3 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 3', 'category' => $category2->id));
+                array('shortname' => 'Example C3', 'category' => $category2->id));
         $course4 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 4', 'category' => $category2->id));
+                array('shortname' => 'Example C4', 'category' => $category2->id));
         $course5 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 5', 'category' => $category3->id));
+                array('shortname' => 'Example C5', 'category' => $category3->id));
         $course6 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 6', 'category' => $category3->id));
+                array('shortname' => 'Example C6', 'category' => $category3->id));
 
         // Getting the id of the roles.
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
@@ -678,31 +678,31 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
 
         // Creating a few users.
-        $user1 = $this->getDataGenerator()->create_user(array('username' => 'user1'));
-        $user2 = $this->getDataGenerator()->create_user(array('username' => 'user2'));
+        $user1 = $this->getDataGenerator()->create_user(array('username' => 'testuser1'));
+        $user2 = $this->getDataGenerator()->create_user(array('username' => 'testuser2'));
 
         // Creating several categories for future use.
-        $category1 = $this->getDataGenerator()->create_category(array('name' => 'Category 1'));
-        $category2 = $this->getDataGenerator()->create_category(array('name' => 'Category 2'));
-        $category3 = $this->getDataGenerator()->create_category(array('name' => 'Category 3'));
+        $category1 = $this->getDataGenerator()->create_category(array('name' => 'Test Category 1'));
+        $category2 = $this->getDataGenerator()->create_category(array('name' => 'Test Category 2'));
+        $category3 = $this->getDataGenerator()->create_category(array('name' => 'Test Category 3'));
 
         // Recovering the manager role data.
         $managerrole = $DB->get_record('role', array('shortname' => 'manager'));
 
         // Recovering the context of the categories.
-        $contextcat1 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category1->id));
-        $contextcat2 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category2->id));
-        $contextcat3 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category3->id));
+        $contextcategory1 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category1->id));
+        $contextcategory2 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category2->id));
+        $contextcategory3 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category3->id));
 
         // Enroling user1 in category 1 and category 2.
         $record1 = new stdClass();
         $record1->roleid = $managerrole->id;
-        $record1->contextid = $contextcat1->id;
+        $record1->contextid = $contextcategory1->id;
         $record1->userid = $user1->id;
         $lastinsertid = $DB->insert_record('role_assignments', $record1);
         $record2 = new stdClass();
         $record2->roleid = $managerrole->id;
-        $record2->contextid = $contextcat2->id;
+        $record2->contextid = $contextcategory2->id;
         $record2->userid = $user1->id;
         $lastinsertid = $DB->insert_record('role_assignments', $record2);
 
@@ -1402,7 +1402,6 @@ class local_eudecustom_testcase extends advanced_testcase {
      */
     public function test_configureprofiledata () {
 
-        require_once("/../classes/models/local_eudecustom_eudeprofile.class.php");
         global $USER;
         global $DB;
         global $CFG;
@@ -1951,13 +1950,13 @@ class local_eudecustom_testcase extends advanced_testcase {
         $category2 = $this->getDataGenerator()->create_category(array('name' => 'Category 2'));
 
         // Creating several courses and assign each to one of the categories above.
-        $course1 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'Normal course 1', 'category' => $category1->id));
-        $course2 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'Normal course 2', 'category' => $category1->id));
-        $course3 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'MI.Normal course 1', 'category' => $category2->id));
-        $course4 = $this->getDataGenerator()->create_course(
+        $this->getDataGenerator()->create_course(
                 array('shortname' => 'MI.Normal course 2', 'category' => $category2->id));
 
         // Creating initial data ($data1 and $data6 are the only strings with correct info).
@@ -2133,15 +2132,15 @@ class local_eudecustom_testcase extends advanced_testcase {
                 array('name' => 'phpunit category 3'));
 
         // Creating courses.
-        $course1 = $this->getDataGenerator()->create_course(
+        $testcourse1 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'CAT1.M01', 'category' => $category1->id, 'fullname' => 'course1 fullname'));
-        $course2 = $this->getDataGenerator()->create_course(
+        $testcourse2 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'CAT1.M02', 'category' => $category1->id, 'fullname' => 'course2 fullname'));
-        $course3 = $this->getDataGenerator()->create_course(
+        $testcourse3 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'CAT2.M03', 'category' => $category2->id, 'fullname' => 'course3 fullname'));
-        $course4 = $this->getDataGenerator()->create_course(
+        $testcourse4 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'CAT2.M04', 'category' => $category2->id, 'fullname' => 'course4 fullname'));
-        $course5 = $this->getDataGenerator()->create_course(
+        $testcourse5 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'CAT3.M05', 'category' => $category3->id, 'fullname' => 'course4 fullname'));
 
         // Getting the id of the roles.
@@ -2149,11 +2148,11 @@ class local_eudecustom_testcase extends advanced_testcase {
         $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
 
         // Enrolling teacher in all courses.
-        $this->getDataGenerator()->enrol_user($user1->id, $course1->id, $teacherrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($user1->id, $course2->id, $teacherrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($user1->id, $course3->id, $teacherrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($user1->id, $course4->id, $teacherrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($user1->id, $course5->id, $teacherrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $testcourse1->id, $teacherrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $testcourse2->id, $teacherrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $testcourse3->id, $teacherrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $testcourse4->id, $teacherrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $testcourse5->id, $teacherrole->id, 'manual');
 
         $prevstart = time() - 20000;
         $prevend = time() + 90000;
@@ -2163,11 +2162,11 @@ class local_eudecustom_testcase extends advanced_testcase {
         $nextend = time() + 90000;
 
         // Enrolling student in c1(prev), c2(actual), c3(actual), c4(next).
-        $this->getDataGenerator()->enrol_user($user2->id, $course1->id, $studentrole->id, 'manual', $prevstart, $prevend);
-        $this->getDataGenerator()->enrol_user($user2->id, $course2->id, $studentrole->id, 'manual', $actualstart, $actualend);
-        $this->getDataGenerator()->enrol_user($user2->id, $course3->id, $studentrole->id, 'manual', $actualstart, $actualend);
-        $this->getDataGenerator()->enrol_user($user2->id, $course4->id, $studentrole->id, 'manual', $nextstart, $nextend);
-        $this->getDataGenerator()->enrol_user($user2->id, $course5->id, $studentrole->id, 'manual', $nextstart, $nextend);
+        $this->getDataGenerator()->enrol_user($user2->id, $testcourse1->id, $studentrole->id, 'manual', $prevstart, $prevend);
+        $this->getDataGenerator()->enrol_user($user2->id, $testcourse2->id, $studentrole->id, 'manual', $actualstart, $actualend);
+        $this->getDataGenerator()->enrol_user($user2->id, $testcourse3->id, $studentrole->id, 'manual', $actualstart, $actualend);
+        $this->getDataGenerator()->enrol_user($user2->id, $testcourse4->id, $studentrole->id, 'manual', $nextstart, $nextend);
+        $this->getDataGenerator()->enrol_user($user2->id, $testcourse5->id, $studentrole->id, 'manual', $nextstart, $nextend);
 
         // Test1: check cat1. Should return module 2.
         $result = get_actual_module($category1->id);
@@ -2280,40 +2279,19 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         // Test1: get data from course1.
         $result = get_students_course_data($course1->id, $actualmodule);
-        $this->assertEquals($c1->id, $result->id);
-        $this->assertEquals($c1->shortname, $result->shortname);
-        $this->assertEquals($c1->fullname, $result->fullname);
-        $this->assertEquals($c1->timestart, $result->timestart);
-        $this->assertEquals($c1->timeend, $result->timeend);
-        $this->assertEquals($c1->userid, $result->userid);
-        $this->assertEquals($c1->category, $result->category);
-        $this->assertEquals($c1->date, $result->date);
-
+        $this->assertEquals($c1, $result);
+        
         // Test2: get data from course 3.
         $result = get_students_course_data($course3->id, $actualmodule);
-        $this->assertEquals($c3->id, $result->id);
-        $this->assertEquals($c3->shortname, $result->shortname);
-        $this->assertEquals($c3->fullname, $result->fullname);
-        $this->assertEquals($c3->timestart, $result->timestart);
-        $this->assertEquals($c3->timeend, $result->timeend);
-        $this->assertEquals($c3->userid, $result->userid);
-        $this->assertEquals($c3->category, $result->category);
-        $this->assertEquals($c3->date, $result->date);
+        $this->assertEquals($c3, $result);
 
         // Test3: get data from course 4. (no student enrolled, shoud get date->actual.
         $result = get_students_course_data($course4->id, $actualmodule);
-        $this->assertEquals($c4->id, $result->id);
-        $this->assertEquals($c4->shortname, $result->shortname);
-        $this->assertEquals($c4->fullname, $result->fullname);
-        $this->assertEquals($c4->timestart, $result->timestart);
-        $this->assertEquals($c4->timeend, $result->timeend);
-        $this->assertEquals($c4->userid, $result->userid);
-        $this->assertEquals($c4->category, $result->category);
-        $this->assertEquals($c4->date, $result->date);
+        $this->assertEquals($c4, $result);
 
         // Test4: get data from course 5. (Should get date->actual because is intensive).
         $result = get_students_course_data($course5->id, $actualmodule);
-        $this->assertEquals($c5->id, $result->id);
+        $this->assertEquals($c5, $result);
         $this->assertEquals($c5->shortname, $result->shortname);
         $this->assertEquals($c5->fullname, $result->fullname);
         $this->assertEquals($c5->timestart, $result->timestart);
@@ -2333,31 +2311,31 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         // Creating users.
         $user1 = $this->getDataGenerator()->create_user(
-                array('username' => 'user1'));
+                array('username' => 'unituser1'));
 
         // Creating categories.
         $category1 = $this->getDataGenerator()->create_category(
-                array('name' => 'phpunit category 1'));
+                array('name' => 'PHP Unit cat 1'));
 
         // Creating courses.
-        $course1 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'CAT1.M01', 'category' => $category1->id, 'fullname' => 'course1 fullname'));
+        $unitcourse1 = $this->getDataGenerator()->create_course(
+                array('shortname' => 'CAT1.M01', 'category' => $category1->id, 'fullname' => 'PHP Unit Course 1'));
 
         // Creating announcements forum and another 2 general ones.
-        $ann1 = $this->getDataGenerator()->create_module('forum', array('course' => $course1->id, 'type' => 'news'));
-        $forum1 = $this->getDataGenerator()->create_module('forum', array('course' => $course1->id, 'type' => 'general'));
-        $forum2 = $this->getDataGenerator()->create_module('forum', array('course' => $course1->id, 'type' => 'general'));
+        $ann1 = $this->getDataGenerator()->create_module('forum', array('course' => $unitcourse1->id, 'type' => 'news'));
+        $forum1 = $this->getDataGenerator()->create_module('forum', array('course' => $unitcourse1->id, 'type' => 'general'));
+        $forum2 = $this->getDataGenerator()->create_module('forum', array('course' => $unitcourse1->id, 'type' => 'general'));
 
         // Creating 3 assignments.
-        $as1 = $this->getDataGenerator()->create_module('assign', array('course' => $course1->id));
-        $as2 = $this->getDataGenerator()->create_module('assign', array('course' => $course1->id));
-        $as3 = $this->getDataGenerator()->create_module('assign', array('course' => $course1->id));
+        $as1 = $this->getDataGenerator()->create_module('assign', array('course' => $unitcourse1->id));
+        $as2 = $this->getDataGenerator()->create_module('assign', array('course' => $unitcourse1->id));
+        $as3 = $this->getDataGenerator()->create_module('assign', array('course' => $unitcourse1->id));
 
         // Create course object for param.
         $param = new stdClass();
-        $param->id = $course1->id;
-        $param->shortname = $course1->shortname;
-        $param->fullname = $course1->fullname;
+        $param->id = $unitcourse1->id;
+        $param->shortname = $unitcourse1->shortname;
+        $param->fullname = $unitcourse1->fullname;
         $param->timestart = 0;
         $param->timeend = 0;
         $param->userid = $user1->id;
@@ -2398,9 +2376,9 @@ class local_eudecustom_testcase extends advanced_testcase {
         $a3->course = $as3->course;
 
         $c1 = new stdClass();
-        $c1->id = $course1->id;
-        $c1->shortname = $course1->shortname;
-        $c1->fullname = $course1->fullname;
+        $c1->id = $unitcourse1->id;
+        $c1->shortname = $unitcourse1->shortname;
+        $c1->fullname = $unitcourse1->fullname;
         $c1->timestart = 0;
         $c1->timeend = 0;
         $c1->userid = $user1->id;
@@ -2413,17 +2391,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         // Test1: get object with forums and assignments.
         $result = add_course_activities($param);
 
-        $this->assertEquals($c1->id, $result->id);
-        $this->assertEquals($c1->shortname, $result->shortname);
-        $this->assertEquals($c1->fullname, $result->fullname);
-        $this->assertEquals($c1->timestart, $result->timestart);
-        $this->assertEquals($c1->timeend, $result->timeend);
-        $this->assertEquals($c1->userid, $result->userid);
-        $this->assertEquals($c1->category, $result->category);
-        $this->assertEquals($c1->date, $result->date);
-        $this->assertEquals($c1->forums, $result->forums);
-        $this->assertEquals($c1->notices, $result->notices);
-        $this->assertEquals($c1->assigns, $result->assigns);
+        $this->assertEquals($c1, $result);
         $this->assertCount(3, $result->assigns);
         $this->assertCount(2, $result->forums);
     }
