@@ -270,7 +270,7 @@ class behat_local_eudecustom extends behat_base {
         global $DB;
         $coursedata = $DB->get_record('course', array('shortname' => 'MI.C1'));
         $enroldata = $DB->get_record('enrol', array('courseid' => $coursedata->id, 'enrol' => 'manual'));
-        $enrolmentdata = $DB->get_record('user_enrolment', array('enrolid' => $enroldata->id));
+        $enrolmentdata = $DB->get_record('user_enrolments', array('enrolid' => $enroldata->id));
 
         // Font awesome is required for click on editing dates.
         // include('C:\xampp\htdocs\moodle30\theme\font-awesome-4.7.0\css\font-awesome.min.css');
@@ -350,7 +350,7 @@ class behat_local_eudecustom extends behat_base {
         $event->timeduration = $duration;
         $event->userid = $userid;
 
-        calendar_event::create($event); // Create the event.        
+        calendar_event::create($event);
     }
 
     /**
@@ -431,8 +431,8 @@ class behat_local_eudecustom extends behat_base {
     }
 
     /**
-    * @when /^I add events/
-    */
+     * @when /^I add events/
+     */
     public function add_events() {
         global $DB;
         $coursedata = $DB->get_record('course', array('shortname' => 'M01'));

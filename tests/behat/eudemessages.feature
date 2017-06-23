@@ -41,11 +41,11 @@ Feature: Write a message
     And I log out
     And I log in as "user2"
     When I follow "Messages" in the user menu
-    Then I should see "User 1" in the "conversations" "message_area_region_content"
+    Then I should see "User 1"
     And I log out
     And I log in as "user3"
     When I follow "Messages" in the user menu
-    Then I should see "User 1" in the "conversations" "message_area_region_content"
+    Then I should see "User 1"
     And I log out
 
   Scenario: Send a message to Another teacher
@@ -60,7 +60,7 @@ Feature: Write a message
     And I log out
     And I log in as "user4"
     When I follow "Messages" in the user menu
-    Then I should see "User 1" in the "conversations" "message_area_region_content"
+    Then I should see "User 1"
     And I log out
   
   Scenario: Leave receiver option empty

@@ -568,7 +568,9 @@ function grades ($cid, $userid) {
  */
 function get_user_all_courses ($userid) {
     global $DB;
-    $sql = 'SELECT  DISTINCT c.*
+    
+    $role = $DB->get_record('role', array('shortname' => 'student'));
+    $sql = "SELECT  DISTINCT c.*
               FROM {course} c
               JOIN (SELECT DISTINCT e.courseid
                       FROM {enrol} e
@@ -584,15 +586,14 @@ function get_user_all_courses ($userid) {
                             AND ra.contextid = ctx.id
                             AND ra.userid = :user
                             )
-             WHERE c.format <> :format AND ra.id IS NOT NULL
-             ORDER BY c.visible DESC, c.sortorder ASC';
+             WHERE c.format NOT LIKE 'site' AND ra.id IS NOT NULL
+             ORDER BY c.visible DESC, c.sortorder ASC";
     $data = $DB->get_records_sql($sql,
             array(
         'userid' => $userid,
         'user' => $userid,
         'context' => CONTEXT_COURSE,
-        'format' => 'site',
-        'role' => '5'));
+        'role' => $role->id));
     return $data;
 }
 
@@ -885,7 +886,8 @@ function get_usercourses_by_rol ($userid) {
                   AND CTX.contextlevel = :context
                   AND (R.shortname = :role1
                    OR R.shortname = :role2
-                   OR R.shortname = :role3)';
+                   OR R.shortname = :role3)
+             ORDER BY C.id';
 
     $rolrecords = $DB->get_records_sql($rolsql,
             array(
@@ -936,7 +938,7 @@ function get_students_course_data ($courseid, $actualmodule) {
     global $DB;
 
     $role = $DB->get_record('role', array('shortname' => 'student'))->id;
-    $sql = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name AS 'category'
+    $sql = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name AS 'category name'
                     FROM {course} C
                     JOIN {course_categories} CC ON C.category = CC.id
                     JOIN {context} CTX ON C.id = CTX.instanceid
@@ -966,7 +968,7 @@ function get_students_course_data ($courseid, $actualmodule) {
             $res->date = 'actual';
         }
     } else {
-        $sql2 = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name AS 'category'
+        $sql2 = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name AS 'category name'
                     FROM {course} C
                     JOIN {course_categories} CC ON C.category = CC.id
                     JOIN {context} CTX ON C.id = CTX.instanceid
@@ -1323,7 +1325,7 @@ function validatedate($date, $format = 'Y-m-d H:i:s') {
  * @param string $courseshortname string with the shortname of the course
  * @return stdClass $course;
  */
-function findcategory($courseshortname){
+function findcategory($courseshortname) {
     global $DB;
     // If the course is not integrated yet, we find the category by the course shortname index.
     if ($DB->record_exists('course', array('shortname' => $courseshortname))) {
@@ -1351,7 +1353,7 @@ function findcategory($courseshortname){
  * @param object $data object with the course data.
  * @return string $html;
  */
-function get_intensive_action($data){
+function get_intensive_action($data) {
     if ($data->action == 'notenroled') {
         switch ($data->actiontitle) {
             case get_string('bringforward', 'local_eudecustom'):
@@ -1386,7 +1388,7 @@ function get_intensive_action($data){
  *
  * @return string $html;
  */
-function generate_event_keys($modal = ''){
+function generate_event_keys($modal = '') {
     $html = html_writer::tag('h3', get_string('eventkeytitle', 'local_eudecustom'));
     $html .= html_writer::start_tag('ul', array('class' => 'eventkey'));
 
@@ -1463,6 +1465,5 @@ function generate_event_keys($modal = ''){
     $html .= html_writer::end_tag('div');
 
     $html .= html_writer::end_tag('ul');
-    
     return $html;
 }

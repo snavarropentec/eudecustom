@@ -2076,6 +2076,8 @@ class local_eudecustom_testcase extends advanced_testcase {
         $c4 = ['course' => $course4->id, 'category' => $category2->id];
 
         $expected = array($c1, $c2, $c3, $c4);
+        echo "expected:";var_dump($expected);
+        echo "result:";var_dump($result);
         $this->assertEquals($expected, $result);
     }
 
@@ -2209,15 +2211,15 @@ class local_eudecustom_testcase extends advanced_testcase {
                 array('shortname' => 'MI.CAT2.M05', 'category' => $category1->id, 'fullname' => 'Intensive course5 fullname'));
 
         // Getting the id of the roles.
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-        $teacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
+        $studentroleid = $DB->get_record('role', array('shortname' => 'student'));
+        $teacherroleid = $DB->get_record('role', array('shortname' => 'teacher'));
 
         // Enrolling teacher in all courses.
-        $this->getDataGenerator()->enrol_user($user1->id, $course1->id, $teacherrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($user1->id, $course2->id, $teacherrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($user1->id, $course3->id, $teacherrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($user1->id, $course4->id, $teacherrole->id, 'manual');
-        $this->getDataGenerator()->enrol_user($user1->id, $course5->id, $teacherrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $course1->id, $teacherroleid->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $course2->id, $teacherroleid->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $course3->id, $teacherroleid->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $course4->id, $teacherroleid->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user1->id, $course5->id, $teacherroleid->id, 'manual');
 
         $prestart = time() - 20000;
         $preend = time() - 10000;
