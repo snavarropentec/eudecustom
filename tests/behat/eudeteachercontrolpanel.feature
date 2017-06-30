@@ -48,7 +48,7 @@ Scenario: Check course distribution
     Given I log in as "user1"
     And I go to eudeteachercontrolpanel
     # Categories should appear in "my courses section".
-    And I should see "Cat1" in the "div.row.row-panel-list > li:nth-child(1) > div > a > span" "css_element"
+    And I should see "Cat1" in the "//div[@class='row eude_panel_bg']/div/div[1]/div[1]/div[2]/li[1]/div/a/span" "xpath_element"
     # Course 4 doesnt have a student enrolment, so it should appear in actual section.
     And I should see "CAT2.M04" in the "//div[@class='row eude_panel_bg']/div/div[2]/div[1]" "xpath_element"
     # Course 3 is intensive, so it should appear in actual section.

@@ -569,31 +569,26 @@ function grades ($cid, $userid) {
 function get_user_all_courses ($userid) {
     global $DB;
 
+    $sitecourse = $DB->get_record('course', array('format' => 'site'));
     $role = $DB->get_record('role', array('shortname' => 'student'));
-    $sql = "SELECT  DISTINCT c.*
-              FROM {course} c
-              JOIN (SELECT DISTINCT e.courseid
-                      FROM {enrol} e
-                      JOIN {user_enrolments} ue
-                      ON (ue.enrolid = e.id AND ue.userid = :userid)
-                      ) en
-                      ON (en.courseid = c.id)
-                      JOIN {context} ctx
-                      JOIN {role_assignments} ra
-                      ON (ctx.instanceid = c.id
-                            AND ctx.contextlevel = :context
-                            AND ra.roleid = :role
-                            AND ra.contextid = ctx.id
-                            AND ra.userid = :user
-                            )
-             WHERE c.format NOT LIKE 'site' AND ra.id IS NOT NULL
-             ORDER BY c.visible DESC, c.sortorder ASC";
+    $sql = 'SELECT DISTINCT c.*
+              FROM {role_assignments} ra
+              JOIN {role} r ON r.id = ra.roleid
+              JOIN {context} ctx ON ctx.id = ra.contextid
+              JOIN {course} c ON c.id = ctx.instanceid
+             WHERE ctx.contextlevel = :context
+               AND ra.roleid = :role
+               AND ra.contextid = ctx.id
+               AND ra.userid = :user
+               AND c.id > :site
+          ORDER BY c.visible DESC, c.sortorder ASC';
     $data = $DB->get_records_sql($sql,
             array(
         'userid' => $userid,
         'user' => $userid,
         'context' => CONTEXT_COURSE,
-        'role' => $role->id));
+        'role' => $role->id,
+        'site' => $sitecourse->id));
     return $data;
 }
 
@@ -673,21 +668,39 @@ function configureprofiledata ($userid) {
                         $object->name = $mycourse->shortname;
                         $object->cat = ' cat' . $mycourse->category;
                         $object->id = ' mod' . $mycourse->id;
-
-                        $sql = 'SELECT FROM_UNIXTIME(u.timestart,"%d/%m/%Y") AS time, u.timestart
-                                  FROM {user_enrolments} u
-                                  JOIN {enrol} e
-                                 WHERE u.enrolid = e.id
-                                   AND e.courseid = :courseid
-                                   AND u.userid = :userid
-                              ORDER BY u.timestart DESC
-                                 LIMIT 1';
+                        $type = strpos($CFG->dbtype, 'pgsql');
+                        if ($type || $type === 0) {
+                            $sql = "SELECT to_char(to_timestamp(u.timestart),'DD/MM/YYYY') AS time, u.timestart
+                                      FROM {user_enrolments} u
+                                      JOIN {enrol} e ON u.enrolid = e.id
+                                     WHERE e.courseid = :courseid
+                                       AND u.userid = :userid
+                                  ORDER BY u.timestart DESC
+                                     LIMIT 1";
+                        } else {
+                            $sql = 'SELECT FROM_UNIXTIME(u.timestart,"%d/%m/%Y") AS time, u.timestart
+                                      FROM {user_enrolments} u
+                                      JOIN {enrol} e
+                                     WHERE u.enrolid = e.id
+                                       AND e.courseid = :courseid
+                                       AND u.userid = :userid
+                                  ORDER BY u.timestart DESC
+                                     LIMIT 1';
+                        }
                         $time = $DB->get_record_sql($sql, array('courseid' => $modint->id, 'userid' => $userid));
-
-                        $sql = 'SELECT FROM_UNIXTIME(fecha1,"%d/%m/%Y") AS f1, FROM_UNIXTIME(fecha2,"%d/%m/%Y") AS f2,
-                            FROM_UNIXTIME(fecha3,"%d/%m/%Y") AS f3, FROM_UNIXTIME(fecha4,"%d/%m/%Y") AS f4
-                            FROM {local_eudecustom_call_date}
-                            WHERE courseid = :courseid';
+                        if ($type || $type === 0) {
+                            $sql = "SELECT to_char(to_timestamp(fecha1),'DD/MM/YYYY') AS f1,
+                                to_char(to_timestamp(fecha2),'DD/MM/YYYY') AS f2,
+                                to_char(to_timestamp(fecha3),'DD/MM/YYYY') AS f3,
+                                to_char(to_timestamp(fecha4),'DD/MM/YYYY') AS f4
+                                FROM {local_eudecustom_call_date}
+                                WHERE courseid = :courseid";
+                        } else {
+                            $sql = 'SELECT FROM_UNIXTIME(fecha1,"%d/%m/%Y") AS f1, FROM_UNIXTIME(fecha2,"%d/%m/%Y") AS f2,
+                                FROM_UNIXTIME(fecha3,"%d/%m/%Y") AS f3, FROM_UNIXTIME(fecha4,"%d/%m/%Y") AS f4
+                                FROM {local_eudecustom_call_date}
+                                WHERE courseid = :courseid';
+                        }
                         $convoc = $DB->get_record_sql($sql, array('courseid' => $modint->id));
                         $matriculado = false;
                         if ($time) {
@@ -717,8 +730,8 @@ function configureprofiledata ($userid) {
 
                                 $sql = "SELECT $date AS fecha
                                           FROM {local_eudecustom_call_date} f
-                                          JOIN {course} c
-                                         WHERE f.courseid = c.id AND c.category = :category
+                                          JOIN {course} c ON f.courseid = c.id
+                                         WHERE c.category = :category
                                          ORDER BY fecha ASC
                                          LIMIT 1";
                                 $startconv = $DB->get_record_sql($sql, array('category' => $modint->category));
@@ -938,7 +951,7 @@ function get_students_course_data ($courseid, $actualmodule) {
     global $DB;
 
     $role = $DB->get_record('role', array('shortname' => 'student'))->id;
-    $sql = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name 'category name'
+    $sql = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name
                     FROM {course} C
                     JOIN {course_categories} CC ON C.category = CC.id
                     JOIN {context} CTX ON C.id = CTX.instanceid
@@ -968,7 +981,7 @@ function get_students_course_data ($courseid, $actualmodule) {
             $res->date = 'actual';
         }
     } else {
-        $sql2 = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name 'category name'
+        $sql2 = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name
                     FROM {course} C
                     JOIN {course_categories} CC ON C.category = CC.id
                     JOIN {context} CTX ON C.id = CTX.instanceid
@@ -1207,6 +1220,16 @@ function get_intensivecourse_data ($course, $studentid) {
 function integrate_previous_data ($data) {
     global $DB;
     $completed = false;
+    // These are the categories name of the courses we are going to integrate.
+    $categoryequivalencyname = array('MBA' => 'MBA',
+        'COI' => 'Comercio Internacional',
+        'ECR' => 'ESPECIALIDAD CALIDAD Y RSC (ONLINE)',
+        'GEA' => 'Gestión Ambiental',
+        'LOG' => 'Logística',
+        'MAR' => 'Marketing',
+        'MAD' => 'Marketing Digital',
+        'PMP' => 'PMP',
+        'RRHH' => 'RRHH');
     try {
         $transaction = $DB->start_delegated_transaction();
         $registers = preg_split('/\r\n|\r|\n/', $data);
@@ -1224,7 +1247,15 @@ function integrate_previous_data ($data) {
                 throw new Exception('Error');
             }
             if (array_key_exists(2, $register)) {
+                /*
+                 * We explode the $courseshortname and get the category name (as the shortnames
+                 * have this format MI.xxxxx.yyyy, so xxxx is the index of the name of the course's category name
+                 * within $categoryequivalencyname)
+                 */
                 $courseshortname = $register[2];
+                $coursecategorynamearray = explode(".", $courseshortname);
+                $coursecategoryname = $categoryequivalencyname[$coursecategorynamearray[1]];
+                $coursecategory = $DB->get_record('course_categories', array('name' => $coursecategoryname));
             } else {
                 throw new Exception('Error');
             }
@@ -1234,7 +1265,6 @@ function integrate_previous_data ($data) {
                  * a new entry/update if record exists in local_eudecustom_user.
                  */
                 case 'CREATE':
-
                     if (array_key_exists(3, $register) && validatedate($register[3], 'd/m/Y')) {
                         $unixdate = DateTime::createFromFormat('d/m/Y', $register[3])->getTimestamp();
                     } else {
@@ -1245,7 +1275,6 @@ function integrate_previous_data ($data) {
                     } else {
                         throw new Exception('Error');
                     }
-
                     // New entry in local_eudecustom_mat_int.
                     $record1 = new stdClass();
                     $record1->user_email = $useremail;
@@ -1253,9 +1282,9 @@ function integrate_previous_data ($data) {
                     $record1->matriculation_date = $unixdate;
                     $record1->conv_number = $convnumber;
                     $DB->insert_record('local_eudecustom_mat_int', $record1);
-                    $course = findcategory($courseshortname);
                     $record2 = $DB->get_record('local_eudecustom_user',
-                            array('user_email' => $useremail, 'course_category' => $course->category));
+                            array('user_email' => $useremail, 'course_category' => $coursecategory->id));
+
                     // Create/Update entry in local_eudecustom_user.
                     if ($record2) {
                         $record2->num_intensive = $record2->num_intensive + 1;
@@ -1263,10 +1292,11 @@ function integrate_previous_data ($data) {
                     } else {
                         $record = new stdClass();
                         $record->user_email = $useremail;
-                        $record->course_category = $course->category;
+                        $record->course_category = $coursecategory->id;
                         $record->num_intensive = 1;
                         $DB->insert_record('local_eudecustom_user', $record);
                     }
+
                     break;
                 /*
                  * With DELETE action we delete all the records in local_eudecustom_mat_int of that course related
@@ -1278,10 +1308,9 @@ function integrate_previous_data ($data) {
                             array('user_email' => $useremail, 'course_shortname' => $courseshortname));
                     $DB->delete_records('local_eudecustom_mat_int',
                             array('user_email' => $useremail, 'course_shortname' => $courseshortname));
-                    $course = findcategory($courseshortname);
                     // Delete/Update entry in local_eudecustom_user.
                     $record2 = $DB->get_record('local_eudecustom_user',
-                            array('user_email' => $useremail, 'course_category' => $course->category));
+                            array('user_email' => $useremail, 'course_category' => $coursecategory->id));
                     if ($record2) {
                         $record2->num_intensive = $record2->num_intensive - count($records);
                         // If the new number is > 0 we make an update, else we make a delete.
@@ -1292,7 +1321,6 @@ function integrate_previous_data ($data) {
                         }
                     }
                     break;
-
                 default:
                     break;
             }
@@ -1320,34 +1348,6 @@ function validatedate($date, $format = 'Y-m-d H:i:s') {
 }
 
 /**
- * This function find the category of a course
- *
- * @param string $courseshortname string with the shortname of the course
- * @return stdClass $course;
- */
-function findcategory($courseshortname) {
-    global $DB;
-    // If the course is not integrated yet, we find the category by the course shortname index.
-    if ($DB->record_exists('course', array('shortname' => $courseshortname))) {
-        $course = $DB->get_record('course', array('shortname' => $courseshortname));
-    } else {
-        /*
-         * If the course dont exist, we explode the shortname and get the category name (as the shortnames
-         * have this format MI.xxxxx.yyyy, so xxxx is the name of the course's category name)
-        */
-        $coursecategoryname = explode(".", $courseshortname);
-        if ($DB->record_exists('course_categories', array('name' => $coursecategoryname[1]))) {
-            $coursecategory = $DB->get_record('course_categories', array('name' => $coursecategoryname[1]));
-        } else {
-            throw new Exception('Error');
-        }
-        $course = new stdClass();
-        $course->category = $coursecategory->id;
-    }
-    return $course;
-}
-
-/**
  * This function get the action print of intensive courses
  *
  * @param object $data object with the course data.
@@ -1355,32 +1355,20 @@ function findcategory($courseshortname) {
  */
 function get_intensive_action($data) {
     if ($data->action == 'notenroled') {
-        switch ($data->actiontitle) {
-            case get_string('bringforward', 'local_eudecustom'):
-                $html = html_writer::tag('button', get_string('bringforward', 'local_eudecustom'),
-                                array('class' => $data->actionclass, 'id' => $data->actionid));
-                break;
-            case get_string('retest', 'local_eudecustom'):
-                $html = html_writer::tag('button', get_string('retest', 'local_eudecustom'),
-                                array('class' => $data->actionclass, 'id' => $data->actionid));
-                break;
-            case get_string('increasegrades', 'local_eudecustom'):
-                $html = html_writer::tag('button', get_string('increasegrades', 'local_eudecustom'),
-                                array('class' => $data->actionclass, 'id' => $data->actionid));
-                break;
-            default:
-                $html = '';
-                break;
-        }
+        $cell = html_writer::tag('button', $data->actiontitle,
+                array('class' => $data->actionclass, 'id' => $data->actionid));
     } else if ($data->action == 'outweek') {
         $html = html_writer::tag('span', $data->actiontitle, array('class' => 'eudeprofilespan'));
-        $html .= html_writer::tag('i', '·', array('id' => $data->actionid,
+        $html .= html_writer::tag('i', '·', array(
+                        'id' => $data->actionid,
                         'class' => 'fa fa-pencil-square-o ' . $data->actionclass,
                         'aria-hidden' => 'true'));
+        $cell = new \html_table_cell($html);
     } else {
         $html = html_writer::tag('span', $data->actiontitle, array('class' => 'eudeprofilespan'));
+        $cell = new \html_table_cell($html);
     }
-    return $html;
+    return $cell;
 }
 
 /**

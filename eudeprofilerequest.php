@@ -72,8 +72,11 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                     if ($USER->id == $studentid && !$studentvalrole) {
                         $ok = false;
                         foreach ($newdata as $newd) {
-                            $html = get_intensive_action($newd);
-                            $cell = new \html_table_cell($html);
+                            if ($newd->name == $row->name) {
+                                $ok = true;
+                                $cell = get_intensive_action($newd);
+                                break;
+                            }
                         }
                         if ($ok == false) {
                             $cell = new \html_table_cell('');
@@ -146,8 +149,11 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                         $tr->cells[] = $cell;
                         $ok = false;
                         foreach ($newdata as $newd) {
-                            $html = get_intensive_action($newd);
-                            $cell = new \html_table_cell($html);
+                            if ($newd->name == $row->name) {
+                                $ok = true;
+                                $cell = get_intensive_action($newd);
+                                break;
+                            }
                         }
                         if ($ok == false) {
                             $cell = new \html_table_cell('');
@@ -155,10 +161,10 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                         $tr->cells[] = $cell;
                         $html = html_writer::tag('span', $row->attempts, array('class' => 'attempts'));
                         if ($row->attempts > 0) {
-                            $html .= html_writer::empty_tag('i',
-                                            array('id' => 'info', 'class' => 'fa fa-info-circle',
-                                                'title' => $newd->info,
-                                                'aria-hidden' => 'true'));
+                            $html .= html_writer::tag('i', '·', array(
+                                    'id' => $data->actionid,
+                                    'class' => 'fa fa-pencil-square-o ' . $data->actionclass,
+                                    'aria-hidden' => 'true'));
                         }
                         $cell = new \html_table_cell($html);
                         $tr->cells[] = $cell;

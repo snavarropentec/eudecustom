@@ -10,15 +10,15 @@ Feature: Test the 'integratedata' feature works.
       | student1 | student1@example.com |
       | student2 | student2@example.com |
     And the following "categories" exist:
-      | name  | idnumber |
-      | Cat 1 | CAT1     |
-      | Cat 2 | CAT2     |
+      | name | idnumber |
+      | Comercio Internacional | CAT1     |
+      | Logística | CAT2     |
     And the following "courses" exist:
-      | category | shortname          | idnumber |
-      | CAT1     | Normal course 1    | C1       |
-      | CAT1     | Normal course 2    | C2       |
-      | CAT2     | MI.Normal course 1 | C3       |
-      | CAT2     | MI.Normal course 2 | C4       |
+      | category | shortname               | idnumber |
+      | CAT1     | COI.Normal course 1    | C1       |
+      | CAT1     | LOG.Normal course 2    | C2       |
+      | CAT2     | MI.COI.Normal course 1 | C3       |
+      | CAT2     | MI.LOG.Normal course 2 | C4       |
 
   # Given the admin fills correct data in the textarea and click the 'Integrata textarea data' button a notification
   # appears with the message.
@@ -28,10 +28,10 @@ Feature: Test the 'integratedata' feature works.
     And I go to eude integration
     When I set the field "integrationtext" to multiline:
     """
-    CREATE;student1@example.com;Normal course 1;21/01/2017;1
-    CREATE;student2@example.com;Normal course 2;21/01/2017;2
-    DELETE;student1@example.com;MI.Normal course 1
-    CREATE;student2@example.com;MI.Normal course 2;21/01/2017;4
+    CREATE;student1@example.com;MI.COI.Normal course 1;21/01/2017;1
+    CREATE;student2@example.com;MI.LOG.Normal course 2;21/01/2017;2
+    DELETE;student1@example.com;MI.COI.Normal course 1
+    CREATE;student2@example.com;MI.LOG.Normal course 2;21/01/2017;4
     """
     And I press "processtext"
     Then I should see "Data integrated successfully"
