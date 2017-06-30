@@ -276,7 +276,8 @@ function get_course_students ($courseid) {
                AND ra.contextid = cxt.id
                AND cxt.contextlevel = :contextlevel
                AND cxt.instanceid = :course
-               AND  r.shortname = :shortname';
+               AND  r.shortname = :shortname
+             ORDER BY u.lastname';
     $data = $DB->get_records_sql($sql,
             array(
         'contextlevel' => CONTEXT_COURSE,
