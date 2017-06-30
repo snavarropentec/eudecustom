@@ -737,11 +737,11 @@
                     });
                     var cat = $('#categoryselect').text();
                     var options = $('#menucategoryname option').length;
-                    for (var i = 0; i <= options; i ++ ) {
+                    for (var i = 0; i <= options; i ++) {
                         if (cat == $('#menucategoryname option:nth-child(' + i + ')').text()) {
                             $('#menucategoryname option:nth-child(' + i + ')').attr('selected', 'selected');
                         }
-                    }   
+                    }
                 },
                 redirect: function () {
                     $('.linkselect').change(function () {
