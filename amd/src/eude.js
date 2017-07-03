@@ -735,6 +735,50 @@
                             });
                         });
                     });
+                    var cat = $('#categoryselect').text();
+                    var options = $('#menucategoryname option').length;
+                    for (var i = 0; i <= options; i ++) {
+                        if (cat == $('#menucategoryname option:nth-child(' + i + ')').text()) {
+                            $('#menucategoryname option:nth-child(' + i + ')').attr('selected', 'selected');
+                        }
+                    }
+                    var category = $('#menucategoryname').val();
+                        var numberCat = $('#menucategoryname').children().last().val();
+                        if (category !== 0) {
+                            for (var i = 0; i <= numberCat; i++) {
+                                if (i != category) {
+                                    $('.cat' + i).css('display', 'none');
+                                } else {
+                                    $('.cat' + i).css('display', 'table-row');
+                                }
+                            }
+                        } else {
+                            for (var j = 0; j < numberCat; j++) {
+                                $('.cat' + j).css('display', 'table-row');
+                            }
+                        }
+                        $.ajax({
+                            data: 'catId=' + category,
+                            url: 'eudeprofilerequest.php?profilecat=' + category,
+                            type: 'post',
+                            success: function (response, status, thrownerror) {
+                                try {
+                                    window.console.log(response);
+                                    $('#tablecontainer').empty();
+                                    $('#tablecontainer').append(response.table);
+                                    modalAction();
+                                } catch (ex) {
+                                    window.console.log(ex.message);
+                                    window.console.log(status);
+                                    window.console.log(thrownerror);
+                                }
+                            },
+                            error: function (jqXHR, status, thrownerror) {
+                                window.console.log(jqXHR.responseText);
+                                window.console.log(status);
+                                window.console.log(thrownerror);
+                            }
+                        });
                 },
                 redirect: function () {
                     $('.linkselect').change(function () {
