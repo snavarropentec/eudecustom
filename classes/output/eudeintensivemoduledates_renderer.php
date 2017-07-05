@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -78,8 +77,6 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
                         array('id' => 'form-eude-select-category', 'name' => 'form-eude-select-category', 'method' => 'get'));
         // Sesskey hidden field.
         $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => $sesskey));
-
-
         // Datepickers area.
         $html .= html_writer::start_div('col-md-12', array('id' => 'contenido-fecha-matriculas'));
         $html .= html_writer::start_tag('table', array('class' => 'table table-striped'));
@@ -108,12 +105,11 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
         // Each row is a shortname in a label with a hidden input with the course id plus 4 datepickers.
         $html .= html_writer::start_tag('tbody');
         foreach ($data->courses as $coursedata) {
-            
             $html .= html_writer::start_tag('tr', array('class' => 'coursedata'));
             // Column for the shortname label and the hidden input.
             $html .= html_writer::start_tag('td');
             $html .= html_writer::tag('span', $coursedata->shortname,
-                    array('class' => 'shortname', 'title' =>$coursedata->shortname));
+                    array('class' => 'shortname', 'title' => $coursedata->shortname));
             $html .= html_writer::empty_tag('input',
                             array('type' => 'hidden',
                                   'id' => $coursedata->shortname . '-shortname',
@@ -123,7 +119,7 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
                                   'readonly' => 'readonly')
                             );
             $html .= html_writer::end_tag('td');
-            
+
             // Columns for the datepickers.
             $html .= html_writer::start_tag('td');
             $html .= html_writer::empty_tag('input',
@@ -192,7 +188,6 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
                  'class' => 'btn btn-default',
                  'value' => 'resetfechas'));
         $html .= html_writer::end_div();
-        
         // End of form.
         $html .= html_writer::end_tag('form');
         $html .= html_writer::end_div();

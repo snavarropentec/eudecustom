@@ -100,8 +100,8 @@ class behat_local_eudecustom extends behat_base {
      */
     public function i_set_initialdates_of_intensivemodules () {
         global $DB;
-        $intensivemodule1 = $DB->get_record('course', array('shortname' => 'MI.Normal course 1'));
-        $intensivemodule2 = $DB->get_record('course', array('shortname' => 'MI.Normal course 2'));
+        $intensivemodule1 = $DB->get_record('course', array('shortname' => 'MI.Course 1'));
+        $intensivemodule2 = $DB->get_record('course', array('shortname' => 'MI.Course 2'));
         $record1 = new stdClass();
         $record1->courseid = $intensivemodule1->id;
         $record1->fecha1 = time();

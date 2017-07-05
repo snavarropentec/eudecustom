@@ -76,7 +76,6 @@ if (optional_param('savedates', null, PARAM_TEXT) == 'savedates') {
         save_matriculation_dates($coursedata);
     }
 }
-//echo'<pre>';var_dump($data);die();
 // Call the functions of the renderar that prints the content.
 // Check if the logged user is the siteadmin.
 if (has_capability('moodle/site:config', context_system::instance())) {

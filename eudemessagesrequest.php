@@ -72,20 +72,20 @@ if (optional_param('messagecourse', 0, PARAM_INT)) {
         switch ($option->shortname) {
             case 'student':
                 if (!$students) {
-                   $response .= "<option value='student'>" . get_string('student', 'local_eudecustom') . "</option>";
-                   $students = true; 
+                    $response .= "<option value='student'>" . get_string('student', 'local_eudecustom') . "</option>";
+                    $students = true;
                 }
                 break;
             case 'studentfinishing':
                 if (!$studentsfinishing) {
-                   $response .= "<option value='studentfinishing'>" . get_string('studentfinishing', 'local_eudecustom') . "</option>";
-                   $studentsfinishing = true; 
+                    $response .= "<option value='studentfinishing'>" . get_string('studentfinishing', 'local_eudecustom') . "</option>";
+                    $studentsfinishing = true;
                 }
                 break;
             case 'studentold':
                 if (!$studentold) {
-                   $response .= "<option value='studentold'>" . get_string('studentold', 'local_eudecustom') . "</option>";
-                   $studentsold = true; 
+                    $response .= "<option value='studentold'>" . get_string('studentold', 'local_eudecustom') . "</option>";
+                    $studentsold = true;
                 }
                 break;
 
@@ -97,7 +97,7 @@ if (optional_param('messagecourse', 0, PARAM_INT)) {
                     . $option->lastname
                     . "</option>";
                 break;
-        } 
+        }
     }
     if ($manager = get_role_manager($coursecat->category)) {
             $response .= "<option value=$manager->id>"

@@ -1,4 +1,4 @@
-@local @local_eudecustom
+@local @local_eudecustom @javascript
 Feature: Test the 'intensive module dates' feature works.
   In order to create or modify the intensive call dates of the intensive courses of a category
   As an admin
@@ -15,8 +15,8 @@ Feature: Test the 'intensive module dates' feature works.
       | category | shortname          | idnumber |
       | CAT1     | Normal course 1    | C1       |
       | CAT1     | Normal course 2    | C2       |
-      | CAT1     | MI.Normal course 1 | C3       |
-      | CAT1     | MI.Normal course 2 | C4       |
+      | CAT1     | MI.Course 1 | C3       |
+      | CAT1     | MI.Course 2 | C4       |
     And I set initial dates of intensive modules
 
   # Given a user without admin role tries to access the page a notification of no permissions should appear.
@@ -32,10 +32,10 @@ Feature: Test the 'intensive module dates' feature works.
     Given I log in as "admin"
     When I go to eude intensive module dates
     Then I should see "Select the matriculation dates of the intensive modules."
-    Given I set the field "categoryname" to "Cat 1"
-    And I set the field with xpath "(//td/input[@class='date1 inputdate hasDatepicker'])[2]" to "05/01/2017"
-    And I set the field with xpath "(//td/input[@class='date2 inputdate hasDatepicker'])[2]" to "05/04/2017"
-    And I set the field with xpath "(//td/input[@class='date3 inputdate hasDatepicker'])[2]" to "05/08/2017"
-    And I set the field with xpath "(//td/input[@class='date4 inputdate hasDatepicker'])[2]" to "05/12/2017"
+    Given I set the field with xpath "(//td/input[@class='date1 inputdate'])[2]" to "05/01/2017"
+    And I set the field with xpath "(//td/input[@class='date2 inputdate'])[2]" to "05/04/2017"
+    And I set the field with xpath "(//td/input[@class='date3 inputdate'])[2]" to "05/08/2017"
+    And I set the field with xpath "(//td/input[@class='date4 inputdate'])[2]" to "05/12/2017"
     Then I press "Save changes"
-    And I should not see "MI.Normal course 1"
+    And I should see "Select the matriculation dates of the intensive modules."
+    And I should not see "Normal course 1"

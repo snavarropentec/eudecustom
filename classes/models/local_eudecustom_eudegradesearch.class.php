@@ -48,7 +48,7 @@ class local_eudecustom_eudegradesearch {
      * @param array $courses asociative array with structure id=>shortname of courses
      * @param array $students asociative array with structure id=>firstname of users
      */
-    public function __construct($categories, $courses = array(), $studenttypes = array (),$students = array()) {
+    public function __construct($categories, $courses = array(), $studenttypes = array (), $students = array()) {
         $this->categories = $categories;
         $this->courses = $courses;
         $this->studenttypes = $studenttypes;

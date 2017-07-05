@@ -456,7 +456,6 @@ function get_user_shortname_courses ($userid, $category) {
               JOIN {course} co ON co.id = c.instanceid
               JOIN {course_categories} cc ON cc.id = co.category
              WHERE userid = :userid
-               AND c.shortname LIKE "%.M%"
                AND c.contextlevel = :context
                AND co.category = :category';
         $records = $DB->get_records_sql($sql,
@@ -1516,8 +1515,8 @@ function get_grade_category($category) {
                     AND gi.itemtype = :type
                     AND c.category = :category';
 
-    $grades = $DB->get_records_sql($gradessql, array('category' => $category, 'type' => 'course'));
-    $courses = $DB->get_records('course', array('category' => $category));
+    $grades = $DB->get_records_sql($gradessql, array('category' => $category->id, 'type' => 'course'));
+    $courses = $DB->get_records('course', array('category' => $category->id));
     $categorygrade = 0;
     if (sizeof($grades) == sizeof($courses)) {
         foreach ($grades as $grade) {
