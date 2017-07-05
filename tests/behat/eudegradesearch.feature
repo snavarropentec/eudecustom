@@ -16,20 +16,20 @@ Feature: Test the 'gradesearch' feature works.
       | Cat2 | CAT2     |
     And the following "courses" exist:
       | category | shortname | idnumber |
-      | CAT1     | M01       | C1       |
-      | CAT1     | M02       | C2       |
-      | CAT2     | M03       | C3       |
-      | CAT2     | M04       | C4       |
+      | CAT1     | C1.M1.M01 | C1       |
+      | CAT1     | C1.M2.M02 | C2       |
+      | CAT2     | C2.M1.M03 | C3       |
+      | CAT2     | C2.M2.M04 | C4       |
     And the following "course enrolments" exist:
-      | user  | course | role           |
-      | user1 | M01    | editingteacher |
-      | user1 | M02    | editingteacher |
-      | user1 | M03    | editingteacher |
-      | user1 | M04    | editingteacher |
-      | user2 | M01    | student        |
-      | user2 | M02    | student        |
-      | user2 | M03    | student        |
-      | user2 | M04    | student        |
+      | user  | course    | role           |
+      | user1 | C1.M1.M01 | editingteacher |
+      | user1 | C1.M2.M02 | editingteacher |
+      | user1 | C2.M1.M03 | editingteacher |
+      | user1 | C2.M2.M04 | editingteacher |
+      | user2 | C1.M1.M01 | student        |
+      | user2 | C1.M2.M02 | student        |
+      | user2 | C2.M1.M03 | student        |
+      | user2 | C2.M2.M04 | student        |
 
   # Given a teacher selects a category, course and a student he press the button to redirect him
   # to the student gradebook
