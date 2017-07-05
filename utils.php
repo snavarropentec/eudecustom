@@ -659,9 +659,7 @@ function configureprofiledata ($userid) {
     }
     // Get the enroled courses of the current user.
     if ($mycourses = get_user_all_courses($userid)) {
-        
         foreach ($mycourses as $mycourse) {
-            
             // If the course is not intensive type.
             if (substr($mycourse->shortname, 0, 3) !== 'MI.') {
                 $object = new local_eudecustom_eudeprofile();
@@ -707,7 +705,7 @@ function configureprofiledata ($userid) {
                                   ORDER BY u.timestart DESC
                                      LIMIT 1';
                         }
-                        
+
                         $time = $DB->get_record_sql($sql, array('courseid' => $modint->id, 'userid' => $userid));
                         if ($type || $type === 0) {
                             $sql = "SELECT to_char(to_timestamp(fecha1),'DD/MM/YYYY') AS f1,
@@ -939,7 +937,6 @@ function get_usercourses_by_rol ($userid) {
         $c = ['course' => $r->id, 'category' => $r->category];
         array_push($rolcourses, $c);
     }
-    
     return $rolcourses;
 }
 
@@ -1503,9 +1500,9 @@ function generate_event_keys($modal = '') {
  * @return string $category;
  */
 function get_grade_category($category) {
-    
+
     global $DB;
-    
+
     $gradessql = 'SELECT c.id, gg.finalgrade, gg.rawgrademax
                    FROM {grade_grades} gg
                    JOIN {grade_items} gi
@@ -1518,16 +1515,16 @@ function get_grade_category($category) {
     $grades = $DB->get_records_sql($gradessql, array('category' => $category->id, 'type' => 'course'));
     $courses = $DB->get_records('course', array('category' => $category->id));
     $categorygrade = 0;
-    if (sizeof($grades) == sizeof($courses)) {
+    if (count($grades) == count($courses)) {
         foreach ($grades as $grade) {
             $categorygrade += ($grade->finalgrade / $grade->rawgrademax) * 10;
         }
-        $categorygrade = $categorygrade / sizeof($grades);
+        $categorygrade = $categorygrade / count($grades);
         $categorygrade = number_format($categorygrade, 2, '.', '');
     } else {
         $categorygrade = -1;
     }
-    return $categorygrade;  
+    return $categorygrade;
 }
 
 /**
