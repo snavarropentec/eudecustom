@@ -103,9 +103,10 @@ if (optional_param('sendmessage', null, PARAM_TEXT) == 'Enviar') {
         $messagehtml = format_string(optional_param('messagetext', null, PARAM_TEXT));
         $message = $subject . '<br> ' . $messagehtml;
         $format = FORMAT_HTML;
-        // If the chosen receiver is students -> send a message to all the users with role student.
-        if (optional_param('destinatarioname', null, PARAM_TEXT) == 'students') {
-            $role = $DB->get_record('role', array('shortname' => 'student'));
+        // If the chosen receiver is some type of students -> send a message to all the users with that role.
+        $roletype = optional_param('destinatarioname', null, PARAM_TEXT);
+        if (($roletype == 'student') || ($roletype == 'studentfinishing') || ($roletype == 'studentold')) {
+            $role = $DB->get_record('role', array('shortname' => $roletype));
             $coursecontext = context_course::instance(optional_param('coursename', null, PARAM_INT));
             $students = get_role_users($role->id, $coursecontext);
             foreach ($students as $key => $value) {

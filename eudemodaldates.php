@@ -38,9 +38,10 @@ $html = html_writer::start_div('', array('id' => 'contenedor'));
 $html .= html_writer::tag('button', 'x', array('class' => 'cerrar'));
 $courseid = optional_param('idcourse', 0, PARAM_INT);
 $curso = $DB->get_record('course', array('id' => $courseid));
-$modulo = $DB->get_record('course', array('shortname' => 'MI.'.$curso->shortname));
+$idname = explode('.', $curso->shortname);
+$modulo = $DB->get_record('course', array('shortname' => 'MI.'.$idname[2]));
 
-$fechas = $DB->get_record('local_eudecustom_call_date', array('courseid' => $modulo->id));
+$fechas = $DB->get_record('local_eudecustom_call_date', array('courseid' => $curso->id));
 
 $html .= html_writer::start_tag('form',
             array('id' => 'fechas', 'name' => 'fechas', 'method' => 'post', 'action' => 'payment.php'));

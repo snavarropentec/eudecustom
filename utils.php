@@ -148,6 +148,19 @@ function get_samoo_subjects () {
 }
 
 /**
+ * This function returns an array with the different roles of a student.
+ *
+ * @return array $data associative aray with types value=>description
+ */
+function get_student_different_roles () {
+    $data = array('student' => get_string('student', 'local_eudecustom'),
+                  'studentfinishing' => get_string('studentfinishing', 'local_eudecustom'),
+                  'studentold' => get_string('studentold', 'local_eudecustom'));
+
+    return $data;
+}
+
+/**
  * This function returns all the categories with intensive courses.
  *
  * @return array $data associative array with id->name of course categories.
@@ -159,7 +172,7 @@ function get_categories_with_intensive_modules () {
               FROM {course_categories} cc
              WHERE cc.id IN  (SELECT DISTINCT c.category
                                 FROM {course} c
-                               WHERE c.shortname LIKE 'MI.%')";
+                               WHERE c.shortname LIKE '%.M%')";
     $records = $DB->get_records_sql($sql, array());
     foreach ($records as $record) {
         $data[$record->name] = $record->id;
@@ -259,12 +272,13 @@ function get_name_categories_by_role ($userid, $role) {
 }
 
 /**
- * This function returns the users with the shortname student in a given course.
+ * This function returns the users with the shortname student in a given course with a determined role.
  *
  * @param int $courseid
+ * @param string $rolename shortname of the role to filter students
  * @return array $data array of users
  */
-function get_course_students ($courseid) {
+function get_course_students ($courseid, $rolename) {
     global $DB;
     $sql = 'SELECT u.*
               FROM {role_assignments} ra
@@ -276,11 +290,12 @@ function get_course_students ($courseid) {
                AND ra.contextid = cxt.id
                AND cxt.contextlevel = :contextlevel
                AND cxt.instanceid = :course
-               AND  r.shortname = :shortname';
+               AND  r.shortname = :shortname
+             ORDER BY u.lastname';
     $data = $DB->get_records_sql($sql,
             array(
         'contextlevel' => CONTEXT_COURSE,
-        'shortname' => 'student',
+        'shortname' => $rolename,
         'course' => $courseid,
     ));
 
@@ -441,6 +456,7 @@ function get_user_shortname_courses ($userid, $category) {
               JOIN {course} co ON co.id = c.instanceid
               JOIN {course_categories} cc ON cc.id = co.category
              WHERE userid = :userid
+               AND c.shortname LIKE "%.M%"
                AND c.contextlevel = :context
                AND co.category = :category';
         $records = $DB->get_records_sql($sql,
@@ -492,7 +508,8 @@ function save_matriculation_dates ($data) {
 function update_intensive_dates ($convnum, $cid, $userid) {
     global $DB;
     $course = $DB->get_record('course', array('id' => $cid));
-    $intensive = $DB->get_record('course', array('shortname' => 'MI.' . $course->shortname));
+    $idname = explode('.', $course->shortname);
+    $intensive = $DB->get_record('course', array('shortname' => 'MI.' . $idname[2]));
     $enrol = $DB->get_record('enrol', array('courseid' => $intensive->id, 'enrol' => 'manual'));
     $userdata = $DB->get_record('user', array('id' => $userid));
     if ($DB->get_record('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $userid))) {
@@ -577,6 +594,7 @@ function get_user_all_courses ($userid) {
               JOIN {context} ctx ON ctx.id = ra.contextid
               JOIN {course} c ON c.id = ctx.instanceid
              WHERE ctx.contextlevel = :context
+               AND c.shortname LIKE "%.M%"
                AND ra.roleid = :role
                AND ra.contextid = ctx.id
                AND ra.userid = :user
@@ -642,7 +660,9 @@ function configureprofiledata ($userid) {
     }
     // Get the enroled courses of the current user.
     if ($mycourses = get_user_all_courses($userid)) {
+        
         foreach ($mycourses as $mycourse) {
+            
             // If the course is not intensive type.
             if (substr($mycourse->shortname, 0, 3) !== 'MI.') {
                 $object = new local_eudecustom_eudeprofile();
@@ -662,7 +682,8 @@ function configureprofiledata ($userid) {
                     $mygrades = grades($mycourse->id, $userid);
                     // Print list of not intensive modules.
                     // Intensive module data.
-                    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $mycourse->shortname))) {
+                    $idname = explode('.', $mycourse->shortname);
+                    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[2]))) {
                         // Add intensive module grades.
                         $mygradesint = grades($modint->id, $userid);
                         $object->name = $mycourse->shortname;
@@ -687,6 +708,7 @@ function configureprofiledata ($userid) {
                                   ORDER BY u.timestart DESC
                                      LIMIT 1';
                         }
+                        
                         $time = $DB->get_record_sql($sql, array('courseid' => $modint->id, 'userid' => $userid));
                         if ($type || $type === 0) {
                             $sql = "SELECT to_char(to_timestamp(fecha1),'DD/MM/YYYY') AS f1,
@@ -702,10 +724,10 @@ function configureprofiledata ($userid) {
                                 WHERE courseid = :courseid';
                         }
                         $convoc = $DB->get_record_sql($sql, array('courseid' => $modint->id));
+                        //$convoc = $DB->get_record_sql($sql, array('courseid' => $mycourse->id));
                         $matriculado = false;
                         if ($time) {
                             if ($daytoday < ($time->timestart + $weekinseconds)) {
-
                                 $object->action = 'insideweek';
                                 $matriculado = true;
                                 $object->actiontitle = $time->time;
@@ -889,7 +911,7 @@ function add_tpv_hidden_inputs ($response) {
 function get_usercourses_by_rol ($userid) {
     global $DB;
 
-    $rolsql = 'SELECT DISTINCT C.id, C.category
+    $rolsql = "SELECT DISTINCT C.id, C.category
                  FROM {role_assignments} RA
                  JOIN {role} R ON R.id = RA.roleid
                  JOIN {context} CTX ON CTX.id = RA.contextid
@@ -897,10 +919,12 @@ function get_usercourses_by_rol ($userid) {
                  JOIN {course_categories} CC ON CC.id = C.category
                 WHERE userid = :userid
                   AND CTX.contextlevel = :context
+                  AND (C.shortname LIKE '%.M%'
+                   OR C.shortname LIKE 'MI.%')
                   AND (R.shortname = :role1
                    OR R.shortname = :role2
                    OR R.shortname = :role3)
-             ORDER BY C.id';
+             ORDER BY C.id";
 
     $rolrecords = $DB->get_records_sql($rolsql,
             array(
@@ -916,6 +940,7 @@ function get_usercourses_by_rol ($userid) {
         $c = ['course' => $r->id, 'category' => $r->category];
         array_push($rolcourses, $c);
     }
+    
     return $rolcourses;
 }
 
@@ -968,11 +993,18 @@ function get_students_course_data ($courseid, $actualmodule) {
 
     if ($res) {
         if (!module_is_intensive($res->shortname)) {
-            $module = explode('.M', $res->shortname);
+            $split = explode('.M', $res->shortname);
+            $dotpos = strpos($split[1], '.');
+            if ($dotpos) {
+                $newsplit = explode('.', $split[1]);
+                $module = $newsplit[0];
+            } else {
+                $module = $split[1];
+            }
 
-            if ($module[1] == $actualmodule) {
+            if ($module == $actualmodule) {
                 $res->date = 'actual';
-            } else if ($module[1] > $actualmodule) {
+            } else if ($module > $actualmodule) {
                 $res->date = 'next';
             } else {
                 $res->date = 'prev';
@@ -1029,13 +1061,15 @@ function add_course_activities ($record) {
                 array_push($record->forums, $forum);
             }
         }
+    } else {
+        $record->notices = new stdClass();
+        $record->notices->id = null;
     }
     if ($assigns) {
         foreach ($assigns as $assign) {
             array_push($record->assigns, $assign);
         }
     }
-
     return $record;
 }
 
@@ -1142,7 +1176,7 @@ function get_actual_module ($catid) {
                    WHERE RA.roleid = :role
                      AND C.category = :category
                      AND UE.timestart < :now
-                     AND UE.timeend >= :now2
+                     AND c.shortname LIKE '%.M%'
                 ORDER BY UE.timestart DESC
                    LIMIT 1";
     $res = $DB->get_record_sql($sql,
@@ -1154,7 +1188,13 @@ function get_actual_module ($catid) {
     ));
     if ($res) {
         $split = explode('.M', $res->shortname, 2);
-        $actualmodule = $split[1];
+        $dotpos = strpos($split[1], '.');
+        if ($dotpos) {
+            $newsplit = explode('.', $split[1]);
+            $actualmodule = $newsplit[0];
+        } else {
+            $actualmodule = $split[1];
+        }
     }
     return $actualmodule;
 }
@@ -1169,7 +1209,8 @@ function get_actual_module ($catid) {
 function get_intensivecourse_data ($course, $studentid) {
     global $DB;
     // Check if the course has a intensive module related.
-    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $course->shortname))) {
+    $idname = explode('.', $course->shortname);
+    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[2]))) {
         $intensivecourse = new stdClass();
         $intensivecourse->name = $course->shortname;
         $intensivecourse->id = $modint->id;
@@ -1454,4 +1495,53 @@ function generate_event_keys($modal = '') {
 
     $html .= html_writer::end_tag('ul');
     return $html;
+}
+
+
+/**
+ * This function calculate category grade
+ *
+ * @return string $category;
+ */
+function get_grade_category($category) {
+    
+    global $DB;
+    
+    $gradessql = 'SELECT c.id, gg.finalgrade, gg.rawgrademax
+                   FROM {grade_grades} gg
+                   JOIN {grade_items} gi
+                   JOIN {course} c
+                  WHERE gg.itemid = gi.id
+                    AND gi.courseid = c.id
+                    AND gi.itemtype = :type
+                    AND c.category = :category';
+
+    $grades = $DB->get_records_sql($gradessql, array('category' => $category, 'type' => 'course'));
+    $courses = $DB->get_records('course', array('category' => $category));
+    $categorygrade = 0;
+    if (sizeof($grades) == sizeof($courses)) {
+        foreach ($grades as $grade) {
+            $categorygrade += ($grade->finalgrade / $grade->rawgrademax) * 10;
+        }
+        $categorygrade = $categorygrade / sizeof($grades);
+        $categorygrade = number_format($categorygrade, 2, '.', '');
+    } else {
+        $categorygrade = -1;
+    }
+    return $categorygrade;  
+}
+
+/**
+ * This function sorts an array of objects by a given atribute
+ *
+ * @param array $array of objects
+ * @param string $subfield atribute from where the array will be sorted
+ * @return boolean
+ */
+function sort_array_of_array(&$array, $subfield) {
+    $sortarray = array();
+    foreach ($array as $key => $row) {
+        $sortarray[$key] = $row->$subfield;
+    }
+    array_multisort($sortarray, SORT_ASC, $array);
 }

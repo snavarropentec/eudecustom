@@ -60,7 +60,8 @@ $SESSION->course = optional_param('course', 0, PARAM_INT);
 $SESSION->date = optional_param('date', 0, PARAM_INT);
 if (optional_param('amount', 1, PARAM_FLOAT) == 0) {
     $mycourse = $DB->get_record('course', array('id' => optional_param('course', 0, PARAM_INT)));
-    $mi = $DB->get_record('course', array('shortname' => 'MI.' . $mycourse->shortname));
+    $idname = explode('.', $mycourse->shortname);
+    $mi = $DB->get_record('course', array('shortname' => 'MI.' . $idname[2]));
     $convnum = $SESSION->date;
     $alldates = $DB->get_record('local_eudecustom_call_date', array('courseid' => $mi->id));
     switch ($convnum) {
@@ -120,7 +121,8 @@ if (optional_param('amount', 1, PARAM_FLOAT) == 0) {
         $course = (integer)$SESSION->course;
         $SESSION->tpv = true;
         $mycourse = $DB->get_record('course', array('id' => $course));
-        $mi = $DB->get_record('course', array('shortname' => 'MI.'.$mycourse->shortname));
+        $idname = explode('.', $mycourse->shortname);
+        $mi = $DB->get_record('course', array('shortname' => 'MI.'.$idname[2]));
     }
 
     $mform = new local_eudecustom_payment_form($urltpv, array('user' => $userid, 'course' => $course ));

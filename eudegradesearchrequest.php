@@ -50,9 +50,10 @@ if (optional_param('cat', 0, PARAM_INT)) {
     echo json_encode($response);
 }
 
-if (optional_param('course', 0, PARAM_INT)) {
+if (optional_param('course', 0, PARAM_INT) && optional_param('studenttypes', '', PARAM_TEXT)) {
     $courseid = optional_param('course', 0, PARAM_INT);
-    $data = get_course_students($courseid);
+    $rolename = optional_param('studenttypes', '', PARAM_TEXT);
+    $data = get_course_students($courseid, $rolename);
     $response = '';
     foreach ($data as $option) {
         $response .= '<option value=' . $option->id . '>' . $option->lastname . ', ' . $option->firstname . '</option>';

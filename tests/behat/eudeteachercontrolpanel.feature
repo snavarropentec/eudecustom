@@ -74,7 +74,7 @@ Scenario: Link to normal forums
 Scenario: Link to assignments
     Given I log in as "user1"
     And I go to eudeteachercontrolpanel
-    And I set the field with xpath "//div[@class='row eude_panel_bg']/div/div[2]/div[1]/div[2]/li[2]/div[2]/select[@class='linkselect']" to "3"
+    And I set the field with xpath "//div[@class='row eude_panel_bg']/div/div[2]/div[1]/div[2]/li[1]/div[2]/select[@class='linkselect']" to "3"
     And I should see "Assignments"
     And I log out
       

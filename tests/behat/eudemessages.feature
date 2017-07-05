@@ -35,7 +35,7 @@ Feature: Write a message
     And I set the field "categoryname" to "Cat1"
     And I set the field "coursename" to "M01"
     And I set the field "subjectname" to "Grades"
-    And I set the field "destinatarioname" to "Students"
+    And I set the field "destinatarioname" to "Active students"
     And I set the field "messagetext" to "This is a message for my students"
     And I press "sendmessage"
     And I log out

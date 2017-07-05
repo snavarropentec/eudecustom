@@ -41,6 +41,7 @@ if (!confirm_sesskey(sesskey())) {
     $params = optional_param('Ds_MerchantParameters', 0, PARAM_TEXT);
     $sigaturerecibida = optional_param('Ds_Signature', 0, PARAM_TEXT);
     $course = $SESSION->course;
+    $SESSION->module = $SESSION->course;
     $decodec = $miobj->decodeMerchantParameters($params);
     $codigorespuesta = $miobj->getParameter('Ds_Response');
     if ($course && $SESSION->tpv) {

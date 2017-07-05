@@ -141,3 +141,7 @@ $string['savecompleted'] = 'Data integrated successfully';
 $string['savefailed'] = 'Error introducing data';
 $string['holidays'] = 'Holidays';
 $string['nocapabilitytosendmessages'] = 'You are not allowed to send messages';
+$string['studenttypes'] = 'Select type of students';
+$string['student'] = 'Active students';
+$string['studentfinishing'] = 'Period of grace students';
+$string['studentold'] = 'Completed course students';
