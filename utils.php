@@ -311,7 +311,6 @@ function get_user_categories ($userid) {
               JOIN {course_categories} cc ON cc.id = co.category
              WHERE userid = :userid
                AND c.contextlevel = :context';
-        
     $records = $DB->get_records_sql($sql, array(
         'userid' => $userid,
         'context' => CONTEXT_COURSE
@@ -536,7 +535,7 @@ function update_intensive_dates ($convnum, $cid, $userid) {
     $recordupdated = $DB->update_record('user_enrolments', $date);
     $sql = 'SELECT id
                FROM {local_eudecustom_mat_int}
-               WHERE course_shortname = :course_shortname 
+               WHERE course_shortname = :course_shortname
                  AND user_email = :user_email
                  AND category_id = :category_id
                ORDER BY matriculation_date DESC
@@ -1529,7 +1528,7 @@ function get_grade_category($category) {
     } else {
         $categorygrade = -1;
     }
-    return $categorygrade;  
+    return $categorygrade;
 }
 
 /**
@@ -1556,7 +1555,7 @@ function sort_array_of_array(&$array, $subfield) {
  */
 function user_repeat_category($userid, $category) {
     global $DB;
-    
+
     $gradessql = 'SELECT gh.timemodified
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
@@ -1586,10 +1585,10 @@ function user_repeat_category($userid, $category) {
     $firstcourse = 0;
     $endcourse = 0;
     foreach ($actualcourses as $courses) {
-        if ($course->timeend > $endcourse){
+        if ($course->timeend > $endcourse) {
             $endcourse = $course->timeend;
         }
-        if ($course->timeend == $endcourse){
+        if ($course->timeend == $endcourse) {
             if ($firstcourse == 0 || $course->timestart < $firstcourse) {
                 $firstcourse = $course->timestart;
             }
