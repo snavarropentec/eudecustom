@@ -36,10 +36,11 @@ require_once($CFG->dirroot . '/lib/moodlelib.php');
  * @param int $timestart 0 means unknown
  * @param int $timeend 0 means forever
  * @param int $convnum
+ * @param int $categoryid
  * @param int $status default to ENROL_USER_ACTIVE for new enrolments, no change by default in updates
  * @return void
  */
-function enrol_intensive_user ($enrol, $courseid, $userid, $timestart = 0, $timeend = 0, $convnum, $status = null) {
+function enrol_intensive_user ($enrol, $courseid, $userid, $timestart = 0, $timeend = 0, $convnum, $categoryid, $status = null) {
     global $DB;
 
     $data = $DB->get_record('enrol', array('enrol' => $enrol, 'courseid' => $courseid));
@@ -67,6 +68,7 @@ function enrol_intensive_user ($enrol, $courseid, $userid, $timestart = 0, $time
     $record = new stdClass();
     $record->user_email = $userdata->email;
     $record->course_shortname = $coursedata->shortname;
+    $record->category_id = $categoryid;
     $record->matriculation_date = $timestart;
     $record->conv_number = $convnum;
     $DB->insert_record('local_eudecustom_mat_int', $record);
@@ -148,19 +150,6 @@ function get_samoo_subjects () {
 }
 
 /**
- * This function returns an array with the different roles of a student.
- *
- * @return array $data associative aray with types value=>description
- */
-function get_student_different_roles () {
-    $data = array('student' => get_string('student', 'local_eudecustom'),
-                  'studentfinishing' => get_string('studentfinishing', 'local_eudecustom'),
-                  'studentold' => get_string('studentold', 'local_eudecustom'));
-
-    return $data;
-}
-
-/**
  * This function returns all the categories with intensive courses.
  *
  * @return array $data associative array with id->name of course categories.
@@ -172,7 +161,7 @@ function get_categories_with_intensive_modules () {
               FROM {course_categories} cc
              WHERE cc.id IN  (SELECT DISTINCT c.category
                                 FROM {course} c
-                               WHERE c.shortname LIKE '%.M%')";
+                               WHERE c.shortname LIKE '%.%')";
     $records = $DB->get_records_sql($sql, array());
     foreach ($records as $record) {
         $data[$record->name] = $record->id;
@@ -185,15 +174,18 @@ function get_categories_with_intensive_modules () {
  *
  * @param int $userid
  * @param int $courseid
+ * @param int $categoryid
  * @return int $attempts number of attempts made
  */
-function count_course_matriculations ($userid, $courseid) {
+function count_course_matriculations ($userid, $courseid, $categoryid) {
     global $DB;
     $userdata = $DB->get_record('user', array('id' => $userid));
     $coursedata = $DB->get_record('course', array('id' => $courseid));
     // We recover the attempts of the given course.
     if ($record = $DB->get_records('local_eudecustom_mat_int',
-            array('user_email' => $userdata->email, 'course_shortname' => $coursedata->shortname))) {
+            array('user_email' => $userdata->email,
+                  'course_shortname' => $coursedata->shortname,
+                  'category_id' => $categoryid))) {
         return count($record);
     } else {
         return 0;
@@ -319,6 +311,7 @@ function get_user_categories ($userid) {
               JOIN {course_categories} cc ON cc.id = co.category
              WHERE userid = :userid
                AND c.contextlevel = :context';
+        
     $records = $DB->get_records_sql($sql, array(
         'userid' => $userid,
         'context' => CONTEXT_COURSE
@@ -507,8 +500,9 @@ function save_matriculation_dates ($data) {
 function update_intensive_dates ($convnum, $cid, $userid) {
     global $DB;
     $course = $DB->get_record('course', array('id' => $cid));
-    $idname = explode('.', $course->shortname);
-    $intensive = $DB->get_record('course', array('shortname' => 'MI.' . $idname[2]));
+    $namecourse = explode('[', $course->shortname);
+    $idname = explode('.M.', $namecourse[0]);
+    $intensive = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]));
     $enrol = $DB->get_record('enrol', array('courseid' => $intensive->id, 'enrol' => 'manual'));
     $userdata = $DB->get_record('user', array('id' => $userid));
     if ($DB->get_record('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $userid))) {
@@ -542,10 +536,14 @@ function update_intensive_dates ($convnum, $cid, $userid) {
     $recordupdated = $DB->update_record('user_enrolments', $date);
     $sql = 'SELECT id
                FROM {local_eudecustom_mat_int}
-               WHERE course_shortname = :course_shortname AND user_email = :user_email
+               WHERE course_shortname = :course_shortname 
+                 AND user_email = :user_email
+                 AND category_id = :category_id
                ORDER BY matriculation_date DESC
                LIMIT 1';
-    $idmatint = $DB->get_record_sql($sql, array('course_shortname' => $intensive->shortname, 'user_email' => $userdata->email));
+    $idmatint = $DB->get_record_sql($sql, array('course_shortname' => $intensive->shortname,
+                                                'user_email' => $userdata->email,
+                                                'category_id' => $course->category));
     $newdata = new stdClass();
     $newdata->id = $idmatint->id;
     $newdata->matriculation_date = $newdate;
@@ -593,7 +591,7 @@ function get_user_all_courses ($userid) {
               JOIN {context} ctx ON ctx.id = ra.contextid
               JOIN {course} c ON c.id = ctx.instanceid
              WHERE ctx.contextlevel = :context
-               AND c.shortname LIKE "%.M%"
+               AND c.shortname LIKE "%.%"
                AND ra.roleid = :role
                AND ra.contextid = ctx.id
                AND ra.userid = :user
@@ -666,6 +664,7 @@ function configureprofiledata ($userid) {
                 $object->actionid = '';
                 $object->desc = $mycourse->fullname;
                 if ($mycourse->category) {
+                    $repeat = user_repeat_category($userid, $mycourse->category);
                     context_helper::preload_from_record($mycourse);
                     $ccontext = context_course::instance($mycourse->id);
                     $linkattributes = null;
@@ -679,8 +678,9 @@ function configureprofiledata ($userid) {
                     $mygrades = grades($mycourse->id, $userid);
                     // Print list of not intensive modules.
                     // Intensive module data.
-                    $idname = explode('.', $mycourse->shortname);
-                    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[2]))) {
+                    $namecourse = explode('[', $course->shortname);
+                    $idname = explode('.M.', $namecourse[0]);
+                    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]))) {
                         // Add intensive module grades.
                         $mygradesint = grades($modint->id, $userid);
                         $object->name = $mycourse->shortname;
@@ -721,7 +721,6 @@ function configureprofiledata ($userid) {
                                 WHERE courseid = :courseid';
                         }
                         $convoc = $DB->get_record_sql($sql, array('courseid' => $modint->id));
-                        //$convoc = $DB->get_record_sql($sql, array('courseid' => $mycourse->id));
                         $matriculado = false;
                         if ($time) {
                             if ($daytoday < ($time->timestart + $weekinseconds)) {
@@ -761,7 +760,7 @@ function configureprofiledata ($userid) {
                                 }
                             }
                         }
-                        $intentos = count_course_matriculations($userid, $modint->id);
+                        $intentos = count_course_matriculations($userid, $modint->id, $mycourse->category);
                         if (!$matriculado) {
                             $object->action = 'notenroled';
                             $object->actionid = '';
@@ -784,7 +783,8 @@ function configureprofiledata ($userid) {
                                     if ($mygradesint < 5) {
                                         if ($numint &&
                                                 $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
-                                                $intentos < $CFG->local_eudecustom_totalenrolsinincurse) {
+                                                $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
+                                                $repeat == false) {
                                             $object->actiontitle = get_string('retest', 'local_eudecustom');
                                             $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
                                             $object->actionclass = 'abrirFechas';
@@ -804,7 +804,8 @@ function configureprofiledata ($userid) {
                                     if ($mygrades < 5) {
                                         if ($numint &&
                                                 $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
-                                                $intentos < $CFG->local_eudecustom_totalenrolsinincurse) {
+                                                $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
+                                                $repeat == false) {
                                             $object->actiontitle = get_string('retest', 'local_eudecustom');
                                             $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
                                             $object->actionclass = 'abrirFechas';
@@ -916,7 +917,7 @@ function get_usercourses_by_rol ($userid) {
                  JOIN {course_categories} CC ON CC.id = C.category
                 WHERE userid = :userid
                   AND CTX.contextlevel = :context
-                  AND (C.shortname LIKE '%.M%'
+                  AND (C.shortname LIKE '%.%'
                    OR C.shortname LIKE 'MI.%')
                   AND (R.shortname = :role1
                    OR R.shortname = :role2
@@ -989,7 +990,7 @@ function get_students_course_data ($courseid, $actualmodule) {
 
     if ($res) {
         if (!module_is_intensive($res->shortname)) {
-            $split = explode('.M', $res->shortname);
+            $split = explode('.M.', $res->shortname);
             $dotpos = strpos($split[1], '.');
             if ($dotpos) {
                 $newsplit = explode('.', $split[1]);
@@ -1172,7 +1173,7 @@ function get_actual_module ($catid) {
                    WHERE RA.roleid = :role
                      AND C.category = :category
                      AND UE.timestart < :now
-                     AND c.shortname LIKE '%.M%'
+                     AND C.shortname LIKE '%.%'
                 ORDER BY UE.timestart DESC
                    LIMIT 1";
     $res = $DB->get_record_sql($sql,
@@ -1183,7 +1184,7 @@ function get_actual_module ($catid) {
         'now2' => $now
     ));
     if ($res) {
-        $split = explode('.M', $res->shortname, 2);
+        $split = explode('.M.', $res->shortname, 2);
         $dotpos = strpos($split[1], '.');
         if ($dotpos) {
             $newsplit = explode('.', $split[1]);
@@ -1205,8 +1206,9 @@ function get_actual_module ($catid) {
 function get_intensivecourse_data ($course, $studentid) {
     global $DB;
     // Check if the course has a intensive module related.
-    $idname = explode('.', $course->shortname);
-    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[2]))) {
+    $namecourse = explode('[', $course->shortname);
+    $idname = explode('.M.', $namecourse[0]);
+    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]))) {
         $intensivecourse = new stdClass();
         $intensivecourse->name = $course->shortname;
         $intensivecourse->id = $modint->id;
@@ -1216,16 +1218,19 @@ function get_intensivecourse_data ($course, $studentid) {
                   FROM {local_eudecustom_mat_int}
                  WHERE user_email = :user_email
                    AND course_shortname = :course_shortname
+                   AND category_id = :category_id
               ORDER BY matriculation_date DESC
                  LIMIT 1';
         if ($intdate = $DB->get_record_sql($sql,
-                array('user_email' => $userdata->email, 'course_shortname' => $modint->shortname))) {
+                array('user_email' => $userdata->email,
+                      'course_shortname' => $modint->shortname,
+                      'category_id' => $course->category))) {
             $intensivecourse->actions = date("d/m/o", $intdate->matriculation_date);
         } else {
             $intensivecourse->actions = '-';
         }
         // Count the numbers of enrolments in the intensive module.
-        $intensivecourse->attempts = count_course_matriculations($studentid, $modint->id);
+        $intensivecourse->attempts = count_course_matriculations($studentid, $modint->id, $course->category);
         $intensivecourse->info = get_info_grades($course->id, $studentid);
         // Check if the user has grades in the normal and intensive modules or didnt attemp the exams.
         $coursegrades = grades($course->id, $studentid);
@@ -1512,8 +1517,8 @@ function get_grade_category($category) {
                     AND gi.itemtype = :type
                     AND c.category = :category';
 
-    $grades = $DB->get_records_sql($gradessql, array('category' => $category->id, 'type' => 'course'));
-    $courses = $DB->get_records('course', array('category' => $category->id));
+    $grades = $DB->get_records_sql($gradessql, array('category' => $category, 'type' => 'course'));
+    $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
     if (count($grades) == count($courses)) {
         foreach ($grades as $grade) {
@@ -1524,7 +1529,7 @@ function get_grade_category($category) {
     } else {
         $categorygrade = -1;
     }
-    return $categorygrade;
+    return $categorygrade;  
 }
 
 /**
@@ -1540,4 +1545,61 @@ function sort_array_of_array(&$array, $subfield) {
         $sortarray[$key] = $row->$subfield;
     }
     array_multisort($sortarray, SORT_ASC, $array);
+}
+
+/**
+ * This function test if the user repeat the courses of the category
+ *
+ * @param integer $userid id user
+ * @param integer $category id category
+ * @return boolean
+ */
+function user_repeat_category($userid, $category) {
+    global $DB;
+    
+    $gradessql = 'SELECT gh.timemodified
+                   FROM {grade_grades_history} gh
+                   JOIN {grade_items} gi
+                   JOIN {course} c
+                  WHERE gh.oldid = gi.id
+                    AND gi.courseid = c.id
+                    AND c.category = :category
+               ORDER BY gh.timemodified ASC
+                  LIMIT 1';
+
+    $firstgrade = $DB->get_record_sql($gradessql, array('category' => $category));
+
+    $coursesql = 'SELECT ue.timestart, ue.timeend
+                    FROM {user_enrolments} ue
+                    FROM {enrol} e
+                    JOIN {course} c
+                   WHERE e.id = ue.enrolid
+                     AND e.courseid = c.id
+                     AND e.enrol = :type
+                     AND c.category = :category
+                     AND ue.userid = :userid
+                ORDER BY ue.timeend DESC';
+    $actualcourses = $DB->get_records_sql($coursesql, array(
+                                                'category' => $category,
+                                                'type' => 'manual',
+                                                'userid' => $userid));
+    $firstcourse = 0;
+    $endcourse = 0;
+    foreach ($actualcourses as $courses) {
+        if ($course->timeend > $endcourse){
+            $endcourse = $course->timeend;
+        }
+        if ($course->timeend == $endcourse){
+            if ($firstcourse == 0 || $course->timestart < $firstcourse) {
+                $firstcourse = $course->timestart;
+            }
+        }
+    }
+
+    if ($firstgrade < $firstcourse) {
+        $result = true;
+    } else {
+        $result = false;
+    }
+    return $result;
 }

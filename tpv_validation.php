@@ -71,7 +71,7 @@ if (!confirm_sesskey(sesskey())) {
                 break;
         }
         // Timeend is timestart + a week in seconds.
-        enrol_intensive_user('manual', $mi->id, $USER->id, $newdate, $newdate + 604800, $convnum);
+        enrol_intensive_user('manual', $mi->id, $USER->id, $newdate, $newdate + 604800, $convnum, $mycourse->category);
         $name = $USER->firstname . ' ' . $USER->lastname;
         $module = $mi->shortname . ' - (' . $mi->fullname . ')';
         header('Location: tpv_ok.php?name=' . $name . '&module=' . $module . '&payment=ok');

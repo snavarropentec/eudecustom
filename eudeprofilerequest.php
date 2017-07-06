@@ -199,16 +199,16 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
             if ($categorygrades != -1) {
                 $tr = new \html_table_row();
                 $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
-                $cellavg = new \html_table_cell('Nota media del programa');
-                $tr->cells[] = $cellavg;
-                $cellavg = new \html_table_cell('');
-                $tr->cells[] = $cellavg;
-                $cellavg = new \html_table_cell('');
-                $tr->cells[] = $cellavg;
-                $cellavg = new \html_table_cell($categorygrades);
-                $tr->cells[] = $cellavg;
-                $cellavg = new \html_table_cell('');
-                $tr->cells[] = $cellavg;
+                $cell = new \html_table_cell('Nota media del programa');
+                $tr->cells[] = $cell;
+                $cell = new \html_table_cell('');
+                $tr->cells[] = $cell;
+                $cell = new \html_table_cell('');
+                $tr->cells[] = $cell;
+                $cell = new \html_table_cell($categorygrades);
+                $tr->cells[] = $cell;
+                $cell = new \html_table_cell('');
+                $tr->cells[] = $cell;
                 $table->data[] = $tr;
             }
             $html = html_writer::table($table);

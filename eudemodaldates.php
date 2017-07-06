@@ -39,7 +39,7 @@ $html .= html_writer::tag('button', 'x', array('class' => 'cerrar'));
 $courseid = optional_param('idcourse', 0, PARAM_INT);
 $curso = $DB->get_record('course', array('id' => $courseid));
 $idname = explode('.', $curso->shortname);
-$modulo = $DB->get_record('course', array('shortname' => 'MI.'.$idname[2]));
+$modulo = $DB->get_record('course', array('shortname' => 'MI.'.$idname[1]));
 
 $fechas = $DB->get_record('local_eudecustom_call_date', array('courseid' => $curso->id));
 

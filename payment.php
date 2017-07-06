@@ -61,7 +61,7 @@ $SESSION->date = optional_param('date', 0, PARAM_INT);
 if (optional_param('amount', 1, PARAM_FLOAT) == 0) {
     $mycourse = $DB->get_record('course', array('id' => optional_param('course', 0, PARAM_INT)));
     $idname = explode('.', $mycourse->shortname);
-    $mi = $DB->get_record('course', array('shortname' => 'MI.' . $idname[2]));
+    $mi = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]));
     $convnum = $SESSION->date;
     $alldates = $DB->get_record('local_eudecustom_call_date', array('courseid' => $mi->id));
     switch ($convnum) {
@@ -82,7 +82,7 @@ if (optional_param('amount', 1, PARAM_FLOAT) == 0) {
             break;
     }
     // Timeend is timestart + a week in seconds.
-    enrol_intensive_user('manual', $mi->id, $USER->id, $newdate, $newdate + 604800, $convnum);
+    enrol_intensive_user('manual', $mi->id, $USER->id, $newdate, $newdate + 604800, $convnum, $mycourse->category);
     $name = $USER->firstname . ' ' . $USER->lastname;
     $module = $mi->shortname . ' - (' . $mi->fullname . ')';
     header('Location: tpv_ok.php?name=' . $name . '&module=' . $module);
@@ -122,7 +122,7 @@ if (optional_param('amount', 1, PARAM_FLOAT) == 0) {
         $SESSION->tpv = true;
         $mycourse = $DB->get_record('course', array('id' => $course));
         $idname = explode('.', $mycourse->shortname);
-        $mi = $DB->get_record('course', array('shortname' => 'MI.'.$idname[2]));
+        $mi = $DB->get_record('course', array('shortname' => 'MI.'.$idname[1]));
     }
 
     $mform = new local_eudecustom_payment_form($urltpv, array('user' => $userid, 'course' => $course ));
