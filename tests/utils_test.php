@@ -1433,18 +1433,18 @@ class local_eudecustom_testcase extends advanced_testcase {
         $user1 = $this->getDataGenerator()->create_user(array('firstname' => "USUARIO 1", 'email' => 'user1@php.com'));
         $category1 = $this->getDataGenerator()->create_category();
         // Create courses.
-        $course1 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO", 'category' => $category1->id));
+        $course1 = $this->getDataGenerator()->create_course(array('shortname' => "CT.M.CURSO", 'category' => $category1->id));
         $course2 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO", 'category' => $category1->id));
         // Create a course without intensive course.
-        $course3 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSONORMAL", 'category' => $category1->id));
+        $course3 = $this->getDataGenerator()->create_course(array('shortname' => "CT.M.CURSONORMAL", 'category' => $category1->id));
         // Create more courses.
-        $course4 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO2", 'category' => $category1->id));
+        $course4 = $this->getDataGenerator()->create_course(array('shortname' => "CT.M.CURSO2", 'category' => $category1->id));
         $course5 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO2", 'category' => $category1->id));
-        $course6 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO3", 'category' => $category1->id));
+        $course6 = $this->getDataGenerator()->create_course(array('shortname' => "CT.M.CURSO3", 'category' => $category1->id));
         $course7 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO3", 'category' => $category1->id));
-        $course8 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO4", 'category' => $category1->id));
+        $course8 = $this->getDataGenerator()->create_course(array('shortname' => "CT.M.CURSO4", 'category' => $category1->id));
         $course9 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO4", 'category' => $category1->id));
-        $course10 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO5", 'category' => $category1->id));
+        $course10 = $this->getDataGenerator()->create_course(array('shortname' => "CT.M.CURSO5", 'category' => $category1->id));
         $course11 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO5", 'category' => $category1->id));
 
         // Enrol courses.
@@ -1524,7 +1524,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $data = configureprofiledata($user1->id);
         $this->assertNotEmpty($data);
         $this->assertCount(3, $data);
-        $this->assertEquals($data[0]->name, "CAT.M.CURSO3");
+        $this->assertEquals($data[0]->name, "CT.M.CURSO3");
         $this->assertEquals($data[0]->grades, "-");
         $this->assertEquals($data[0]->gradesint, "-");
         $this->assertEquals($data[0]->action, "insideweek");
@@ -1532,14 +1532,14 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->assertEquals($data[0]->id, ' mod' . $course6->id);
         $this->assertEquals($data[0]->attempts, 0);
         $this->assertEquals($data[0]->info, "No hay notas disponibles.");
-        $this->assertEquals($data[1]->name, "CAT.M.CURSO2");
+        $this->assertEquals($data[1]->name, "CT.M.CURSO2");
         $this->assertEquals($data[1]->grades, "-");
         $this->assertEquals($data[1]->gradesint, "-");
         $this->assertEquals($data[1]->action, "outweek");
         $this->assertEquals($data[1]->actionclass, "abrirFechas");
         $this->assertEquals($data[1]->id, ' mod' . $course4->id);
         $this->assertEquals($data[1]->attempts, 0);
-        $this->assertEquals($data[2]->name, "CAT.M.CURSO");
+        $this->assertEquals($data[2]->name, "CT.M.CURSO");
         $this->assertEquals($data[2]->grades, "-");
         $this->assertEquals($data[2]->gradesint, "-");
         $this->assertEquals($data[2]->action, "notenroled");
@@ -1639,7 +1639,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $data7 = configureprofiledata($user1->id);
         $this->assertNotEmpty($data7);
-        $this->assertEquals($data7[0]->name, "CAT.M.CURSO4");
+        $this->assertEquals($data7[0]->name, "CT.M.CURSO4");
         $this->assertEquals($data7[0]->grades, "-");
         $this->assertEquals($data7[0]->gradesint, "-");
         $this->assertEquals($data7[0]->action, "notenroled");
@@ -1670,7 +1670,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $data8 = configureprofiledata($user1->id);
         $this->assertNotEmpty($data8);
-        $this->assertEquals($data8[0]->name, "CAT.M.CURSO4");
+        $this->assertEquals($data8[0]->name, "CT.M.CURSO4");
         $this->assertEquals($data8[0]->grades, "2.30");
         $this->assertEquals($data8[0]->gradesint, "2.30");
         $this->assertEquals($data8[0]->action, "notenroled");
@@ -1714,7 +1714,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $data9 = configureprofiledata($user1->id);
         $this->assertNotEmpty($data9);
-        $this->assertEquals($data9[0]->name, "CAT.M.CURSO4");
+        $this->assertEquals($data9[0]->name, "CT.M.CURSO4");
         $this->assertEquals($data9[0]->grades, "2.30");
         $this->assertEquals($data9[0]->gradesint, "3.10");
         $this->assertEquals($data9[0]->action, "notenroled");
@@ -1732,7 +1732,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $data0 = configureprofiledata($user1->id);
         $this->assertNotEmpty($data0);
-        $this->assertEquals($data0[0]->name, "CAT.M.CURSO4");
+        $this->assertEquals($data0[0]->name, "CT.M.CURSO4");
         $this->assertEquals($data0[0]->grades, "2.30");
         $this->assertEquals($data0[0]->gradesint, "3.10");
         $this->assertEquals($data0[0]->action, "notenroled");
@@ -1748,7 +1748,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $data0b = configureprofiledata($user1->id);
         $this->assertNotEmpty($data0b);
-        $this->assertEquals($data0b[0]->name, "CAT.M.CURSO4");
+        $this->assertEquals($data0b[0]->name, "CT.M.CURSO4");
         $this->assertEquals($data0b[0]->grades, "2.30");
         $this->assertEquals($data0b[0]->gradesint, "3.10");
         $this->assertEquals($data0b[0]->action, "notenroled");
