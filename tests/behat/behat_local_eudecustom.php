@@ -289,6 +289,7 @@ class behat_local_eudecustom extends behat_base {
         $record2 = new stdClass();
         $record2->user_email = "student1@example.com";
         $record2->course_shortname = $coursedata->shortname;
+        $record2->category_id = $coursedata->category;
         $record2->matriculation_date = $today - 604800;
         $record2->conv_number = 1;
         $DB->insert_record('local_eudecustom_mat_int', $record2, false);
@@ -302,6 +303,7 @@ class behat_local_eudecustom extends behat_base {
         $record4 = new stdClass();
         $record4->user_email = "student3@example.com";
         $record4->course_shortname = $coursedata->shortname;
+        $record4->category_id = $coursedata->category;
         $record4->matriculation_date = $today - 604800;
         $record4->conv_number = 1;
         $DB->insert_record('local_eudecustom_mat_int', $record4, false);
@@ -309,6 +311,7 @@ class behat_local_eudecustom extends behat_base {
         $record5 = new stdClass();
         $record5->user_email = "student3@example.com";
         $record5->course_shortname = $coursedata->shortname;
+        $record5->category_id = $coursedata->category;
         $record5->matriculation_date = $today + 3800000;
         $record5->conv_number = 4;
         $DB->insert_record('local_eudecustom_mat_int', $record5, false);

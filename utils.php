@@ -161,7 +161,7 @@ function get_categories_with_intensive_modules () {
               FROM {course_categories} cc
              WHERE cc.id IN  (SELECT DISTINCT c.category
                                 FROM {course} c
-                               WHERE c.shortname LIKE '%.%')";
+                               WHERE c.shortname LIKE '%.M.%')";
     $records = $DB->get_records_sql($sql, array());
     foreach ($records as $record) {
         $data[$record->name] = $record->id;
@@ -500,32 +500,38 @@ function update_intensive_dates ($convnum, $cid, $userid) {
     global $DB;
     $course = $DB->get_record('course', array('id' => $cid));
     $namecourse = explode('[', $course->shortname);
-    $idname = explode('.M.', $namecourse[0]);
-    $intensive = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]));
-    $enrol = $DB->get_record('enrol', array('courseid' => $intensive->id, 'enrol' => 'manual'));
-    $userdata = $DB->get_record('user', array('id' => $userid));
-    if ($DB->get_record('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $userid))) {
-        $enrol = $DB->get_record('enrol', array('courseid' => $intensive->id, 'enrol' => 'manual'));
+    if (isset($namecourse[0])) {
+        $idname = explode('.M.', $namecourse[0]);
     } else {
-        $enrol = $DB->get_record('enrol', array('courseid' => $intensive->id, 'enrol' => 'conduit'));
+        $idname = explode('.M.', $namecourse);
     }
-    $start = $DB->get_record('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $userid));
-    $alldates = $DB->get_record('local_eudecustom_call_date', array('courseid' => $intensive->id));
-    switch ($convnum) {
-        case 1:
-            $newdate = $alldates->fecha1;
-            break;
-        case 2:
-            $newdate = $alldates->fecha2;
-            break;
-        case 3:
-            $newdate = $alldates->fecha3;
-            break;
-        case 4:
-            $newdate = $alldates->fecha4;
-            break;
-        default:
-            break;
+    if (isset($idname[1])){
+        $intensive = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]));
+        $enrol = $DB->get_record('enrol', array('courseid' => $intensive->id, 'enrol' => 'manual'));
+        $userdata = $DB->get_record('user', array('id' => $userid));
+        if ($DB->get_record('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $userid))) {
+            $enrol = $DB->get_record('enrol', array('courseid' => $intensive->id, 'enrol' => 'manual'));
+        } else {
+            $enrol = $DB->get_record('enrol', array('courseid' => $intensive->id, 'enrol' => 'conduit'));
+        }
+        $start = $DB->get_record('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $userid));
+        $alldates = $DB->get_record('local_eudecustom_call_date', array('courseid' => $intensive->id));
+        switch ($convnum) {
+            case 1:
+                $newdate = $alldates->fecha1;
+                break;
+            case 2:
+                $newdate = $alldates->fecha2;
+                break;
+            case 3:
+                $newdate = $alldates->fecha3;
+                break;
+            case 4:
+                $newdate = $alldates->fecha4;
+                break;
+            default:
+                break;
+        }
     }
     $date = new stdClass();
     $date->id = $start->id;
@@ -535,11 +541,11 @@ function update_intensive_dates ($convnum, $cid, $userid) {
     $recordupdated = $DB->update_record('user_enrolments', $date);
     $sql = 'SELECT id
                FROM {local_eudecustom_mat_int}
-               WHERE course_shortname = :course_shortname
-                 AND user_email = :user_email
-                 AND category_id = :category_id
-               ORDER BY matriculation_date DESC
-               LIMIT 1';
+              WHERE course_shortname = :course_shortname
+                AND user_email = :user_email
+                AND category_id = :category_id
+           ORDER BY matriculation_date DESC
+              LIMIT 1';
     $idmatint = $DB->get_record_sql($sql, array('course_shortname' => $intensive->shortname,
                                                 'user_email' => $userdata->email,
                                                 'category_id' => $course->category));
@@ -677,175 +683,181 @@ function configureprofiledata ($userid) {
                     $mygrades = grades($mycourse->id, $userid);
                     // Print list of not intensive modules.
                     // Intensive module data.
-                    $namecourse = explode('[', $course->shortname);
-                    $idname = explode('.M.', $namecourse[0]);
-                    if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]))) {
-                        // Add intensive module grades.
-                        $mygradesint = grades($modint->id, $userid);
-                        $object->name = $mycourse->shortname;
-                        $object->cat = ' cat' . $mycourse->category;
-                        $object->id = ' mod' . $mycourse->id;
-                        $type = strpos($CFG->dbtype, 'pgsql');
-                        if ($type || $type === 0) {
-                            $sql = "SELECT to_char(to_timestamp(u.timestart),'DD/MM/YYYY') AS time, u.timestart
-                                      FROM {user_enrolments} u
-                                      JOIN {enrol} e ON u.enrolid = e.id
-                                     WHERE e.courseid = :courseid
-                                       AND u.userid = :userid
-                                  ORDER BY u.timestart DESC
-                                     LIMIT 1";
-                        } else {
-                            $sql = 'SELECT FROM_UNIXTIME(u.timestart,"%d/%m/%Y") AS time, u.timestart
-                                      FROM {user_enrolments} u
-                                      JOIN {enrol} e
-                                     WHERE u.enrolid = e.id
-                                       AND e.courseid = :courseid
-                                       AND u.userid = :userid
-                                  ORDER BY u.timestart DESC
-                                     LIMIT 1';
-                        }
-
-                        $time = $DB->get_record_sql($sql, array('courseid' => $modint->id, 'userid' => $userid));
-                        if ($type || $type === 0) {
-                            $sql = "SELECT to_char(to_timestamp(fecha1),'DD/MM/YYYY') AS f1,
-                                to_char(to_timestamp(fecha2),'DD/MM/YYYY') AS f2,
-                                to_char(to_timestamp(fecha3),'DD/MM/YYYY') AS f3,
-                                to_char(to_timestamp(fecha4),'DD/MM/YYYY') AS f4
-                                FROM {local_eudecustom_call_date}
-                                WHERE courseid = :courseid";
-                        } else {
-                            $sql = 'SELECT FROM_UNIXTIME(fecha1,"%d/%m/%Y") AS f1, FROM_UNIXTIME(fecha2,"%d/%m/%Y") AS f2,
-                                FROM_UNIXTIME(fecha3,"%d/%m/%Y") AS f3, FROM_UNIXTIME(fecha4,"%d/%m/%Y") AS f4
-                                FROM {local_eudecustom_call_date}
-                                WHERE courseid = :courseid';
-                        }
-                        $convoc = $DB->get_record_sql($sql, array('courseid' => $modint->id));
-                        $matriculado = false;
-                        if ($time) {
-                            if ($daytoday < ($time->timestart + $weekinseconds)) {
-                                $object->action = 'insideweek';
-                                $matriculado = true;
-                                $object->actiontitle = $time->time;
-                                $object->actionclass = 'abrirFechas';
-                                switch ($time->time) {
-                                    case $convoc->f1:
-                                        $date = 'fecha1';
-                                        break;
-                                    case $convoc->f2:
-                                        $date = 'fecha2';
-                                        break;
-                                    case $convoc->f3:
-                                        $date = 'fecha3';
-                                        break;
-                                    case $convoc->f4:
-                                        $date = 'fecha4';
-                                        break;
-                                    default:
-                                        $date = 'fecha1';
-                                        break;
-                                }
-
-                                $sql = "SELECT $date AS fecha
-                                          FROM {local_eudecustom_call_date} f
-                                          JOIN {course} c ON f.courseid = c.id
-                                         WHERE c.category = :category
-                                         ORDER BY fecha ASC
+                    $namecourse = explode('[', $mycourse->shortname);
+                    if (isset($namecourse[0])) {
+                        $idname = explode('.M.', $namecourse[0]);
+                    } else {
+                        $idname = explode('.M.', $namecourse);
+                    }
+                    if (isset($idname[1])){
+                        if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]))) {
+                            // Add intensive module grades.
+                            $mygradesint = grades($modint->id, $userid);
+                            $object->name = $mycourse->shortname;
+                            $object->cat = ' cat' . $mycourse->category;
+                            $object->id = ' mod' . $mycourse->id;
+                            $type = strpos($CFG->dbtype, 'pgsql');
+                            if ($type || $type === 0) {
+                                $sql = "SELECT to_char(to_timestamp(u.timestart),'DD/MM/YYYY') AS time, u.timestart
+                                          FROM {user_enrolments} u
+                                          JOIN {enrol} e ON u.enrolid = e.id
+                                         WHERE e.courseid = :courseid
+                                           AND u.userid = :userid
+                                      ORDER BY u.timestart DESC
                                          LIMIT 1";
-                                $startconv = $DB->get_record_sql($sql, array('category' => $modint->category));
+                            } else {
+                                $sql = 'SELECT FROM_UNIXTIME(u.timestart,"%d/%m/%Y") AS time, u.timestart
+                                          FROM {user_enrolments} u
+                                          JOIN {enrol} e
+                                         WHERE u.enrolid = e.id
+                                           AND e.courseid = :courseid
+                                           AND u.userid = :userid
+                                      ORDER BY u.timestart DESC
+                                         LIMIT 1';
+                            }
 
-                                if ($startconv->fecha > ($daytoday + $weekinseconds) && $owner == true) {
-                                    $object->actionid = 'abrirFechas(' . $mycourse->id . ',2,3)';
-                                    $object->action = 'outweek';
+                            $time = $DB->get_record_sql($sql, array('courseid' => $modint->id, 'userid' => $userid));
+                            if ($type || $type === 0) {
+                                $sql = "SELECT to_char(to_timestamp(fecha1),'DD/MM/YYYY') AS f1,
+                                    to_char(to_timestamp(fecha2),'DD/MM/YYYY') AS f2,
+                                    to_char(to_timestamp(fecha3),'DD/MM/YYYY') AS f3,
+                                    to_char(to_timestamp(fecha4),'DD/MM/YYYY') AS f4
+                                    FROM {local_eudecustom_call_date}
+                                    WHERE courseid = :courseid";
+                            } else {
+                                $sql = 'SELECT FROM_UNIXTIME(fecha1,"%d/%m/%Y") AS f1, FROM_UNIXTIME(fecha2,"%d/%m/%Y") AS f2,
+                                    FROM_UNIXTIME(fecha3,"%d/%m/%Y") AS f3, FROM_UNIXTIME(fecha4,"%d/%m/%Y") AS f4
+                                    FROM {local_eudecustom_call_date}
+                                    WHERE courseid = :courseid';
+                            }
+                            $convoc = $DB->get_record_sql($sql, array('courseid' => $modint->id));
+                            $matriculado = false;
+                            if ($time) {
+                                if ($daytoday < ($time->timestart + $weekinseconds)) {
+                                    $object->action = 'insideweek';
+                                    $matriculado = true;
+                                    $object->actiontitle = $time->time;
+                                    $object->actionclass = 'abrirFechas';
+                                    switch ($time->time) {
+                                        case $convoc->f1:
+                                            $date = 'fecha1';
+                                            break;
+                                        case $convoc->f2:
+                                            $date = 'fecha2';
+                                            break;
+                                        case $convoc->f3:
+                                            $date = 'fecha3';
+                                            break;
+                                        case $convoc->f4:
+                                            $date = 'fecha4';
+                                            break;
+                                        default:
+                                            $date = 'fecha1';
+                                            break;
+                                    }
+
+                                    $sql = "SELECT $date AS fecha
+                                              FROM {local_eudecustom_call_date} f
+                                              JOIN {course} c ON f.courseid = c.id
+                                             WHERE c.category = :category
+                                             ORDER BY fecha ASC
+                                             LIMIT 1";
+                                    $startconv = $DB->get_record_sql($sql, array('category' => $modint->category));
+
+                                    if ($startconv->fecha > ($daytoday + $weekinseconds) && $owner == true) {
+                                        $object->actionid = 'abrirFechas(' . $mycourse->id . ',2,3)';
+                                        $object->action = 'outweek';
+                                    }
                                 }
                             }
-                        }
-                        $intentos = count_course_matriculations($userid, $modint->id, $mycourse->category);
-                        if (!$matriculado) {
-                            $object->action = 'notenroled';
-                            $object->actionid = '';
-                            $userdata = $DB->get_record('user', array('id' => $userid));
-                            $numint = $DB->get_record('local_eudecustom_user',
-                                    array(
-                                'user_email' => $userdata->email,
-                                'course_category' => $mycourse->category));
-                            if (!$numint) {
-                                $numint = new StdClass();
-                                $numint->num_intensive = 0;
-                            }
-                            if ($owner == true) {
-                                // Print action button.
-                                if (gettype($mygrades) != 'double' && $intentos == 0) {
-                                    $object->actiontitle = get_string('bringforward', 'local_eudecustom');
-                                    $object->actionid = 'abrir(' . $mycourse->id . ',0,0)';
-                                    $object->actionclass = 'abrir';
-                                } else if ($mygradesint) {
-                                    if ($mygradesint < 5) {
-                                        if ($numint &&
-                                                $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
-                                                $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
-                                                $repeat == false) {
-                                            $object->actiontitle = get_string('retest', 'local_eudecustom');
-                                            $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
-                                            $object->actionclass = 'abrirFechas';
+                            $intentos = count_course_matriculations($userid, $modint->id, $mycourse->category);
+                            if (!$matriculado) {
+                                $object->action = 'notenroled';
+                                $object->actionid = '';
+                                $userdata = $DB->get_record('user', array('id' => $userid));
+                                $numint = $DB->get_record('local_eudecustom_user',
+                                        array(
+                                    'user_email' => $userdata->email,
+                                    'course_category' => $mycourse->category));
+                                if (!$numint) {
+                                    $numint = new StdClass();
+                                    $numint->num_intensive = 0;
+                                }
+                                if ($owner == true) {
+                                    // Print action button.
+                                    if (gettype($mygrades) != 'double' && $intentos == 0) {
+                                        $object->actiontitle = get_string('bringforward', 'local_eudecustom');
+                                        $object->actionid = 'abrir(' . $mycourse->id . ',0,0)';
+                                        $object->actionclass = 'abrir';
+                                    } else if ($mygradesint) {
+                                        if ($mygradesint < 5) {
+                                            if ($numint &&
+                                                    $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
+                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
+                                                    $repeat == false) {
+                                                $object->actiontitle = get_string('retest', 'local_eudecustom');
+                                                $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
+                                                $object->actionclass = 'abrirFechas';
+                                            } else {
+                                                $object->actiontitle = get_string('retest', 'local_eudecustom');
+                                                $object->actionid = 'abrir(' . $mycourse->id . ',0,1)';
+                                                $object->actionclass = 'abrir';
+                                            }
+                                        } else if ($mygradesint == 10) {
+                                            $object->action = 'insideweek';
                                         } else {
-                                            $object->actiontitle = get_string('retest', 'local_eudecustom');
-                                            $object->actionid = 'abrir(' . $mycourse->id . ',0,1)';
+                                            $object->actiontitle = get_string('increasegrades', 'local_eudecustom');
+                                            $object->actionid = 'abrir(' . $mycourse->id . ',0,2)';
                                             $object->actionclass = 'abrir';
                                         }
-                                    } else if ($mygradesint == 10) {
-                                        $object->action = 'insideweek';
                                     } else {
-                                        $object->actiontitle = get_string('increasegrades', 'local_eudecustom');
-                                        $object->actionid = 'abrir(' . $mycourse->id . ',0,2)';
-                                        $object->actionclass = 'abrir';
+                                        if ($mygrades < 5) {
+                                            if ($numint &&
+                                                    $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
+                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
+                                                    $repeat == false) {
+                                                $object->actiontitle = get_string('retest', 'local_eudecustom');
+                                                $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
+                                                $object->actionclass = 'abrirFechas';
+                                            } else {
+                                                $object->actiontitle = get_string('retest', 'local_eudecustom');
+                                                $object->actionid = 'abrir(' . $mycourse->id . ',0,1)';
+                                                $object->actionclass = 'abrir';
+                                            }
+                                        } else if ($mygrades == 10) {
+                                            $object->action = 'insideweek';
+                                        } else {
+                                            $object->actiontitle = get_string('increasegrades', 'local_eudecustom');
+                                            $object->actionid = 'abrir(' . $mycourse->id . ',0,2)';
+                                            $object->actionclass = 'abrir';
+                                        }
                                     }
                                 } else {
-                                    if ($mygrades < 5) {
-                                        if ($numint &&
-                                                $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
-                                                $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
-                                                $repeat == false) {
-                                            $object->actiontitle = get_string('retest', 'local_eudecustom');
-                                            $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
-                                            $object->actionclass = 'abrirFechas';
-                                        } else {
-                                            $object->actiontitle = get_string('retest', 'local_eudecustom');
-                                            $object->actionid = 'abrir(' . $mycourse->id . ',0,1)';
-                                            $object->actionclass = 'abrir';
-                                        }
-                                    } else if ($mygrades == 10) {
-                                        $object->action = 'insideweek';
-                                    } else {
-                                        $object->actiontitle = get_string('increasegrades', 'local_eudecustom');
-                                        $object->actionid = 'abrir(' . $mycourse->id . ',0,2)';
-                                        $object->actionclass = 'abrir';
-                                    }
+                                    $object->actiontitle = '-';
+                                    $object->action = 'insideweek';
                                 }
-                            } else {
-                                $object->actiontitle = '-';
-                                $object->action = 'insideweek';
                             }
-                        }
-                        // Print attemps.
-                        $object->attempts = $intentos;
-                        $object->info = get_info_grades($mycourse->id, $userid);
+                            // Print attemps.
+                            $object->attempts = $intentos;
+                            $object->info = get_info_grades($mycourse->id, $userid);
 
-                        // Format grades to display.
-                        if (gettype($mygrades) == 'double') {
-                            $object->grades = number_format($mygrades, 2, '.', '');
-                        } else {
-                            $object->grades = '-';
-                        }
-                        if (gettype($mygradesint) == 'double') {
-                            $object->gradesint = number_format($mygradesint, 2, '.', '');
-                        } else {
+                            // Format grades to display.
                             if (gettype($mygrades) == 'double') {
-                                $object->gradesint = number_format($mygrades, 2, '.', '');
+                                $object->grades = number_format($mygrades, 2, '.', '');
                             } else {
-                                $object->gradesint = '-';
+                                $object->grades = '-';
                             }
-                        };
-                        array_push($data, $object);
+                            if (gettype($mygradesint) == 'double') {
+                                $object->gradesint = number_format($mygradesint, 2, '.', '');
+                            } else {
+                                if (gettype($mygrades) == 'double') {
+                                    $object->gradesint = number_format($mygrades, 2, '.', '');
+                                } else {
+                                    $object->gradesint = '-';
+                                }
+                            };
+                            array_push($data, $object);
+                        }
                     }
                 }
             }
@@ -1156,7 +1168,7 @@ function get_actual_module ($catid, $role) {
     global $DB;
 
     $now = time();
-    
+
     $actualmodule = 0;
     $sql = "SELECT C.id, C.shortname, C.category, UE.timestart
                     FROM {course} C
@@ -1193,8 +1205,14 @@ function get_actual_module ($catid, $role) {
 function get_intensivecourse_data ($course, $studentid) {
     global $DB;
     // Check if the course has a intensive module related.
+    //$namecourse = substr($course->shortname, strrpos($course->shortname, "["), strlen($course->shortname));
+    //$idname = substr($namecourse, 0, strrpos($namecourse, ".M."));
     $namecourse = explode('[', $course->shortname);
-    $idname = explode('.M.', $namecourse[0]);
+    if (isset($namecourse[0])) {
+        $idname = explode('.M.', $namecourse[0]);
+    } else {
+        $idname = explode('.M.', $namecourse);
+    }
     if ($modint = $DB->get_record('course', array('shortname' => 'MI.' . $idname[1]))) {
         $intensivecourse = new stdClass();
         $intensivecourse->name = $course->shortname;
@@ -1233,8 +1251,6 @@ function get_intensivecourse_data ($course, $studentid) {
             $intensivecourse->finalgrades = $intensivecourse->provgrades;
         }
         return $intensivecourse;
-    } else {
-        return $intensivecourse = false;
     }
 }
 
@@ -1267,7 +1283,7 @@ function integrate_previous_data ($data) {
             }
             if (array_key_exists(2, $register)) {
                 $courseshortname = $register[2];
-                $coursecategorynamearray = explode(".", $courseshortname); 
+                $coursecategorynamearray = explode(".", $courseshortname);
                 $coursecategoryname = $coursecategorynamearray[0];
 
                 $coursecategory = $DB->get_record('course', array('shortname' => $courseshortname));
@@ -1536,7 +1552,7 @@ function sort_array_of_array(&$array, $subfield) {
 function user_repeat_category($userid, $category) {
     global $DB;
 
-    $gradessql = 'SELECT gh.timemodified
+    $gradessql = 'SELECT gh.id, gh.timemodified
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
                    JOIN {course} c
@@ -1548,7 +1564,7 @@ function user_repeat_category($userid, $category) {
                   LIMIT 1';
     $firstgrade = $DB->get_record_sql($gradessql, array('category' => $category, 'source' => 'mod/quiz'));
 
-    $coursesql = 'SELECT ue.timestart, ue.timeend
+    $coursesql = 'SELECT ue.id, ue.timestart, ue.timeend
                     FROM {user_enrolments} ue
                     JOIN {enrol} e
                     JOIN {course} c
@@ -1575,7 +1591,7 @@ function user_repeat_category($userid, $category) {
         }
     }
 
-    if ($firstgrade->timemodified < $firstcourse) {
+    if ($firstgrade && $firstgrade->timemodified < $firstcourse) {
         $result = true;
     } else {
         $result = false;
