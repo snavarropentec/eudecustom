@@ -590,7 +590,7 @@ function get_user_all_courses ($userid) {
               JOIN {context} ctx ON ctx.id = ra.contextid
               JOIN {course} c ON c.id = ctx.instanceid
              WHERE ctx.contextlevel = :context
-               AND c.shortname LIKE "%.%"
+               AND c.shortname LIKE "%.M.%"
                AND ra.roleid = :role
                AND ra.contextid = ctx.id
                AND ra.userid = :user
@@ -908,6 +908,7 @@ function add_tpv_hidden_inputs ($response) {
 function get_usercourses_by_rol ($userid) {
     global $DB;
 
+    // Need to get shortnames with '.' to difference with old structure.
     $rolsql = "SELECT DISTINCT C.id, C.category
                  FROM {role_assignments} RA
                  JOIN {role} R ON R.id = RA.roleid
@@ -916,12 +917,12 @@ function get_usercourses_by_rol ($userid) {
                  JOIN {course_categories} CC ON CC.id = C.category
                 WHERE userid = :userid
                   AND CTX.contextlevel = :context
-                  AND (C.shortname LIKE '%.%'
+                  AND (C.shortname LIKE '%.M.%'
                    OR C.shortname LIKE 'MI.%')
                   AND (R.shortname = :role1
                    OR R.shortname = :role2
                    OR R.shortname = :role3)
-             ORDER BY C.id";
+             ORDER BY C.category, C.id";
 
     $rolrecords = $DB->get_records_sql($rolsql,
             array(
@@ -971,6 +972,7 @@ function module_is_intensive ($shortname) {
 function get_students_course_data ($courseid, $actualmodule) {
     global $DB;
 
+    // Get last enrolment in this course.
     $role = $DB->get_record('role', array('shortname' => 'student'))->id;
     $sql = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name
                     FROM {course} C
@@ -981,6 +983,7 @@ function get_students_course_data ($courseid, $actualmodule) {
                     JOIN {enrol} E ON E.id = UE.enrolid AND E.courseid = C.id
                    WHERE RA.roleid = :role
                      AND C.id = :courseid
+                ORDER BY UE.timestart DESC
                    LIMIT 1";
     $res = $DB->get_record_sql($sql, array(
         'role' => $role,
@@ -989,26 +992,19 @@ function get_students_course_data ($courseid, $actualmodule) {
 
     if ($res) {
         if (!module_is_intensive($res->shortname)) {
-            $split = explode('.M.', $res->shortname);
-            $dotpos = strpos($split[1], '.');
-            if ($dotpos) {
-                $newsplit = explode('.', $split[1]);
-                $module = $newsplit[0];
-            } else {
-                $module = $split[1];
-            }
-
-            if ($module == $actualmodule) {
+            if ($res->timestart == $actualmodule) {
                 $res->date = 'actual';
-            } else if ($module > $actualmodule) {
-                $res->date = 'next';
-            } else {
+            } else if ($res->timestart < $actualmodule) {
                 $res->date = 'prev';
+            } else {
+                $res->date = 'next';
             }
         } else {
+            // All intensive courses should be ordered in actual courses.
             $res->date = 'actual';
         }
     } else {
+        // In case there are not any student enrolled, it should be ordered in actual courses.
         $sql2 = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name
                     FROM {course} C
                     JOIN {course_categories} CC ON C.category = CC.id
@@ -1089,11 +1085,11 @@ function sort_obj_by_shortname ($a, $b) {
  * @return array $courses
  */
 function get_user_courses ($userid) {
-
+    global $DB;
     $records['actual'] = [];
     $records['prev'] = [];
     $records['next'] = [];
-
+    $studentrole  = $DB->get_record('role', array('shortname' => 'student'))->id;
     $rolcourses = get_usercourses_by_rol($userid);
     $categories = [];
 
@@ -1127,7 +1123,7 @@ function get_user_courses ($userid) {
         if (!$catexists) {
             $category = new stdClass();
             $category->id = $r['category'];
-            $category->actualmodule = get_actual_module($category->id);
+            $category->actualmodule = get_actual_module($category->id, $studentrole);
             $course = new stdClass();
             $course->id = $r['course'];
             $r = get_students_course_data($course->id, $category->actualmodule);
@@ -1156,13 +1152,13 @@ function get_user_courses ($userid) {
  * @param int $catid
  * @return array $actualmodule
  */
-function get_actual_module ($catid) {
+function get_actual_module ($catid, $role) {
     global $DB;
 
     $now = time();
-    $role = $DB->get_record('role', array('shortname' => 'student'))->id;
+    
     $actualmodule = 0;
-    $sql = "SELECT C.id, C.shortname, C.category
+    $sql = "SELECT C.id, C.shortname, C.category, UE.timestart
                     FROM {course} C
                     JOIN {course_categories} CC ON C.category = CC.id
                     JOIN {context} CTX ON C.id = CTX.instanceid
@@ -1172,7 +1168,6 @@ function get_actual_module ($catid) {
                    WHERE RA.roleid = :role
                      AND C.category = :category
                      AND UE.timestart < :now
-                     AND C.shortname LIKE '%.%'
                 ORDER BY UE.timestart DESC
                    LIMIT 1";
     $res = $DB->get_record_sql($sql,
@@ -1183,14 +1178,7 @@ function get_actual_module ($catid) {
         'now2' => $now
     ));
     if ($res) {
-        $split = explode('.M.', $res->shortname, 2);
-        $dotpos = strpos($split[1], '.');
-        if ($dotpos) {
-            $newsplit = explode('.', $split[1]);
-            $actualmodule = $newsplit[0];
-        } else {
-            $actualmodule = $split[1];
-        }
+        $actualmodule = $res->timestart;
     }
     return $actualmodule;
 }
@@ -1261,16 +1249,6 @@ function get_intensivecourse_data ($course, $studentid) {
 function integrate_previous_data ($data) {
     global $DB;
     $completed = false;
-    // These are the categories name of the courses we are going to integrate.
-    $categoryequivalencyname = array('MBA' => 'MBA',
-        'COI' => 'Comercio Internacional',
-        'ECR' => 'ESPECIALIDAD CALIDAD Y RSC (ONLINE)',
-        'GEA' => 'Gestión Ambiental',
-        'LOG' => 'Logística',
-        'MAR' => 'Marketing',
-        'MAD' => 'Marketing Digital',
-        'PMP' => 'PMP',
-        'RRHH' => 'RRHH');
     try {
         $transaction = $DB->start_delegated_transaction();
         $registers = preg_split('/\r\n|\r|\n/', $data);
@@ -1288,15 +1266,14 @@ function integrate_previous_data ($data) {
                 throw new Exception('Error');
             }
             if (array_key_exists(2, $register)) {
-                /*
-                 * We explode the $courseshortname and get the category name (as the shortnames
-                 * have this format MI.xxxxx.yyyy, so xxxx is the index of the name of the course's category name
-                 * within $categoryequivalencyname)
-                 */
                 $courseshortname = $register[2];
-                $coursecategorynamearray = explode(".", $courseshortname);
-                $coursecategoryname = $categoryequivalencyname[$coursecategorynamearray[1]];
-                $coursecategory = $DB->get_record('course_categories', array('name' => $coursecategoryname));
+                $coursecategorynamearray = explode(".", $courseshortname); 
+                $coursecategoryname = $coursecategorynamearray[0];
+
+                $coursecategory = $DB->get_record('course', array('shortname' => $courseshortname));
+
+                $intensivecoursename = $coursecategorynamearray[2];
+                $intensivecoursename = 'MI.' . substr($intensivecoursename, 0, strrpos($intensivecoursename, "["));
             } else {
                 throw new Exception('Error');
             }
@@ -1319,13 +1296,13 @@ function integrate_previous_data ($data) {
                     // New entry in local_eudecustom_mat_int.
                     $record1 = new stdClass();
                     $record1->user_email = $useremail;
-                    $record1->course_shortname = $courseshortname;
+                    $record1->course_shortname = $intensivecoursename;
+                    $record1->category_id = $coursecategory->category;
                     $record1->matriculation_date = $unixdate;
                     $record1->conv_number = $convnumber;
                     $DB->insert_record('local_eudecustom_mat_int', $record1);
                     $record2 = $DB->get_record('local_eudecustom_user',
-                            array('user_email' => $useremail, 'course_category' => $coursecategory->id));
-
+                            array('user_email' => $useremail, 'course_category' => $coursecategory->category));
                     // Create/Update entry in local_eudecustom_user.
                     if ($record2) {
                         $record2->num_intensive = $record2->num_intensive + 1;
@@ -1333,11 +1310,10 @@ function integrate_previous_data ($data) {
                     } else {
                         $record = new stdClass();
                         $record->user_email = $useremail;
-                        $record->course_category = $coursecategory->id;
+                        $record->course_category = $coursecategory->category;
                         $record->num_intensive = 1;
                         $DB->insert_record('local_eudecustom_user', $record);
                     }
-
                     break;
                 /*
                  * With DELETE action we delete all the records in local_eudecustom_mat_int of that course related
@@ -1346,12 +1322,16 @@ function integrate_previous_data ($data) {
                 case 'DELETE':
                     // Count the records to delete and delete afterwards.
                     $records = $DB->get_records('local_eudecustom_mat_int',
-                            array('user_email' => $useremail, 'course_shortname' => $courseshortname));
+                            array('user_email' => $useremail,
+                                  'course_shortname' => $courseshortname,
+                                  'category_id' => $coursecategory->category));
                     $DB->delete_records('local_eudecustom_mat_int',
-                            array('user_email' => $useremail, 'course_shortname' => $courseshortname));
+                            array('user_email' => $useremail,
+                                  'course_shortname' => $courseshortname,
+                                  'category_id' => $coursecategory->category));
                     // Delete/Update entry in local_eudecustom_user.
                     $record2 = $DB->get_record('local_eudecustom_user',
-                            array('user_email' => $useremail, 'course_category' => $coursecategory->id));
+                            array('user_email' => $useremail, 'course_category' => $coursecategory->category));
                     if ($record2) {
                         $record2->num_intensive = $record2->num_intensive - count($records);
                         // If the new number is > 0 we make an update, else we make a delete.
@@ -1562,15 +1542,15 @@ function user_repeat_category($userid, $category) {
                    JOIN {course} c
                   WHERE gh.oldid = gi.id
                     AND gi.courseid = c.id
+                    AND	gh.source = :source
                     AND c.category = :category
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
-
-    $firstgrade = $DB->get_record_sql($gradessql, array('category' => $category));
+    $firstgrade = $DB->get_record_sql($gradessql, array('category' => $category, 'source' => 'mod/quiz'));
 
     $coursesql = 'SELECT ue.timestart, ue.timeend
                     FROM {user_enrolments} ue
-                    FROM {enrol} e
+                    JOIN {enrol} e
                     JOIN {course} c
                    WHERE e.id = ue.enrolid
                      AND e.courseid = c.id
@@ -1584,7 +1564,7 @@ function user_repeat_category($userid, $category) {
                                                 'userid' => $userid));
     $firstcourse = 0;
     $endcourse = 0;
-    foreach ($actualcourses as $courses) {
+    foreach ($actualcourses as $course) {
         if ($course->timeend > $endcourse) {
             $endcourse = $course->timeend;
         }
@@ -1595,7 +1575,7 @@ function user_repeat_category($userid, $category) {
         }
     }
 
-    if ($firstgrade < $firstcourse) {
+    if ($firstgrade->timemodified < $firstcourse) {
         $result = true;
     } else {
         $result = false;
