@@ -69,7 +69,7 @@ $categories = array_unique(array_flip(array_merge($cat1, $cat2, $cat3)));
 if (!count($categories)) {
     echo $output->eude_nopermission_url();
 } else {
-    $data = new local_eudecustom_eudegradesearch($categories, array(), get_student_different_roles(), array());
+    $data = new local_eudecustom_eudegradesearch($categories);
     echo $output->eude_gradesearch_page($data, $sesskey);
 }
 

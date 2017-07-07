@@ -100,17 +100,6 @@ class eudegradesearch_renderer extends \plugin_renderer_base {
         $html .= html_writer::end_div();
         $html .= html_writer::end_div();
 
-        // Select for diferent type of students.
-        $html .= html_writer::start_div('col-md-12');
-        $html .= html_writer::start_div('col-md-2');
-        $html .= html_writer::tag('label', get_string('studenttypes', 'local_eudecustom'), array('for' => 'studenttypesname'));
-        $html .= html_writer::end_div();
-        $html .= html_writer::start_div('col-md-4');
-        $html .= html_writer::select($data->studenttypes, 'studenttypesname',
-                array('id' => 'studenttypesname'), get_string('studenttypes', 'local_eudecustom'));
-        $html .= html_writer::end_div();
-        $html .= html_writer::end_div();
-
         // Select for students.
         $html .= html_writer::start_div('col-md-12');
         $html .= html_writer::start_div('col-md-2');

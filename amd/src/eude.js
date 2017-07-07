@@ -292,7 +292,6 @@ define(['jquery', 'jqueryui'], function ($) {
         },
         academic: function () {
             $('#menucoursename').hide();
-            $('#menustudenttypesname').hide();
             $('#menustudentname').hide();
             $('#usergrades').hide();
             $('#menucategoryname').change(function () {
@@ -305,7 +304,6 @@ define(['jquery', 'jqueryui'], function ($) {
                     } else {
                         $('#menucoursename').show();
                     }
-                    $('#menustudenttypesname').hide();
                     $('#menustudentname').empty();
                     $('#menustudentname').append("<option value=''>-- Alumno --</option>");
                     $('#menustudentname').hide();
@@ -333,33 +331,20 @@ define(['jquery', 'jqueryui'], function ($) {
                 });
             });
             $('#menucoursename').change(function () {
-                $('#menustudenttypesname').show();
-                $('#menustudentname').hide();
+                $('#menustudentname').show();
                 $('#usergrades').hide();
                 $("#menucoursename option:selected").each(function () {
                     if (!$(this).val()) {
-                        $('#menustudenttypesname').hide();
+                        $('#menustudentname').hide();
                     } else {
-                        $('#menustudenttypesname').show();
+                        $('#menustudentname').show();
                     }
-                });
-            });
-            $('#menustudenttypesname').change(function () {
-                $('#menustudentname').show();
-                $('#usergrades').hide();
-                if (!$(this).val()) {
-                    $('#menustudentname').hide();
-                } else {
-                    $('#menustudentname').show();
-                }
-                $("#menustudenttypesname option:selected").each(function () {
                     $('#menustudentname').empty();
                     $('#menustudentname').append("<option value=''>-- Alumno --</option>");
                     var courseId = $('#menucoursename').val();
-                    var studentType = $('#menustudenttypesname').val();
                     $.ajax({
                         data: 'courseId :' + courseId,
-                        url: 'eudegradesearchrequest.php?course=' + courseId + '&studenttypes=' + studentType,
+                        url: 'eudegradesearchrequest.php?course=' + courseId,
                         type: 'get',
                         success: function (response, status, thrownerror) {
                             try {
@@ -377,7 +362,6 @@ define(['jquery', 'jqueryui'], function ($) {
                             window.console.log(thrownerror);
                         }
                     });
-
                 });
             });
             $('#menustudentname').change(function () {

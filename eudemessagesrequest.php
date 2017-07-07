@@ -65,8 +65,6 @@ if (optional_param('messagecourse', 0, PARAM_INT)) {
     ));
 
     $students = false;
-    $studentsfinishing = false;
-    $studentsold = false;
     $response = "";
     foreach ($data as $option) {
         switch ($option->shortname) {
@@ -76,19 +74,8 @@ if (optional_param('messagecourse', 0, PARAM_INT)) {
                     $students = true;
                 }
                 break;
-            case 'studentfinishing':
-                if (!$studentsfinishing) {
-                    $response .= "<option value='studentfinishing'>" . get_string('studentfinishing', 'local_eudecustom') . "</option>";
-                    $studentsfinishing = true;
-                }
+            case 'studentval':
                 break;
-            case 'studentold':
-                if (!$studentold) {
-                    $response .= "<option value='studentold'>" . get_string('studentold', 'local_eudecustom') . "</option>";
-                    $studentsold = true;
-                }
-                break;
-
             default:
                 $response .= "<option value=$option->userid>"
                     . get_string($option->shortname, 'local_eudecustom')

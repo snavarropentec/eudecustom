@@ -83,7 +83,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_categories_with_intensive_modules () {
+    public function test_get_categories_with_intensive_modules () {
 
         $this->resetAfterTest(true);
 
@@ -133,7 +133,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_samoo_subjects () {
+    public function test_get_samoo_subjects () {
 
         $this->resetAfterTest(true);
 
@@ -153,7 +153,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_count_course_matriculations () {
+    public function test_count_course_matriculations () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -209,7 +209,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_count_total_intensives () {
+    public function test_count_total_intensives () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -258,7 +258,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_name_categories_by_role () {
+    public function test_get_name_categories_by_role () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -364,7 +364,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_course_students () {
+    public function test_get_course_students () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -434,7 +434,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_user_categories () {
+    public function test_get_user_categories () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -517,7 +517,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_shortname_courses_by_category () {
+    public function test_get_shortname_courses_by_category () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -629,7 +629,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_check_role_manager () {
+    public function test_check_role_manager () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -678,7 +678,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_role_manager () {
+    public function test_get_role_manager () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -730,7 +730,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_reset_attemps_from_course () {
+    public function test_reset_attemps_from_course () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -809,7 +809,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_save_matriculation_dates () {
+    public function test_save_matriculation_dates () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -931,7 +931,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_enrol_intensive_user () {
+    public function test_enrol_intensive_user () {
         global $DB;
         $this->resetAfterTest(true);
 
@@ -1003,7 +1003,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_add_tpv_hidden_inputs () {
+    public function test_add_tpv_hidden_inputs () {
         global $CFG;
         global $USER;
 
@@ -1061,7 +1061,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_user_all_courses () {
+    public function test_get_user_all_courses () {
 
         $this->resetAfterTest();
 
@@ -1108,7 +1108,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_update_intensive_dates () {
+    public function test_update_intensive_dates () {
         global $DB;
         $this->resetAfterTest();
 
@@ -1191,7 +1191,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_grades () {
+    public function test_grades () {
         global $DB;
         $this->resetAfterTest();
 
@@ -1414,7 +1414,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_configureprofiledata () {
+    public function test_configureprofiledata () {
 
         global $USER;
         global $DB;
@@ -1432,9 +1432,12 @@ class local_eudecustom_testcase extends advanced_testcase {
         // Create user, a category and courses.
         $user1 = $this->getDataGenerator()->create_user(array('firstname' => "USUARIO 1", 'email' => 'user1@php.com'));
         $category1 = $this->getDataGenerator()->create_category();
+        // Create courses.
         $course1 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO", 'category' => $category1->id));
         $course2 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO", 'category' => $category1->id));
+        // Create a course without intensive course.
         $course3 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSONORMAL", 'category' => $category1->id));
+        // Create more courses.
         $course4 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO2", 'category' => $category1->id));
         $course5 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO2", 'category' => $category1->id));
         $course6 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO3", 'category' => $category1->id));
@@ -1790,7 +1793,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_user_shortname_courses () {
+    public function test_get_user_shortname_courses () {
 
         global $DB;
 
@@ -1905,7 +1908,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_info_grades () {
+    public function test_get_info_grades () {
 
         global $DB;
 
@@ -1943,7 +1946,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_integrate_previous_data () {
+    public function test_integrate_previous_data () {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -2012,7 +2015,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_usercourses_by_rol () {
+    public function test_get_usercourses_by_rol () {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -2078,7 +2081,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_module_is_intensive () {
+    public function test_module_is_intensive () {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -2105,7 +2108,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_actual_module () {
+    public function test_get_actual_module () {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -2177,7 +2180,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_students_course_data () {
+    public function test_get_students_course_data () {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -2305,7 +2308,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_add_course_activities () {
+    public function test_add_course_activities () {
 
         $this->resetAfterTest(true);
 
@@ -2398,7 +2401,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_user_courses () {
+    public function test_get_user_courses () {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -2643,7 +2646,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_get_grade_category () {
+    public function test_get_grade_category () {
 
         global $DB;
 
@@ -2660,26 +2663,26 @@ class local_eudecustom_testcase extends advanced_testcase {
                 array('name' => 'Category One'));
 
         // Creating courses.
-        $course1 = $this->getDataGenerator()->create_course(
+        $module1 = $this->getDataGenerator()->create_course(
                 array('shortname' => "CAT.M.CURSO1", 'category' => $category1->id));
-        $course2 = $this->getDataGenerator()->create_course(
+        $module2 = $this->getDataGenerator()->create_course(
                 array('shortname' => "CAT.M.CURSO2", 'category' => $category1->id));
-        $course3 = $this->getDataGenerator()->create_course(
+        $module3 = $this->getDataGenerator()->create_course(
                 array('shortname' => "CAT.M.CURSO3", 'category' => $category1->id));
-        $course4 = $this->getDataGenerator()->create_course(
+        $module4 = $this->getDataGenerator()->create_course(
                 array('shortname' => "CAT.M.CURSO4", 'category' => $category1->id));
 
-        $manualinstance = self::create_manual_instance($course1->id);
+        $manualinstance = self::create_manual_instance($module1->id);
         $manualplugin->enrol_user($manualinstance, $user1->id, $studentrole->id, 1493203999, 1494303999);
-        $manualinstance2 = self::create_manual_instance($course2->id);
+        $manualinstance2 = self::create_manual_instance($module2->id);
         $manualplugin->enrol_user($manualinstance2, $user1->id, $studentrole->id, 1493103999, 1494302999);
-        $manualinstance3 = self::create_manual_instance($course3->id);
+        $manualinstance3 = self::create_manual_instance($module3->id);
         $manualplugin->enrol_user($manualinstance3, $user1->id, $studentrole->id, 1493103999, 1494302999);
-        $manualinstance4 = self::create_manual_instance($course4->id);
+        $manualinstance4 = self::create_manual_instance($module4->id);
         $manualplugin->enrol_user($manualinstance4, $user1->id, $studentrole->id, 1493103999, 1494302999);
 
         // Creating grades for each course.
-        $grade = $this->getDataGenerator()->create_grade_item(array('itemtype' => 'course', 'courseid' => $course1->id));
+        $grade = $this->getDataGenerator()->create_grade_item(array('itemtype' => 'course', 'courseid' => $module1->id));
         $this->assertNotEmpty($grade);
         $grades = new stdClass();
         $grades->itemid = $grade->id;
@@ -2689,7 +2692,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $DB->insert_record('grade_grades', $grades, false);
 
-        $grade2 = $this->getDataGenerator()->create_grade_item(array('itemtype' => 'course', 'courseid' => $course2->id));
+        $grade2 = $this->getDataGenerator()->create_grade_item(array('itemtype' => 'course', 'courseid' => $module2->id));
         $this->assertNotEmpty($grade2);
         $grades2 = new stdClass();
         $grades2->itemid = $grade2->id;
@@ -2699,7 +2702,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $DB->insert_record('grade_grades', $grades2, false);
 
-        $grade3 = $this->getDataGenerator()->create_grade_item(array('itemtype' => 'course', 'courseid' => $course3->id));
+        $grade3 = $this->getDataGenerator()->create_grade_item(array('itemtype' => 'course', 'courseid' => $module3->id));
         $this->assertNotEmpty($grade3);
         $grades3 = new stdClass();
         $grades3->itemid = $grade3->id;
@@ -2713,7 +2716,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->assertNotEmpty($average0);
         $this->assertEquals(-1, $average0);
 
-        $grade4 = $this->getDataGenerator()->create_grade_item(array('itemtype' => 'course', 'courseid' => $course4->id));
+        $grade4 = $this->getDataGenerator()->create_grade_item(array('itemtype' => 'course', 'courseid' => $module4->id));
         $this->assertNotEmpty($grade4);
         $grades4 = new stdClass();
         $grades4->itemid = $grade4->id;
@@ -2731,7 +2734,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     /**
      * Tests for phpunit.
      */
-    public function notest_user_repeat_category () {
+    public function test_user_repeat_category () {
         global $DB;
 
         $this->resetAfterTest();
@@ -2826,7 +2829,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $DB->insert_record('grade_grades_history', $gradehistory2, false);
 
         // Testing with actual courses.
-        $result = user_repeat_category($user1->id, $course1->category);
+        $result = user_repeat_category($student1->id, $course1->category);
         $this->assertFalse($result);
 
         // Grade course 3.

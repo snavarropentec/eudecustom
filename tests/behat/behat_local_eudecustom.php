@@ -244,7 +244,7 @@ class behat_local_eudecustom extends behat_base {
 
         // Use an actual time variable and force to relative matricualtion dates.
         $today = time();
-        $course1 = $DB->get_record('course', array('shortname' => 'MI.MBA.C1'));
+        $course1 = $DB->get_record('course', array('shortname' => 'MI.C1'));
         $record = new stdClass();
         $record->courseid = $course1->id;
         $record->fecha1 = $today - 604800;
@@ -253,7 +253,7 @@ class behat_local_eudecustom extends behat_base {
         $record->fecha4 = $today + 3800000;
         $DB->insert_record('local_eudecustom_call_date', $record, false);
 
-        $course2 = $DB->get_record('course', array('shortname' => 'MI.MBA.C2'));
+        $course2 = $DB->get_record('course', array('shortname' => 'MI.C2'));
         $record2 = new stdClass();
         $record2->courseid = $course2->id;
         $record2->fecha1 = $today;
@@ -269,7 +269,7 @@ class behat_local_eudecustom extends behat_base {
     public function intensive_enrols() {
 
         global $DB;
-        $coursedata = $DB->get_record('course', array('shortname' => 'MI.MBA.C1'));
+        $coursedata = $DB->get_record('course', array('shortname' => 'MI.C1'));
         $enroldata = $DB->get_record('enrol', array('courseid' => $coursedata->id, 'enrol' => 'manual'));
         $userdata = $DB->get_record('user', array('email' => 'student3@example.com'));
         $enrolmentdata = $DB->get_record('user_enrolments', array('enrolid' => $enroldata->id, 'userid' => $userdata->id));
