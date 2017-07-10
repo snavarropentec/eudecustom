@@ -1504,18 +1504,15 @@ function generate_event_keys ($modal = '') {
 function get_grade_category ($category) {
 
     global $DB;
-    $sql = 'SELECT C.id, GG.finalgrade, GG.rawgrademax, GI.itemtype, C.category
-               FROM {course} C
-               JOIN {grade_items} GI ON C.id = GI.courseid
-               JOIN {grade_grades} GG ON GI.id = GG.itemid
-               WHERE 1';
-    $grades = $DB->get_records_sql($sql, array());
-    $grades = array();
-    foreach ($entries as $entry) {
-        if ($entry->category == $category && $entry->itemtype == 'course') {
-            array_push($grades, $entry);
-        }
-    }
+
+    $sql = 'SELECT co.id, gg.finalgrade, gg.rawgrademax
+                   FROM {grade_grades} gg
+                   JOIN {grade_items} gi ON gg.itemid = gi.id
+                   JOIN {course} co ON gi.courseid = co.id
+                  WHERE gi.itemtype = :type
+                    AND co.category = :category';
+
+    $grades = $DB->get_records_sql($sql, array('type' => 'course', 'category' => $category));
     $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
     if (count($grades) == count($courses)) {
@@ -1557,8 +1554,10 @@ function user_repeat_category ($userid, $category) {
 
     $sql = 'SELECT gh.id, gh.timemodified
                    FROM {grade_grades_history} gh
-                   JOIN {grade_items} gi
-                     ON gi.id = gh.oldid
+                   JOIN {grade_items} gi ON gh.oldid = gi.id
+                   JOIN {course} co ON gi.courseid = co.id
+                  WHERE gh.source = :source
+                    AND co.category = :category
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
     $firstgrade = $DB->get_record_sql($sql,
@@ -1589,8 +1588,8 @@ function user_repeat_category ($userid, $category) {
 
     if ($firstgrade && $firstgrade->timemodified < $firstcourse) {
         $result = true;
-    } else {
+    } else {*/
         $result = false;
-    }
+    //}
     return $result;
 }
