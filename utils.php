@@ -1504,15 +1504,15 @@ function generate_event_keys ($modal = '') {
 function get_grade_category ($category) {
 
     global $DB;
-/*
-    $sql = 'SELECT c.id, gg.finalgrade, gg.rawgrademax
+
+    $sql = 'SELECT co.id, gg.finalgrade, gg.rawgrademax
                    FROM {grade_grades} gg
                    JOIN {grade_items} gi
-                   JOIN {course} c
+                   JOIN {course} co
                   WHERE gg.itemid = gi.id
-                    AND gi.courseid = c.id
+                    AND gi.courseid = co.id
                     AND gi.itemtype = :type
-                    AND c.category = :category';
+                    AND co.category = :category';
 
     $grades = $DB->get_records_sql($sql, array('type' => 'course', 'category' => $category));
     $courses = $DB->get_records('course', array('category' => $category));
@@ -1523,9 +1523,9 @@ function get_grade_category ($category) {
         }
         $categorygrade = $categorygrade / count($grades);
         $categorygrade = number_format($categorygrade, 2, '.', '');
-    } else {*/
+    } else {
         $categorygrade = -1;
-    //}
+    }
     return $categorygrade;
 }
 
@@ -1553,15 +1553,15 @@ function sort_array_of_array (&$array, $subfield) {
  */
 function user_repeat_category ($userid, $category) {
     global $DB;
-/*
+
     $sql = 'SELECT gh.id, gh.timemodified
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
-                   JOIN {course} c
+                   JOIN {course} co
                   WHERE gh.oldid = gi.id
-                    AND gi.courseid = c.id
-                    AND	gh.source = :source
-                    AND c.category = :category
+                    AND gi.courseid = co.id
+                    AND	gh.source LIKE :source
+                    AND co.category = :category
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
     $firstgrade = $DB->get_record_sql($sql,
@@ -1594,8 +1594,8 @@ function user_repeat_category ($userid, $category) {
 
     if ($firstgrade && $firstgrade->timemodified < $firstcourse) {
         $result = true;
-    } else {*/
+    } else {
         $result = false;
-    //}
+    }
     return $result;
 }
