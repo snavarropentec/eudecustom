@@ -669,6 +669,7 @@ function configureprofiledata ($userid) {
                 $object->actionid = '';
                 $object->desc = $mycourse->fullname;
                 if ($mycourse->category) {
+                    $repeat = user_repeat_category($userid, $mycourse->category);
                     context_helper::preload_from_record($mycourse);
                     $ccontext = context_course::instance($mycourse->id);
                     $linkattributes = null;
@@ -792,7 +793,8 @@ function configureprofiledata ($userid) {
                                         if ($mygradesint < 5) {
                                             if ($numint &&
                                                     $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
-                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse) {
+                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
+                                                    $repeat == false) {
                                                 $object->actiontitle = get_string('retest', 'local_eudecustom');
                                                 $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
                                                 $object->actionclass = 'abrirFechas';
@@ -812,7 +814,8 @@ function configureprofiledata ($userid) {
                                         if ($mygrades < 5) {
                                             if ($numint &&
                                                     $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
-                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse) {
+                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
+                                                    $repeat == false) {
                                                 $object->actiontitle = get_string('retest', 'local_eudecustom');
                                                 $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
                                                 $object->actionclass = 'abrirFechas';
@@ -1510,7 +1513,7 @@ function get_grade_category ($category) {
                     AND gi.itemtype = :type
                     AND c.category = :category';
 
-    $grades = $DB->get_records_sql($gradessql, array('category' => $category, 'type' => 'course'));
+    $grades = $DB->get_records_sql($gradessql, array('type' => 'course', 'category' => $category));
     $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
     if (count($grades) == count($courses)) {
@@ -1560,7 +1563,7 @@ function user_repeat_category ($userid, $category) {
                     AND c.category = :category
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
-    $firstgrade = $DB->get_record_sql($gradessql, array('category' => $category, 'source' => 'mod/quiz'));
+    $firstgrade = $DB->get_record_sql($gradessql, array('source' => 'mod/quiz', 'category' => $category));
 
     $coursesql = 'SELECT ue.id, ue.timestart, ue.timeend
                     FROM {user_enrolments} ue
@@ -1573,10 +1576,7 @@ function user_repeat_category ($userid, $category) {
                      AND ue.userid = :userid
                 ORDER BY ue.timeend DESC';
     $actualcourses = $DB->get_records_sql($coursesql,
-            array(
-        'category' => $category,
-        'type' => 'manual',
-        'userid' => $userid));
+            array('category' => $category, 'type' => 'manual', 'userid' => $userid));
     $firstcourse = 0;
     $endcourse = 0;
     foreach ($actualcourses as $course) {
