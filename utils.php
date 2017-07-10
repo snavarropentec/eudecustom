@@ -1555,7 +1555,7 @@ function user_repeat_category ($userid, $category) {
     $sql = 'SELECT gh.id, gh.timemodified
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
-                   JOIN {course} co 
+                   JOIN {course} co
                      ON gh.source = :source
                     AND co.category = :category
                   WHERE gi.id = gh.oldid
