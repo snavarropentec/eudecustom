@@ -1504,8 +1504,8 @@ function generate_event_keys ($modal = '') {
 function get_grade_category ($category) {
 
     global $DB;
-
-    $sql = 'SELECT c.*, gg.finalgrade, gg.rawgrademax
+/*
+    $sql = 'SELECT c.id, gg.finalgrade, gg.rawgrademax
                    FROM {grade_grades} gg
                    JOIN {grade_items} gi
                    JOIN {course} c
@@ -1523,9 +1523,9 @@ function get_grade_category ($category) {
         }
         $categorygrade = $categorygrade / count($grades);
         $categorygrade = number_format($categorygrade, 2, '.', '');
-    } else {
+    } else {*/
         $categorygrade = -1;
-    }
+    //}
     return $categorygrade;
 }
 
@@ -1553,8 +1553,8 @@ function sort_array_of_array (&$array, $subfield) {
  */
 function user_repeat_category ($userid, $category) {
     global $DB;
-
-    $sql = 'SELECT gh.*
+/*
+    $sql = 'SELECT gh.id, gh.timemodified
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
                    JOIN {course} c
@@ -1594,8 +1594,8 @@ function user_repeat_category ($userid, $category) {
 
     if ($firstgrade && $firstgrade->timemodified < $firstcourse) {
         $result = true;
-    } else {
+    } else {*/
         $result = false;
-    }
+    //}
     return $result;
 }
