@@ -1504,12 +1504,8 @@ function generate_event_keys ($modal = '') {
 function get_grade_category ($category) {
 
     global $DB;
-    $sql = 'SELECT C.id, GG.finalgrade, GG.rawgrademax
-               FROM {course} C
-               JOIN {grade_items} GI
-               JOIN {grade_grades} GG
-              WHERE GI.id = GG.itemid
-                AND C.id = GI.courseid';
+    $sql = 'SELECT C.id
+               FROM {course} C';
     $grades = $DB->get_records_sql($sql, array('type' => 'course', 'category' => $category));
     $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
@@ -1553,9 +1549,7 @@ function user_repeat_category ($userid, $category) {
     $sql = 'SELECT gh.id, gh.timemodified
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
-                   JOIN {course} co
                   WHERE gi.id = gh.oldid
-                    AND co.id = gi.courseid
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
     $firstgrade = $DB->get_record_sql($sql,
