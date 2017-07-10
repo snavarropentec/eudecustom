@@ -590,18 +590,18 @@ function get_user_all_courses ($userid) {
 
     $sitecourse = $DB->get_record('course', array('format' => 'site'));
     $role = $DB->get_record('role', array('shortname' => 'student'));
-    $sql = 'SELECT DISTINCT c.*
+    $sql = "SELECT DISTINCT c.*
               FROM {role_assignments} ra
               JOIN {role} r ON r.id = ra.roleid
               JOIN {context} ctx ON ctx.id = ra.contextid
               JOIN {course} c ON c.id = ctx.instanceid
              WHERE ctx.contextlevel = :context
-               AND c.shortname LIKE "%.M.%"
+               AND c.shortname LIKE '%.M.%'
                AND ra.roleid = :role
                AND ra.contextid = ctx.id
                AND ra.userid = :user
                AND c.id > :site
-          ORDER BY c.visible DESC, c.sortorder ASC';
+          ORDER BY c.visible DESC, c.sortorder ASC";
     $data = $DB->get_records_sql($sql,
             array(
         'userid' => $userid,
@@ -669,7 +669,6 @@ function configureprofiledata ($userid) {
                 $object->actionid = '';
                 $object->desc = $mycourse->fullname;
                 if ($mycourse->category) {
-                    $repeat = user_repeat_category($userid, $mycourse->category);
                     context_helper::preload_from_record($mycourse);
                     $ccontext = context_course::instance($mycourse->id);
                     $linkattributes = null;
@@ -793,8 +792,7 @@ function configureprofiledata ($userid) {
                                         if ($mygradesint < 5) {
                                             if ($numint &&
                                                     $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
-                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
-                                                    $repeat == false) {
+                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse) {
                                                 $object->actiontitle = get_string('retest', 'local_eudecustom');
                                                 $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
                                                 $object->actionclass = 'abrirFechas';
@@ -814,8 +812,7 @@ function configureprofiledata ($userid) {
                                         if ($mygrades < 5) {
                                             if ($numint &&
                                                     $numint->num_intensive < $CFG->local_eudecustom_intensivemodulechecknumber &&
-                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse &&
-                                                    $repeat == false) {
+                                                    $intentos < $CFG->local_eudecustom_totalenrolsinincurse) {
                                                 $object->actiontitle = get_string('retest', 'local_eudecustom');
                                                 $object->actionid = 'abrirFechas(' . $mycourse->id . ',1,1)';
                                                 $object->actionclass = 'abrirFechas';
