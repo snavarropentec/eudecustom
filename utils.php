@@ -1509,9 +1509,7 @@ function get_grade_category ($category) {
                JOIN {grade_items} GI
                JOIN {grade_grades} GG
               WHERE GI.id = GG.itemid
-                AND C.id = GI.courseid
-                AND GI.itemtype = :type
-                AND C.category = :category';
+                AND C.id = GI.courseid';
     $grades = $DB->get_records_sql($sql, array('type' => 'course', 'category' => $category));
     $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
@@ -1556,9 +1554,7 @@ function user_repeat_category ($userid, $category) {
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
                    JOIN {course} co
-                  WHERE gh.source = :source
-                    AND co.category = :category
-                    AND gi.id = gh.oldid
+                  WHERE gi.id = gh.oldid
                     AND co.id = gi.courseid
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
