@@ -1504,16 +1504,14 @@ function generate_event_keys ($modal = '') {
 function get_grade_category ($category) {
 
     global $DB;
-
-    $sql = 'SELECT co.id, gg.finalgrade, gg.rawgrademax
-                   FROM {grade_grades} gg
-                   JOIN {grade_items} gi
-                   JOIN {course} co
-                   WHERE gg.itemid = gi.id
-                   AND gi.courseid = co.id
-                   AND gi.itemtype = :type
-                   AND co.category = :category';
-
+    $sql = 'SELECT C.id, GG.finalgrade, GG.rawgrademax
+               FROM {course} C
+               JOIN {grade_items} GI
+               JOIN {grade_grades} GG
+              WHERE GG.itemid = GI.id
+                AND GI.courseid = C.id
+                AND GI.itemtype = :type
+                AND C.category = :category';
     $grades = $DB->get_records_sql($sql, array('type' => 'course', 'category' => $category));
     $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
