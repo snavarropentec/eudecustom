@@ -1506,11 +1506,9 @@ function get_grade_category ($category) {
     global $DB;
     $sql = 'SELECT C.id, GG.finalgrade, GG.rawgrademax, GI.itemtype, C.category
                FROM {course} C
-               JOIN {grade_items} GI
-               JOIN {grade_grades} GG
-                 ON GI.id = GG.itemid
-                AND C.id = GI.courseid
-              WHERE 1';
+               JOIN {grade_items} GI ON C.id = GI.courseid
+               JOIN {grade_grades} GG ON GI.id = GG.itemid
+               WHERE 1';
     $grades = $DB->get_records_sql($sql, array());
     $grades = array();
     foreach ($entries as $entry) {
@@ -1568,11 +1566,9 @@ function user_repeat_category ($userid, $category) {
 
     $sqlcourse = 'SELECT ue.id, ue.timestart, ue.timeend
                     FROM {user_enrolments} ue
-                    JOIN {enrol} e
-                    JOIN {course} c
-                   WHERE e.id = ue.enrolid
-                     AND e.courseid = c.id
-                     AND e.enrol = :type
+                    JOIN {enrol} e ON e.id = ue.enrolid
+                    JOIN {course} c ON e.courseid = c.id
+                   WHERE e.enrol = :type
                      AND c.category = :category
                      AND ue.userid = :userid
                 ORDER BY ue.timeend DESC';
