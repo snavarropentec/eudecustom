@@ -1505,7 +1505,7 @@ function get_grade_category ($category) {
 
     global $DB;
 
-    $sql = 'SELECT c.id, gg.finalgrade, gg.rawgrademax
+    $sql = 'SELECT c.*, gg.finalgrade, gg.rawgrademax
                    FROM {grade_grades} gg
                    JOIN {grade_items} gi
                    JOIN {course} c
@@ -1554,7 +1554,7 @@ function sort_array_of_array (&$array, $subfield) {
 function user_repeat_category ($userid, $category) {
     global $DB;
 
-    $sql = 'SELECT gh.id, gh.timemodified
+    $sql = 'SELECT gh.*
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
                    JOIN {course} c
