@@ -1588,8 +1588,8 @@ function user_repeat_category ($userid, $category) {
 
     if ($firstgrade && $firstgrade->timemodified < $firstcourse) {
         $result = true;
-    } else {*/
+    } else {
         $result = false;
-    //}
+    }
     return $result;
 }
