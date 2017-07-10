@@ -1498,13 +1498,14 @@ function generate_event_keys ($modal = '') {
 /**
  * This function calculate category grade
  *
- * @return string $category;
+ * @param string $category category id
+ * @return string $categorygrade;
  */
 function get_grade_category ($category) {
 
     global $DB;
 
-    $gradessql = 'SELECT c.id, gg.finalgrade, gg.rawgrademax
+    $sql = 'SELECT c.id, gg.finalgrade, gg.rawgrademax
                    FROM {grade_grades} gg
                    JOIN {grade_items} gi
                    JOIN {course} c
@@ -1513,7 +1514,7 @@ function get_grade_category ($category) {
                     AND gi.itemtype = :type
                     AND c.category = :category';
 
-    $grades = $DB->get_records_sql($gradessql, array('type' => 'course', 'category' => $category));
+    $grades = $DB->get_records_sql($sql, array('type' => 'course', 'category' => $category));
     $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
     if (count($grades) == count($courses)) {
@@ -1553,7 +1554,7 @@ function sort_array_of_array (&$array, $subfield) {
 function user_repeat_category ($userid, $category) {
     global $DB;
 
-    $gradessql = 'SELECT gh.id, gh.timemodified
+    $sql = 'SELECT gh.id, gh.timemodified
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
                    JOIN {course} c
@@ -1563,9 +1564,10 @@ function user_repeat_category ($userid, $category) {
                     AND c.category = :category
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
-    $firstgrade = $DB->get_record_sql($gradessql, array('source' => 'mod/quiz', 'category' => $category));
+    $firstgrade = $DB->get_record_sql($sql,
+            array('source' => 'mod/quiz', 'category' => $category));
 
-    $coursesql = 'SELECT ue.id, ue.timestart, ue.timeend
+    $sqlcourse = 'SELECT ue.id, ue.timestart, ue.timeend
                     FROM {user_enrolments} ue
                     JOIN {enrol} e
                     JOIN {course} c
@@ -1575,7 +1577,7 @@ function user_repeat_category ($userid, $category) {
                      AND c.category = :category
                      AND ue.userid = :userid
                 ORDER BY ue.timeend DESC';
-    $actualcourses = $DB->get_records_sql($coursesql,
+    $actualcourses = $DB->get_records_sql($sqlcourse,
             array('category' => $category, 'type' => 'manual', 'userid' => $userid));
     $firstcourse = 0;
     $endcourse = 0;
