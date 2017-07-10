@@ -1504,15 +1504,19 @@ function generate_event_keys ($modal = '') {
 function get_grade_category ($category) {
 
     global $DB;
-    $sql = 'SELECT C.id, GG.finalgrade, GG.rawgrademax
+    $sql = 'SELECT C.id, GG.finalgrade, GG.rawgrademax, GI.itemtype, C.category
                FROM {course} C
                JOIN {grade_items} GI
                JOIN {grade_grades} GG
                  ON GI.id = GG.itemid
-                AND C.id = GI.courseid
-              WHERE GI.itemtype = :type
-                AND C.category = :category';
-    $grades = $DB->get_records_sql($sql, array('type' => 'course', 'category' => $category));
+                AND C.id = GI.courseid';
+    $grades = $DB->get_records_sql($sql, array());
+    $grades = array();
+    foreach ($entries as $entry) {
+        if ($entry->category == $category && $entry->itemtype == 'course') {
+            array_push($grades, $entry);
+        }
+    }
     $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
     if (count($grades) == count($courses)) {
@@ -1556,10 +1560,10 @@ function user_repeat_category ($userid, $category) {
                    FROM {grade_grades_history} gh
                    JOIN {grade_items} gi
                    JOIN {course} co
-                     ON gh.source = :source
-                    AND co.category = :category
-                  WHERE gi.id = gh.oldid
+                     ON gi.id = gh.oldid
                     AND co.id = gi.courseid
+                  WHERE gh.source = :source
+                    AND co.category = :category
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
     $firstgrade = $DB->get_record_sql($sql,
