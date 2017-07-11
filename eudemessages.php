@@ -76,6 +76,7 @@ $PAGE->set_pagelayout('standard');
 $PAGE->requires->jquery();
 $PAGE->requires->js_call_amd("local_eudecustom/eude", "message");
 $PAGE->requires->js_call_amd("local_eudecustom/eude", "menu");
+$PAGE->requires->css("/local/eudecustom/style/eudecustom_style.css");
 
 $output = $PAGE->get_renderer('local_eudecustom', 'eudemessages');
 

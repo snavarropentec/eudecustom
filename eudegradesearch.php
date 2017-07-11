@@ -53,6 +53,7 @@ $PAGE->set_pagelayout('standard');
 $PAGE->requires->jquery();
 $PAGE->requires->js_call_amd("local_eudecustom/eude", "academic");
 $PAGE->requires->js_call_amd("local_eudecustom/eude", "menu");
+$PAGE->requires->css("/local/eudecustom/style/eudecustom_style.css");
 
 // Load the renderer of the page.
 $output = $PAGE->get_renderer('local_eudecustom', 'eudegradesearch');
