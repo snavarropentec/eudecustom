@@ -157,15 +157,9 @@ function get_samoo_subjects () {
 function get_categories_with_intensive_modules () {
     global $DB;
     $data = array();
-    $sql = "SELECT distinct (cc.name), cc.id
-              FROM {role_assignments} ra
-              JOIN {role} r ON r.id = ra.roleid
-              JOIN {context} c ON c.id = ra.contextid
-              JOIN {course} co ON co.id = c.instanceid
-              JOIN {course_categories} cc ON cc.id = co.category
-             WHERE userid = :userid
-               AND c.contextlevel = :context
-               AND cc.id IN (SELECT DISTINCT c.category
+    $sql = "SELECT cc.id, cc.name
+              FROM {course_categories} cc
+             WHERE cc.id IN (SELECT DISTINCT c.category
                                 FROM {course} c
                                WHERE c.shortname LIKE '%.M.%')";
     $records = $DB->get_records_sql($sql, array());
@@ -315,7 +309,10 @@ function get_user_categories ($userid) {
               JOIN {course} co ON co.id = c.instanceid
               JOIN {course_categories} cc ON cc.id = co.category
              WHERE userid = :userid
-               AND c.contextlevel = :context";
+               AND c.contextlevel = :context
+               AND cc.id IN (SELECT DISTINCT c.category
+                                FROM {course} c
+                               WHERE c.shortname LIKE '%.M.%')";
     $records = $DB->get_records_sql($sql, array(
         'userid' => $userid,
         'context' => CONTEXT_COURSE

@@ -16,24 +16,24 @@ Feature: Write a message
       | Cat2 | CAT2     |
     And the following "courses" exist:
       | category | shortname | idnumber |
-      | CAT1     | M01       | C1       |
-      | CAT2     | M02       | C2       |
+      | CAT1     | C1.M.M01  | C1       |
+      | CAT2     | C2.M.M02  | C2       |
     And the following "course enrolments" exist:
       | user     | course    | role           | 
-      | user1    | M01       | editingteacher |
-      | user1    | M02       | editingteacher |
-      | user2    | M01       | student        |
-      | user2    | M02       | student        |
-      | user3    | M01       | student        |
-      | user3    | M02       | student        |
-      | user4    | M01       | editingteacher |
-      | user4    | M02       | editingteacher |
+      | user1    | C1.M.M01  | editingteacher |
+      | user1    | C2.M.M02  | editingteacher |
+      | user2    | C1.M.M01  | student        |
+      | user2    | C2.M.M02  | student        |
+      | user3    | C1.M.M01  | student        |
+      | user3    | C2.M.M02  | student        |
+      | user4    | C1.M.M01  | editingteacher |
+      | user4    | C2.M.M02  | editingteacher |
 
   Scenario: Send a message to students
     Given I log in as "user1"
     And I go to eudemessages
     And I set the field "categoryname" to "Cat1"
-    And I set the field "coursename" to "M01"
+    And I set the field "coursename" to "C1.M.M01"
     And I set the field "subjectname" to "Grades"
     And I set the field "destinatarioname" to "Active students"
     And I set the field "messagetext" to "This is a message for my students"
@@ -52,7 +52,7 @@ Feature: Write a message
     Given I log in as "user1"
     And I go to eudemessages
     And I set the field "categoryname" to "Cat2"
-    And I set the field "coursename" to "M02"
+    And I set the field "coursename" to "C2.M.M02"
     And I set the field "subjectname" to "Problem"
     And I set the field "destinatarioname" to "Editing Teacher: User 4"
     And I set the field "messagetext" to "This is a problem notice to another teacher"
@@ -67,7 +67,7 @@ Feature: Write a message
     Given I log in as "user1"
     And I go to eudemessages
     And I set the field "categoryname" to "Cat2"
-    And I set the field "coursename" to "M02"
+    And I set the field "coursename" to "C2.M.M02"
     And I set the field "subjectname" to "Problem"
     And I set the field "messagetext" to "This is a problem notice to another teacher"
     And I press "sendmessage"
@@ -78,7 +78,7 @@ Feature: Write a message
     Given I log in as "user1"
     And I go to eudemessages
     And I set the field "categoryname" to "Cat2"
-    And I set the field "coursename" to "M02"
+    And I set the field "coursename" to "C2.M.M02"
     And I set the field "subjectname" to "Problem"
     And I set the field "destinatarioname" to "Editing Teacher: User 4"
     And I press "sendmessage"
