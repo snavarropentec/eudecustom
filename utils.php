@@ -157,9 +157,15 @@ function get_samoo_subjects () {
 function get_categories_with_intensive_modules () {
     global $DB;
     $data = array();
-    $sql = "SELECT cc.id, cc.name
-              FROM {course_categories} cc
-             WHERE cc.id IN (SELECT DISTINCT c.category
+    $sql = "SELECT distinct (cc.name), cc.id
+              FROM {role_assignments} ra
+              JOIN {role} r ON r.id = ra.roleid
+              JOIN {context} c ON c.id = ra.contextid
+              JOIN {course} co ON co.id = c.instanceid
+              JOIN {course_categories} cc ON cc.id = co.category
+             WHERE userid = :userid
+               AND c.contextlevel = :context
+               AND cc.id IN (SELECT DISTINCT c.category
                                 FROM {course} c
                                WHERE c.shortname LIKE '%.M.%')";
     $records = $DB->get_records_sql($sql, array());
@@ -309,10 +315,7 @@ function get_user_categories ($userid) {
               JOIN {course} co ON co.id = c.instanceid
               JOIN {course_categories} cc ON cc.id = co.category
              WHERE userid = :userid
-               AND c.contextlevel = :context
-               AND cc.id IN (SELECT DISTINCT c.category
-                                FROM {course} c
-                               WHERE c.shortname LIKE '%.M.%')";
+               AND c.contextlevel = :context";
     $records = $DB->get_records_sql($sql, array(
         'userid' => $userid,
         'context' => CONTEXT_COURSE
@@ -1502,9 +1505,10 @@ function generate_event_keys ($modal = '') {
  * This function calculate category grade
  *
  * @param string $category category id
+ * @param string $user user id
  * @return string $categorygrade;
  */
-function get_grade_category ($category) {
+function get_grade_category ($category, $user) {
 
     global $DB;
 
@@ -1513,9 +1517,11 @@ function get_grade_category ($category) {
                    JOIN {grade_items} gi ON gg.itemid = gi.id
                    JOIN {course} co ON gi.courseid = co.id
                   WHERE gi.itemtype = :type
-                    AND co.category = :category';
+                    AND co.category = :category
+                    AND gg.userid = :userid';
 
-    $grades = $DB->get_records_sql($sql, array('type' => 'course', 'category' => $category));
+    $grades = $DB->get_records_sql($sql, array(
+        'type' => 'course', 'category' => $category, 'userid' => $user));
     $courses = $DB->get_records('course', array('category' => $category));
     $categorygrade = 0;
     if (count($grades) == count($courses)) {

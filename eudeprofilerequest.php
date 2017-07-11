@@ -102,7 +102,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                 }
             }
         }
-        $categorygrades = get_grade_category($category);
+        $categorygrades = get_grade_category($category, $studentid);
         if ($categorygrades != -1) {
             $tr = new \html_table_row();
             $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
@@ -193,7 +193,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                     }
                 }
             }
-            $categorygrades = get_grade_category($category);
+            $categorygrades = get_grade_category($category, $USER->id);
             if ($categorygrades != -1) {
                 $tr = new \html_table_row();
                 $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";

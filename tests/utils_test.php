@@ -451,15 +451,15 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         // Creating courses related to the categories above.
         $course1 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 1', 'category' => $category1->id));
+                array('shortname' => 'C1.M.Course 1', 'category' => $category1->id));
         $course2 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 2', 'category' => $category1->id));
+                array('shortname' => 'C1.M.Course 2', 'category' => $category1->id));
         $course3 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 3', 'category' => $category2->id));
+                array('shortname' => 'C2.M.Course 3', 'category' => $category2->id));
         $course4 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 4', 'category' => $category2->id));
+                array('shortname' => 'C2.M.Course 4', 'category' => $category2->id));
         $course5 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 5', 'category' => $category3->id));
+                array('shortname' => 'C3.M.Course 5', 'category' => $category3->id));
 
         // Getting the id of the roles.
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
@@ -2712,7 +2712,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $DB->insert_record('grade_grades', $grades3, false);
 
-        $average0 = get_grade_category($category1->id);
+        $average0 = get_grade_category($category1->id, $user1->id);
         $this->assertNotEmpty($average0);
         $this->assertEquals(-1, $average0);
 
@@ -2726,7 +2726,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $DB->insert_record('grade_grades', $grades4, false);
 
-        $average = get_grade_category($category1->id);
+        $average = get_grade_category($category1->id, $user1->id);
         $this->assertNotEmpty($average);
         $this->assertEquals(5.63, $average);
     }
