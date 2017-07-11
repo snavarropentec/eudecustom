@@ -38,10 +38,10 @@ $html = html_writer::start_div('', array('id' => 'contenedor'));
 $html .= html_writer::tag('button', 'x', array('class' => 'cerrar'));
 $courseid = optional_param('idcourse', 0, PARAM_INT);
 $curso = $DB->get_record('course', array('id' => $courseid));
-$idname = explode('.', $curso->shortname);
+$idname = explode('.M.', $curso->shortname);
 $modulo = $DB->get_record('course', array('shortname' => 'MI.'.$idname[1]));
 
-$fechas = $DB->get_record('local_eudecustom_call_date', array('courseid' => $curso->id));
+$fechas = $DB->get_record('local_eudecustom_call_date', array('courseid' => $modulo->id));
 
 $html .= html_writer::start_tag('form',
             array('id' => 'fechas', 'name' => 'fechas', 'method' => 'post', 'action' => 'payment.php'));
@@ -49,14 +49,13 @@ $html .= html_writer::start_div('', array('id' => 'contenido'));
 $html .= html_writer::tag('h3', get_string('selectcalldate', 'local_eudecustom'));
 $html .= html_writer::start_div('form-group');
 $html .= html_writer::tag('label', get_string('startingcalldate', 'local_eudecustom'));
-$datacourse = $DB->get_record('course', array('id' => $courseid));
 $sql = "SELECT *
             FROM {local_eudecustom_call_date} f
             JOIN {course} c
             WHERE f.courseid = c.id AND c.category = :category
             ORDER BY fecha1 ASC
             LIMIT 1";
-$startconv = $DB->get_record_sql($sql, array('category' => $datacourse->category));
+$startconv = $DB->get_record_sql($sql, array('category' => $modulo->category));
 $today = time();
 $weekinseconds = 604800;
 $editable = $today + $weekinseconds;
