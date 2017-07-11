@@ -274,6 +274,9 @@ class behat_local_eudecustom extends behat_base {
         $userdata = $DB->get_record('user', array('email' => 'student3@example.com'));
         $enrolmentdata = $DB->get_record('user_enrolments', array('enrolid' => $enroldata->id, 'userid' => $userdata->id));
 
+        // Font awesome is required for click on editing dates.
+        // include('C:\xampp\htdocs\moodle30\theme\font-awesome-4.7.0\css\font-awesome.min.css');
+
         $record = new stdClass();
         $record->user_email = "student1@example.com";
         $record->course_category = $coursedata->category;
@@ -448,11 +451,11 @@ class behat_local_eudecustom extends behat_base {
         $event->name = "[[COURSE]]$coursedata->shortname";
         $event->description = $coursedata->fullname;
         $event->format = 1;
-        $event->courseid = $coursedata->id;
+        $event->courseid = 0;
         $event->groupid = 0;
         $event->userid = $userdata->id;
         $event->instance = 0;
-        $event->eventtype = 'course';
+        $event->eventtype = 'user';
         $event->timestart = 1483255184;
         $event->timeduration = 1491031184 - 1483255184;
         $event->visible = 1;
