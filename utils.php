@@ -1285,7 +1285,6 @@ function integrate_previous_data ($data) {
             if (array_key_exists(2, $register)) {
                 $courseshortname = $register[2];
                 $coursecategorynamearray = explode(".", $courseshortname);
-                
                 $coursecategory = $DB->get_record('course', array('shortname' => $courseshortname));
 
                 $intensivecoursenamearray = explode('[', $coursecategorynamearray[2]);
