@@ -284,10 +284,6 @@ class local_eudecustom_testcase extends advanced_testcase {
                 array('shortname' => 'Course 5', 'category' => $category2->id));
         $course6 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'Course 6', 'category' => $category3->id));
-        $course7 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 7', 'category' => $category3->id));
-        $course8 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 8', 'category' => $category3->id));
 
         // Getting the id of the roles.
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
@@ -557,6 +553,8 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user1->id, $course2->id, $teacherrole->id, 'manual');
         $this->getDataGenerator()->enrol_user($user1->id, $course3->id, $teacherrole->id, 'manual');
         $this->getDataGenerator()->enrol_user($user1->id, $course4->id, $teacherrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user2->id, $course5->id, $teacherrole->id, 'manual');
+        $this->getDataGenerator()->enrol_user($user2->id, $course6->id, $teacherrole->id, 'manual');
 
         // Enroling user2 in category 1 as manager.
         $record1 = new stdClass();
@@ -648,19 +646,18 @@ class local_eudecustom_testcase extends advanced_testcase {
         // Recovering the context of the categories.
         $contextcat1 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category1->id));
         $contextcat2 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category2->id));
-        $contextcat3 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category3->id));
 
         // Enroling user1 in category 1 and category 2 as manager.
         $record1 = new stdClass();
         $record1->roleid = $managerrole->id;
         $record1->contextid = $contextcat1->id;
         $record1->userid = $user1->id;
-        $lastinsertid = $DB->insert_record('role_assignments', $record1);
+        $DB->insert_record('role_assignments', $record1);
         $record2 = new stdClass();
         $record2->roleid = $managerrole->id;
         $record2->contextid = $contextcat2->id;
         $record2->userid = $user1->id;
-        $lastinsertid = $DB->insert_record('role_assignments', $record2);
+        $DB->insert_record('role_assignments', $record2);
 
         // Test the function with user1 and categories 1 and 2 (Expected results: both true).
         $result = check_role_manager($user1->id, $category1->id);
@@ -684,7 +681,6 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         // Creating a few users.
         $user1 = $this->getDataGenerator()->create_user(array('username' => 'testuser1'));
-        $user2 = $this->getDataGenerator()->create_user(array('username' => 'testuser2'));
 
         // Creating several categories for future use.
         $category1 = $this->getDataGenerator()->create_category(array('name' => 'Test Category 1'));
@@ -697,19 +693,18 @@ class local_eudecustom_testcase extends advanced_testcase {
         // Recovering the context of the categories.
         $contextcategory1 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category1->id));
         $contextcategory2 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category2->id));
-        $contextcategory3 = $DB->get_record('context', array('contextlevel' => CONTEXT_COURSECAT, 'instanceid' => $category3->id));
 
         // Enroling user1 in category 1 and category 2.
         $record1 = new stdClass();
         $record1->roleid = $managerrole->id;
         $record1->contextid = $contextcategory1->id;
         $record1->userid = $user1->id;
-        $lastinsertid = $DB->insert_record('role_assignments', $record1);
+        $DB->insert_record('role_assignments', $record1);
         $record2 = new stdClass();
         $record2->roleid = $managerrole->id;
         $record2->contextid = $contextcategory2->id;
         $record2->userid = $user1->id;
-        $lastinsertid = $DB->insert_record('role_assignments', $record2);
+        $DB->insert_record('role_assignments', $record2);
 
         // Test the function with category 1 (Expected results: user1).
         $result = get_role_manager($category1->id);
@@ -1827,9 +1822,6 @@ class local_eudecustom_testcase extends advanced_testcase {
         $course3 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'C02.M.phpunit cat2 course1', 'category' => $category2->id));
 
-        $course4 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'C02.M.phpunit cat2 course2', 'category' => $category2->id));
-
         $course5 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'C03.M.phpunit cat3 course1', 'category' => $category3->id));
 
@@ -1954,7 +1946,6 @@ class local_eudecustom_testcase extends advanced_testcase {
         // Creating a few users.
         $user1 = $this->getDataGenerator()->create_user(array('username' => 'user1', 'email' => 'user1@testmail.com'));
         $user2 = $this->getDataGenerator()->create_user(array('username' => 'user2', 'email' => 'user2@testmail.com'));
-        $user3 = $this->getDataGenerator()->create_user(array('username' => 'user3', 'email' => 'user3@testmail.com'));
 
         // Creating several categories for future use.
         $category1 = $this->getDataGenerator()->create_category(array('name' => 'Comercio Internacional'));
@@ -1985,12 +1976,12 @@ class local_eudecustom_testcase extends advanced_testcase {
          * (expected result: 2 entries in local_eudecustom_mat_int and local_eudecustom_user, one for each user)
          */
         $result = integrate_previous_data($data1);
-        $expectedmatintrecords = $DB->get_records('local_eudecustom_mat_int');
+        $expectedmatintrec = $DB->get_records('local_eudecustom_mat_int');
         $expecteduserrecord1 = $DB->get_record('local_eudecustom_user', array('user_email' => $user1->email));
         $expecteduserrecord2 = $DB->get_record('local_eudecustom_user', array('user_email' => $user2->email));
 
         $this->assertTrue($result);
-        $this->assertCount(2, $expectedmatintrecords);
+        $this->assertCount(2, $expectedmatintrec);
         $this->assertEquals($user1->email, $expecteduserrecord1->user_email);
         $this->assertEquals($category1->id, $expecteduserrecord1->course_category);
         $this->assertEquals(1, $expecteduserrecord1->num_intensive);
@@ -2082,10 +2073,9 @@ class local_eudecustom_testcase extends advanced_testcase {
      * Tests for phpunit.
      */
     public function test_module_is_intensive () {
-        global $DB;
 
         $this->resetAfterTest(true);
-
+        
         // Creating categories.
         $category1 = $this->getDataGenerator()->create_category(
                 array('name' => 'phpunit category 1'));
