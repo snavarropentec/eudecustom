@@ -126,7 +126,7 @@ class behat_local_eudecustom extends behat_base {
     public function i_process_course_enrolments_and_generate_holiday () {
         global $CFG;
         global $DB;
-        // comprobar si est� activa la funcionalidad
+
         $generatecourseevents = $CFG->local_eudest_genenrolcalendar;
         if (!$generatecourseevents) {
             return 0;
@@ -273,9 +273,6 @@ class behat_local_eudecustom extends behat_base {
         $enroldata = $DB->get_record('enrol', array('courseid' => $coursedata->id, 'enrol' => 'manual'));
         $userdata = $DB->get_record('user', array('email' => 'student3@example.com'));
         $enrolmentdata = $DB->get_record('user_enrolments', array('enrolid' => $enroldata->id, 'userid' => $userdata->id));
-
-        // Font awesome is required for click on editing dates.
-        // include('C:\xampp\htdocs\moodle30\theme\font-awesome-4.7.0\css\font-awesome.min.css');
 
         $record = new stdClass();
         $record->user_email = "student1@example.com";

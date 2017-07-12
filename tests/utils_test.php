@@ -276,8 +276,6 @@ class local_eudecustom_testcase extends advanced_testcase {
                 array('shortname' => 'Course 1', 'category' => $category1->id));
         $course2 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'Course 2', 'category' => $category1->id));
-        $course3 = $this->getDataGenerator()->create_course(
-                array('shortname' => 'Course 3', 'category' => $category1->id));
         $course4 = $this->getDataGenerator()->create_course(
                 array('shortname' => 'Course 4', 'category' => $category2->id));
         $course5 = $this->getDataGenerator()->create_course(
@@ -2075,7 +2073,7 @@ class local_eudecustom_testcase extends advanced_testcase {
     public function test_module_is_intensive () {
 
         $this->resetAfterTest(true);
-        
+
         // Creating categories.
         $category1 = $this->getDataGenerator()->create_category(
                 array('name' => 'phpunit category 1'));
