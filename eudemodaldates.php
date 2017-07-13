@@ -39,6 +39,12 @@ $html .= html_writer::tag('button', 'x', array('class' => 'cerrar'));
 $courseid = optional_param('idcourse', 0, PARAM_INT);
 $curso = $DB->get_record('course', array('id' => $courseid));
 $idname = explode('.M.', $curso->shortname);
+$namecourse = explode('[', $curso->shortname);
+if (isset($namecourse[0])) {
+    $idname = explode('.M.', $namecourse[0]);
+} else {
+    $idname = explode('.M.', $namecourse);
+}
 $modulo = $DB->get_record('course', array('shortname' => 'MI.'.$idname[1]));
 
 $fechas = $DB->get_record('local_eudecustom_call_date', array('courseid' => $modulo->id));
