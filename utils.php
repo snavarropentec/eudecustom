@@ -309,7 +309,7 @@ function get_user_categories ($userid, $notintensives = true) {
     } else {
         $condition = '';
     }
-    
+
     $sql = "SELECT distinct (cc.name), cc.id
               FROM {role_assignments} ra
               JOIN {role} r ON r.id = ra.roleid
