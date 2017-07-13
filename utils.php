@@ -297,11 +297,19 @@ function get_course_students ($courseid, $rolename) {
  * This function returns the name of the enroled course categories of an user.
  *
  * @param int $userid
+ * @param bool $notintensives boolean for including intensives modules
  * @return array $categories
  */
-function get_user_categories ($userid) {
+function get_user_categories ($userid, $notintensives = true) {
     global $DB;
 
+    if ($notintensives) {
+        $condition = "AND cc.id IN (SELECT DISTINCT c.category
+                                FROM {course} c WHERE c.shortname LIKE '%.M.%')";
+    } else {
+        $condition = '';
+    }
+    
     $sql = "SELECT distinct (cc.name), cc.id
               FROM {role_assignments} ra
               JOIN {role} r ON r.id = ra.roleid
@@ -310,9 +318,7 @@ function get_user_categories ($userid) {
               JOIN {course_categories} cc ON cc.id = co.category
              WHERE userid = :userid
                AND c.contextlevel = :context
-               AND cc.id IN (SELECT DISTINCT c.category
-                                FROM {course} c
-                               WHERE c.shortname LIKE '%.M.%')";
+               $condition";
     $records = $DB->get_records_sql($sql, array(
         'userid' => $userid,
         'context' => CONTEXT_COURSE

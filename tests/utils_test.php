@@ -2262,7 +2262,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $c5->date = 'actual';
 
         // Test1: get data from course1.
-        $result = get_students_course_data($course1->id, $actualmodule);
+        $result = get_students_course_data($course1->id, $actualmodule, $studentroleid->id);
         $this->assertEquals($c1->id, $result->id);
         $this->assertEquals($c1->shortname, $result->shortname);
         $this->assertEquals($c1->timestart, $result->timestart);
@@ -2270,19 +2270,19 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->assertEquals($c1->date, $result->date);
 
         // Test2: get data from course 3.
-        $result = get_students_course_data($course3->id, $actualmodule);
+        $result = get_students_course_data($course3->id, $actualmodule, $studentroleid->id);
         $this->assertEquals($c3->id, $result->id);
         $this->assertEquals($c3->shortname, $result->shortname);
         $this->assertEquals($c3->date, $result->date);
 
         // Test3: get data from course 4. (no student enrolled, shoud get date->actual.
-        $result = get_students_course_data($course4->id, $actualmodule);
+        $result = get_students_course_data($course4->id, $actualmodule, $studentroleid->id);
         $this->assertEquals($c4->id, $result->id);
         $this->assertEquals($c4->shortname, $result->shortname);
         $this->assertEquals($c4->date, $result->date);
 
         // Test4: get data from course 5. (Should get date->actual because is intensive).
-        $result = get_students_course_data($course5->id, $actualmodule);
+        $result = get_students_course_data($course5->id, $actualmodule, $studentroleid->id);
         $this->assertEquals($c5->shortname, $result->shortname);
         $this->assertEquals($c5->fullname, $result->fullname);
         $this->assertEquals($c5->timestart, $result->timestart);

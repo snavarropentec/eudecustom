@@ -60,7 +60,6 @@ body#page-tpv-config input {
 #page-local-eudecustom-eudeprofile button.abrirFechas{
     margin: 1px;
     text-transform: uppercase;
-    color: rgba(256,256,256,0);
 }
 
 #page-local-eudecustom-eudeprofile button.abrir:hover, #page-local-eudecustom-eudeprofile button.abrirFechas:hover{

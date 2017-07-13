@@ -124,7 +124,7 @@ if (optional_param('sendmessage', null, PARAM_TEXT) == 'Enviar') {
 $sesskey = sesskey();
 
 $categories = array();
-$categories = get_user_categories($USER->id);
+$categories = get_user_categories($USER->id, false);
 $categories = array_flip($categories);
 
 $subjects = get_samoo_subjects();
