@@ -576,7 +576,11 @@ function grades ($cid, $userid) {
     if ($item && $DB->record_exists('grade_grades', array('itemid' => $item->id, 'userid' => $userid))) {
         $grades = $DB->get_record('grade_grades', array('itemid' => $item->id, 'userid' => $userid));
         // Format the grades to 0-10 numeration.
-        $finalgrade = ($grades->finalgrade / $grades->rawgrademax) * 10;
+        if ($grades == null) {
+            return null;
+        } else {
+            $finalgrade = ($grades->finalgrade / $grades->rawgrademax) * 10;
+        }
     }
     return $finalgrade;
 }
@@ -788,7 +792,7 @@ function configureprofiledata ($userid) {
                                 }
                                 if ($owner == true) {
                                     // Print action button.
-                                    if (gettype($mygrades) != 'double' && $intentos == 0) {
+                                    if ((gettype($mygrades) != 'double' || $mygrades == null) && $intentos == 0) {
                                         $object->actiontitle = get_string('bringforward', 'local_eudecustom');
                                         $object->actionid = 'abrir(' . $mycourse->id . ',0,0)';
                                         $object->actionclass = 'abrir';
@@ -845,20 +849,26 @@ function configureprofiledata ($userid) {
                             $object->info = get_info_grades($mycourse->id, $userid);
 
                             // Format grades to display.
-                            if (gettype($mygrades) == 'double') {
-                                $object->grades = number_format($mygrades, 2, '.', '');
-                            } else {
+                            if ($mygrades == null) {
                                 $object->grades = '-';
-                            }
-                            if (gettype($mygradesint) == 'double') {
-                                $object->gradesint = number_format($mygradesint, 2, '.', '');
+                                $object->gradesint = '-';
                             } else {
                                 if (gettype($mygrades) == 'double') {
-                                    $object->gradesint = number_format($mygrades, 2, '.', '');
+                                    $object->grades = number_format($mygrades, 2, '.', '');
                                 } else {
-                                    $object->gradesint = '-';
+                                    $object->grades = '-';
                                 }
-                            };
+                                if (gettype($mygradesint) == 'double') {
+                                    $object->gradesint = number_format($mygradesint, 2, '.', '');
+                                } else {
+                                    if (gettype($mygrades) == 'double') {
+                                        $object->gradesint = number_format($mygrades, 2, '.', '');
+                                    } else {
+                                        $object->gradesint = '-';
+                                    }
+                                };
+                            }
+                            
                             array_push($data, $object);
                         }
                     }
@@ -981,14 +991,13 @@ function module_is_intensive ($shortname) {
  *
  *
  * @param int $courseid
- * @param int $actualmodule number of module in shortname
+ * @param int $actualmodule date of the actual module
+ * @param string $role student role
  * @return array $res data of course
  */
-function get_students_course_data ($courseid, $actualmodule) {
+function get_students_course_data ($courseid, $actualmodule, $role) {
     global $DB;
-
     // Get last enrolment in this course.
-    $role = $DB->get_record('role', array('shortname' => 'student'))->id;
     $sql = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name
                     FROM {course} C
                     JOIN {course_categories} CC ON C.category = CC.id
@@ -998,7 +1007,7 @@ function get_students_course_data ($courseid, $actualmodule) {
                     JOIN {enrol} E ON E.id = UE.enrolid AND E.courseid = C.id
                    WHERE RA.roleid = :role
                      AND C.id = :courseid
-                ORDER BY UE.timestart DESC
+                ORDER BY UE.timestart ASC
                    LIMIT 1";
     $res = $DB->get_record_sql($sql, array(
         'role' => $role,
@@ -1119,7 +1128,7 @@ function get_user_courses ($userid) {
                 if (!$coursexists) {
                     $course = new stdClass();
                     $course->id = $r['course'];
-                    $r = get_students_course_data($course->id, $category->actualmodule);
+                    $r = get_students_course_data($course->id, $category->actualmodule, $studentrole);
                     $record = add_course_activities($r);
                     if ($record->date == 'actual') {
                         array_push($records['actual'], $record);
@@ -1141,7 +1150,7 @@ function get_user_courses ($userid) {
             $category->actualmodule = get_actual_module($category->id, $studentrole);
             $course = new stdClass();
             $course->id = $r['course'];
-            $r = get_students_course_data($course->id, $category->actualmodule);
+            $r = get_students_course_data($course->id, $category->actualmodule, $studentrole);
             $record = add_course_activities($r);
             if ($record->date == 'actual') {
                 array_push($records['actual'], $record);
@@ -1241,15 +1250,20 @@ function get_intensivecourse_data ($course, $studentid) {
         // Check if the user has grades in the normal and intensive modules or didnt attemp the exams.
         $coursegrades = grades($course->id, $studentid);
         $intensivegrades = grades($modint->id, $studentid);
-        if (gettype($coursegrades) == 'double') {
-            $intensivecourse->provgrades = number_format($coursegrades, 2, '.', '');
-        } else {
+        if ($coursegrades == null) {
             $intensivecourse->provgrades = '-';
-        }
-        if (gettype($intensivegrades) == 'double') {
-            $intensivecourse->finalgrades = number_format($intensivegrades, 2, '.', '');
+            $intensivecourse->finalgrades = '-';
         } else {
-            $intensivecourse->finalgrades = $intensivecourse->provgrades;
+            if (gettype($coursegrades) == 'double') {
+                $intensivecourse->provgrades = number_format($coursegrades, 2, '.', '');
+            } else {
+                $intensivecourse->provgrades = '-';
+            }
+            if (gettype($intensivegrades) == 'double') {
+                $intensivecourse->finalgrades = number_format($intensivegrades, 2, '.', '');
+            } else {
+                $intensivecourse->finalgrades = $intensivecourse->provgrades;
+            }
         }
         return $intensivecourse;
     }
