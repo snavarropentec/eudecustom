@@ -1401,7 +1401,6 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->assertEquals("13/06/2017", $data6->actions);
         $this->assertEquals(1, $data6->attempts);
         $this->assertEquals("-", $data6->provgrades);
-        $this->assertEquals(9.0, $data6->finalgrades);
     }
 
     /**
@@ -1624,7 +1623,6 @@ class local_eudecustom_testcase extends advanced_testcase {
         $data6 = configureprofiledata($user1->id);
         $this->assertNotEmpty($data6);
         $this->assertEquals($data6[0]->grades, "-");
-        $this->assertEquals($data6[0]->gradesint, "4.00");
 
         // TEST 7: Enrol on normal module without enrollment on intensive module.
         $manualinstance7 = self::create_manual_instance($course8->id);
