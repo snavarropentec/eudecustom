@@ -126,7 +126,8 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
         $testteacherrole = get_shortname_courses_by_category($USER->id, 'teacher', $category);
         $testmanagerrole = get_shortname_courses_by_category($USER->id, 'manager', $category);
         $students = array();
-        if (has_capability('moodle/site:config', context_system::instance()) || $testeditingteacherrole || $testteacherrole || $testmanagerrole) {
+        if (has_capability('moodle/site:config',
+                context_system::instance()) || $testeditingteacherrole || $testteacherrole || $testmanagerrole) {
             foreach ($data as $course) {
                 $students += get_course_students($course->id, 'student');
             }

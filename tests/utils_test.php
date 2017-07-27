@@ -1267,7 +1267,8 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         $course1 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO[-1-]", 'category' => $category1->id));
         $course2 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO", 'category' => $category1->id));
-        $course3 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSONORMAL", 'category' => $category1->id));
+        $course3 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSONORMAL",
+            'category' => $category1->id));
         $course4 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO2", 'category' => $category1->id));
         $course5 = $this->getDataGenerator()->create_course(array('shortname' => "MI.CURSO2", 'category' => $category1->id));
         $course6 = $this->getDataGenerator()->create_course(array('shortname' => "CAT.M.CURSO3", 'category' => $category1->id));
@@ -1535,7 +1536,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->assertEquals($data[2]->grades, "-");
         $this->assertEquals($data[2]->gradesint, "-");
         $this->assertEquals($data[2]->action, "notenroled");
-        $this->assertEquals($data[2]->actiontitle, "Quick matriculation");
+        $this->assertEquals($data[2]->actiontitle, "Early Access");
         $this->assertEquals($data[2]->id, ' mod' . $course1->id);
         $this->assertEquals($data[2]->attempts, 0);
 
@@ -1634,7 +1635,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->assertEquals($data7[0]->grades, "-");
         $this->assertEquals($data7[0]->gradesint, "-");
         $this->assertEquals($data7[0]->action, "notenroled");
-        $this->assertEquals($data7[0]->actiontitle, "Quick matriculation");
+        $this->assertEquals($data7[0]->actiontitle, "Early Access");
         $this->assertEquals($data7[0]->attempts, 0);
 
         // TEST 8: Enrol on intensive module, grade on normal module and 1 attempt.

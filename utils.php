@@ -95,7 +95,7 @@ function enrol_intensive_user ($enrol, $courseid, $userid, $timestart = 0, $time
 
     // Check if a record exists in table local_eudecustom_user.
     $record = $DB->get_record('local_eudecustom_user',
-            array('user_email' => $userdata->email, 'course_category' => $coursedata->category));
+            array('user_email' => $userdata->email, 'course_category' => $categoryid));
     if ($record) {
         // If record exists we make an update in local_eudecustom_user.
         $record->num_intensive = $record->num_intensive + 1;
@@ -107,7 +107,7 @@ function enrol_intensive_user ($enrol, $courseid, $userid, $timestart = 0, $time
         // If not exists we make a new entry in local_eudecustom_user.
         $record = new stdClass();
         $record->user_email = $userdata->email;
-        $record->course_category = $coursedata->category;
+        $record->course_category = $categoryid;
         $record->num_intensive = 1;
         $DB->insert_record('local_eudecustom_user', $record);
     }
@@ -204,7 +204,8 @@ function count_total_intensives ($userid, $categoryid) {
 
     $userdata = $DB->get_record('user', array('id' => $userid));
     // We recover the intensive courses of the given course.
-    if ($record = $DB->get_record('local_eudecustom_user', array('user_email' => $userdata->email, 'course_category' => $categoryid))) {
+    if ($record = $DB->get_record('local_eudecustom_user', array('user_email' => $userdata->email,
+        'course_category' => $categoryid))) {
         return $record->num_intensive;
     } else {
         return 0;
@@ -855,7 +856,7 @@ function configureprofiledata ($userid) {
                             $object->info = get_info_grades($mycourse->id, $userid);
 
                             // Format grades to display.
-                            if ($mygrades == null) {
+                            if ($mygrades == null && $mygradesint == null) {
                                 $object->grades = '-';
                                 $object->gradesint = '-';
                             } else {
@@ -1255,7 +1256,7 @@ function get_intensivecourse_data ($course, $studentid) {
         // Check if the user has grades in the normal and intensive modules or didnt attemp the exams.
         $coursegrades = grades($course->id, $studentid);
         $intensivegrades = grades($modint->id, $studentid);
-        if ($coursegrades == null) {
+        if ($coursegrades == null && $intensivegrades == null) {
             $intensivecourse->provgrades = '-';
             $intensivecourse->finalgrades = '-';
         } else {

@@ -13,10 +13,10 @@
 }
 
 /* Modal Content/Box */
-#contenedor {
+#page-local-eudecustom-eudeprofile #contenedor {
     background-color: #fefefe;
     margin: 10% auto; 
-    padding: 20px;
+    padding: 1.25em;
     border: 1px solid #888;
     width: 50%;
 }
@@ -36,18 +36,31 @@
     cursor: pointer;
 }
 
-/* TPV CONFIG FORM*/
-body#page-tpv-config input {
-    width: 200%;
+#page-local-eudecustom-eudeprofile #contenedor #contenido h3 {
+    font-size: 2em;
 }
 
-/*Menu lateral Selected*/
-
-.menulateral .selected{
-    transition: left 2s;
-    left: -40px !important;
+button, input.form-submit, input[type="button"], input[type="submit"], input[type="reset"] {
+    margin-bottom: 0;
+    font-weight: 300;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 16px;
+    font-size: 18px;
+    line-height: 1.6;
+    border-radius: 0px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    margin: 0 0 10px 5px;
 }
-
 
 /*CSS Eude Profile*/
 
@@ -441,9 +454,6 @@ table th {
     width: auto !important;
 }
 
-#ui-datepicker-div {
-    position: absolute !important;
-}
 
 /*------------------EUDE EVENT LIST------------------*/
 #page-local-eudecustom-eudeeventlist div.cd-eventkey {
