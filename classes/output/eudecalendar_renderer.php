@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -107,7 +108,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
             $html .= html_writer::link($CFG->wwwroot . '/calendar/export_execute.php?authtoken=' . $authtoken
                             . '&userid=' . $USER->id . '&preset_what=all&preset_time=recentupcoming', 'iCal',
                             array('title' => get_string('quickdownloadcalendar', 'calendar'),
-                                'class' => 'ical-link m-l-1 btn btn-default'));
+                        'class' => 'ical-link m-l-1 btn btn-default'));
         }
         $html .= html_writer::end_div();
 
@@ -418,8 +419,8 @@ class eudecalendar_renderer extends \plugin_renderer_base {
                                 $modulequiz = $DB->get_record('modules', array('name' => 'quiz'));
                                 $quizid = $DB->get_record('course_modules',
                                         array('course' => $event->courseid,
-                                            'instance' => $event->instance,
-                                            'module' => $modulequiz->id));
+                                    'instance' => $event->instance,
+                                    'module' => $modulequiz->id));
                                 $dayhref = new \moodle_url('/mod/quiz/view.php', array('id' => $quizid->id));
                             }
                             break;
@@ -428,8 +429,8 @@ class eudecalendar_renderer extends \plugin_renderer_base {
                                 $moduleassign = $DB->get_record('modules', array('name' => 'assign'));
                                 $assignid = $DB->get_record('course_modules',
                                         array('course' => $event->courseid,
-                                            'instance' => $event->instance,
-                                            'module' => $moduleassign->id));
+                                    'instance' => $event->instance,
+                                    'module' => $moduleassign->id));
                                 $dayhref = new \moodle_url('/mod/assign/view.php', array('id' => $assignid->id));
                             }
                             break;
@@ -441,10 +442,10 @@ class eudecalendar_renderer extends \plugin_renderer_base {
                                 $coursename = str_replace('[[MI]]', '', $coursename);
                                 $coursename = $DB->get_record('course', array('shortname' => $coursename));
                                 if ($coursename) {
-									$dayhref = new \moodle_url('/course/view.php', array('id' => $coursename->id));
-								} else {
-									$dayhref = new \moodle_url('/course/view.php');
-								}
+                                    $dayhref = new \moodle_url('/course/view.php', array('id' => $coursename->id));
+                                } else {
+                                    $dayhref = new \moodle_url('/course/view.php');
+                                }
                             }
                             break;
                         default:
@@ -786,10 +787,10 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         $html .= html_writer::start_div('row contentwrapper');
         // The form starts here.
         $html .= html_writer::start_tag('form',
-            array('id' => 'form-print-events',
-                'name' => 'form-print-events',
-                'method' => 'post',
-                'action' => 'eudeeventlist.php'));
+                        array('id' => 'form-print-events',
+                    'name' => 'form-print-events',
+                    'method' => 'post',
+                    'action' => 'eudeeventlist.php'));
 
         // Section for the events key.
         $html .= html_writer::start_div('col-md-12 eventkeywrapper');
@@ -947,11 +948,11 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         // Generate event list button.
         $html .= html_writer::start_div('col-md-6');
         $html .= html_writer::nonempty_tag('button', get_string('updateeventlist', 'local_eudecustom'),
-            array('type' => 'submit',
+                        array('type' => 'submit',
                     'id' => 'generateeventlist',
-                  'name' => 'generateeventlist',
-                 'class' => 'btn btn-default',
-                 'value' => 'Generate'));
+                    'name' => 'generateeventlist',
+                    'class' => 'btn btn-default',
+                    'value' => 'Generate'));
         $html .= html_writer::end_div();
 
         $html .= html_writer::end_tag('form');

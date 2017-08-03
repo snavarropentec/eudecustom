@@ -568,19 +568,21 @@ function update_intensive_dates ($convnum, $cid, $userid) {
         }
 
         // We need to update the event for the course because we changed the start date.
-        $event = $DB->get_record('event',
-                array('name' => '[[MI]]' . $intensive->shortname,
-            'userid' => $start->userid, 'eventtype' => 'user', 'timestart' => $start->timestart));
-        if ($event) {
-            $event->timestart = $newdate;
-            $eventid = $DB->update_record('event', $event);
-        }
+        $intcname = "'%[[MI]]" . $intensive->shortname . "%'";
+        $sql = "SELECT *
+               FROM {event}
+              WHERE userid = :userid
+                AND timestart = :timestart
+                AND name LIKE $intcname
+				AND eventtype LIKE 'user'";
+        $event = $DB->get_record_sql($sql, array('userid' => $start->userid, 'timestart' => $start->timestart));
+        $event->timestart = $newdate;
+        $eventid = $DB->update_record('event', $event);
 
         return $recordupdated;
     } else {
         return false;
     }
-    
 }
 
 /**
