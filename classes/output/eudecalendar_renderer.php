@@ -93,9 +93,9 @@ class eudecalendar_renderer extends \plugin_renderer_base {
 
         // Section for the export, subscribe and ical components.
         $html .= html_writer::start_div('row');
-        $html .= html_writer::tag('button', get_string('exportcalendar', 'calendar'),
+        $html .= html_writer::tag('button', get_string('printevents', 'local_eudecustom'),
                         array('id' => 'openmodalwindowforprint', 'class' => 'btn btn-default'));
-        $html .= html_writer::link($CFG->wwwroot . '/calendar/export.php', get_string('printevents', 'local_eudecustom'),
+        $html .= html_writer::link($CFG->wwwroot . '/calendar/export.php', get_string('exportcalendar', 'calendar'),
                         array('course' => $calendar->courseid, 'class' => 'btn btn-default'));
         if (calendar_user_can_add_event($calendar->course)) {
             $html .= html_writer::link($CFG->wwwroot . '/calendar/managesubscriptions.php',
@@ -440,7 +440,11 @@ class eudecalendar_renderer extends \plugin_renderer_base {
                                 $coursename = str_replace('[[COURSE]]', '', $coursename);
                                 $coursename = str_replace('[[MI]]', '', $coursename);
                                 $coursename = $DB->get_record('course', array('shortname' => $coursename));
-                                $dayhref = new \moodle_url('/course/view.php', array('id' => $coursename->id));
+                                if ($coursename) {
+									$dayhref = new \moodle_url('/course/view.php', array('id' => $coursename->id));
+								} else {
+									$dayhref = new \moodle_url('/course/view.php');
+								}
                             }
                             break;
                         default:
@@ -784,7 +788,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         $html .= html_writer::start_tag('form',
             array('id' => 'form-print-events',
                 'name' => 'form-print-events',
-                'method' => 'get',
+                'method' => 'post',
                 'action' => 'eudeeventlist.php'));
 
         // Section for the events key.
@@ -795,7 +799,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         $html .= html_writer::start_div('col-md-4');
 
         $html .= html_writer::start_tag('li', array('id' => 'eventkeymodulebegin', 'class' => 'eventkey'));
-        if (optional_param('modulebegin', null, PARAM_TEXT)) {
+        if (optional_param('modulebegin', null, PARAM_TEXT) || optional_param('modulebegin_modal', null, PARAM_TEXT)) {
             $html .= html_writer::empty_tag('input',
                             array('type' => 'checkbox', 'id' => 'cb-eventkeymodulebegin',
                         'class' => 'cb-eventkey', 'name' => 'modulebegin', 'checked' => 'checked'));
@@ -813,7 +817,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         $html .= html_writer::end_tag('li');
 
         $html .= html_writer::start_tag('li', array('id' => 'eventkeyactivityend', 'class' => 'eventkey'));
-        if (optional_param('activityend', null, PARAM_TEXT)) {
+        if (optional_param('activityend', null, PARAM_TEXT) || optional_param('activityend_modal', null, PARAM_TEXT)) {
             $html .= html_writer::empty_tag('input',
                             array('type' => 'checkbox', 'id' => 'cb-eventkeyactivityend',
                         'class' => 'cb-eventkey', 'name' => 'activityend', 'checked' => 'checked'));
@@ -831,7 +835,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         $html .= html_writer::end_tag('li');
 
         $html .= html_writer::start_tag('li', array('id' => 'eventkeyquestionnairedate', 'class' => 'eventkey'));
-        if (optional_param('questionnairedate', null, PARAM_TEXT)) {
+        if (optional_param('questionnairedate', null, PARAM_TEXT) || optional_param('questionnairedate_modal', null, PARAM_TEXT)) {
             $html .= html_writer::empty_tag('input',
                             array('type' => 'checkbox', 'id' => 'cb-eventkeyquestionnairedate',
                         'class' => 'cb-eventkey', 'name' => 'questionnairedate', 'checked' => 'checked'));
@@ -852,7 +856,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         $html .= html_writer::start_div('col-md-4');
 
         $html .= html_writer::start_tag('li', array('id' => 'eventkeytestdate', 'class' => 'eventkey'));
-        if (optional_param('testdate', null, PARAM_TEXT)) {
+        if (optional_param('testdate', null, PARAM_TEXT) || optional_param('testdate_modal', null, PARAM_TEXT)) {
             $html .= html_writer::empty_tag('input',
                             array('type' => 'checkbox', 'id' => 'cb-eventkeytestdate',
                         'class' => 'cb-eventkey', 'name' => 'testdate', 'checked' => 'checked'));
@@ -868,7 +872,8 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         $html .= html_writer::end_tag('li');
 
         $html .= html_writer::start_tag('li', array('id' => 'eventkeyintensivemodulebegin', 'class' => 'eventkey'));
-        if (optional_param('intensivemodulebegin', null, PARAM_TEXT)) {
+        if (optional_param('intensivemodulebegin', null, PARAM_TEXT) ||
+                optional_param('intensivemodulebegin_modal', null, PARAM_TEXT)) {
             $html .= html_writer::empty_tag('input',
                             array('type' => 'checkbox', 'id' => 'cb-eventkeyintensivemodulebegin',
                         'class' => 'cb-eventkey', 'name' => 'intensivemodulebegin', 'checked' => 'checked'));
@@ -889,7 +894,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
         $html .= html_writer::start_div('col-md-4');
 
         $html .= html_writer::start_tag('li', array('id' => 'eventkeyeudeevent', 'class' => 'eventkey'));
-        if (optional_param('eudeevent', null, PARAM_TEXT)) {
+        if (optional_param('eudeevent', null, PARAM_TEXT) || optional_param('eudeevent_modal', null, PARAM_TEXT)) {
             $html .= html_writer::empty_tag('input',
                             array('type' => 'checkbox', 'id' => 'cb-eventkeyeudeevent',
                         'class' => 'cb-eventkey', 'name' => 'eudeevent', 'checked' => 'checked'));

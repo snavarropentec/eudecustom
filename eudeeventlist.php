@@ -68,15 +68,16 @@ if (optional_param('generateeventlist', 0, PARAM_TEXT)) {
 
         switch ($event->courseid) {
             case 0:
-                if (strpos($event->name, '[[MI]]') === 0 && $event->eventtype == 'user' && optional_param('intensivemodulebegin', 0,
-                                PARAM_TEXT)) {
+                if (strpos($event->name, '[[MI]]') === 0 && $event->eventtype == 'user' &&
+                        (optional_param('intensivemodulebegin', 0,PARAM_TEXT) ||
+                        optional_param('intensivemodulebegin_modal', 0,PARAM_TEXT))) {
                     $event->class = 'intensivemodule';
                     $event->name = get_string('eventkeyintensivemodulebegin', 'local_eudecustom') . ' ' . str_replace('[[MI]]',
                             '', $event->name);
                     array_push($eventstoshow, $event);
                 }
-                if (strpos($event->name, '[[COURSE]]') === 0 && $event->eventtype == 'user' && optional_param('modulebegin', 0,
-                                PARAM_TEXT)) {
+                if (strpos($event->name, '[[COURSE]]') === 0 && $event->eventtype == 'user' &&
+                        (optional_param('modulebegin', 0, PARAM_TEXT) || optional_param('modulebegin_modal', 0, PARAM_TEXT))) {
                     $event->class = 'normalmodule';
                     $event->name = get_string('eventkeymodulebegin', 'local_eudecustom') . ' ' . str_replace('[[COURSE]]',
                             '', $event->name);
@@ -84,24 +85,27 @@ if (optional_param('generateeventlist', 0, PARAM_TEXT)) {
                 }
                 break;
             case 1:
-                if (optional_param('eudeevent', 0, PARAM_TEXT)) {
+                if (optional_param('eudeevent', 0, PARAM_TEXT) || optional_param('eudeevent_modal', 0, PARAM_TEXT)) {
                     $event->class = 'globalevent';
                     array_push($eventstoshow, $event);
                 }
                 break;
             default:
                 $course = $DB->get_record('course', array('id' => $event->courseid));
-                if ($event->modulename == 'assign' && $event->eventtype == 'due' && optional_param('activityend', 0, PARAM_TEXT)) {
+                if ($event->modulename == 'assign' && $event->eventtype == 'due' && (optional_param('activityend', 0, PARAM_TEXT) ||
+                        optional_param('activityend_modal', 0, PARAM_TEXT))) {
                     $event->class = 'assignmentevent';
                     $event->name = $event->name . ' ' . $course->fullname;
                     array_push($eventstoshow, $event);
                 }
-                if ($event->modulename == 'questionnaire' && optional_param('questionnairedate', 0, PARAM_TEXT)) {
+                if ($event->modulename == 'questionnaire' && (optional_param('questionnairedate', 0, PARAM_TEXT) ||
+                        optional_param('questionnairedate_modal', 0, PARAM_TEXT))) {
                     $event->name = $event->name . ' ' . $course->fullname;
                     $event->class = 'questionnaireevent';
                     array_push($eventstoshow, $event);
                 }
-                if ($event->modulename == 'quiz' && optional_param('testdate', 0, PARAM_TEXT)) {
+                if ($event->modulename == 'quiz' &&
+                        (optional_param('testdate', 0, PARAM_TEXT) || optional_param('testdate_modal', 0, PARAM_TEXT))) {
                     $event->name = $event->name . ' ' . $course->fullname;
                     $event->class = 'quizevent';
                     array_push($eventstoshow, $event);

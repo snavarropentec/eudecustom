@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -94,8 +95,7 @@ function enrol_intensive_user ($enrol, $courseid, $userid, $timestart = 0, $time
     }
 
     // Check if a record exists in table local_eudecustom_user.
-    $record = $DB->get_record('local_eudecustom_user',
-            array('user_email' => $userdata->email, 'course_category' => $categoryid));
+    $record = $DB->get_record('local_eudecustom_user', array('user_email' => $userdata->email, 'course_category' => $categoryid));
     if ($record) {
         // If record exists we make an update in local_eudecustom_user.
         $record->num_intensive = $record->num_intensive + 1;
@@ -204,7 +204,8 @@ function count_total_intensives ($userid, $categoryid) {
 
     $userdata = $DB->get_record('user', array('id' => $userid));
     // We recover the intensive courses of the given course.
-    if ($record = $DB->get_record('local_eudecustom_user', array('user_email' => $userdata->email,
+    if ($record = $DB->get_record('local_eudecustom_user',
+            array('user_email' => $userdata->email,
         'course_category' => $categoryid))) {
         return $record->num_intensive;
     } else {
@@ -541,32 +542,45 @@ function update_intensive_dates ($convnum, $cid, $userid) {
             default:
                 break;
         }
-    }
-    $date = new stdClass();
-    $date->id = $start->id;
-    $date->timestart = $newdate;
-    // Timeend is timestart + a week in seconds.
-    $date->timeend = $newdate + 604800;
-    $recordupdated = $DB->update_record('user_enrolments', $date);
-    $sql = 'SELECT id
+        $date = new stdClass();
+        $date->id = $start->id;
+        $date->timestart = $newdate;
+        // Timeend is timestart + a week in seconds.
+        $date->timeend = $newdate + 604800;
+        $recordupdated = $DB->update_record('user_enrolments', $date);
+        $sql = 'SELECT id
                FROM {local_eudecustom_mat_int}
               WHERE course_shortname = :course_shortname
                 AND user_email = :user_email
                 AND category_id = :category_id
            ORDER BY matriculation_date DESC
               LIMIT 1';
-    $idmatint = $DB->get_record_sql($sql,
-            array('course_shortname' => $intensive->shortname,
-        'user_email' => $userdata->email,
-        'category_id' => $course->category));
-    $newdata = new stdClass();
-    $newdata->id = $idmatint->id;
-    $newdata->matriculation_date = $newdate;
-    $newdata->conv_number = $convnum;
-    if ($recordupdated) {
-        $recordupdated = $DB->update_record('local_eudecustom_mat_int', $newdata);
+        $idmatint = $DB->get_record_sql($sql,
+                array('course_shortname' => $intensive->shortname,
+            'user_email' => $userdata->email,
+            'category_id' => $course->category));
+        $newdata = new stdClass();
+        $newdata->id = $idmatint->id;
+        $newdata->matriculation_date = $newdate;
+        $newdata->conv_number = $convnum;
+        if ($recordupdated) {
+            $recordupdated = $DB->update_record('local_eudecustom_mat_int', $newdata);
+        }
+
+        // We need to update the event for the course because we changed the start date.
+        $event = $DB->get_record('event',
+                array('name' => '[[MI]]' . $intensive->shortname,
+            'userid' => $start->userid, 'eventtype' => 'user', 'timestart' => $start->timestart));
+        if ($event) {
+            $event->timestart = $newdate;
+            $eventid = $DB->update_record('event', $event);
+        }
+
+        return $recordupdated;
+    } else {
+        return false;
     }
-    return $recordupdated;
+    
 }
 
 /**
@@ -1256,7 +1270,7 @@ function get_intensivecourse_data ($course, $studentid) {
         // Check if the user has grades in the normal and intensive modules or didnt attemp the exams.
         $coursegrades = grades($course->id, $studentid);
         $intensivegrades = grades($modint->id, $studentid);
-        if ($coursegrades == null && $intensivegrades == null) {
+        if (gettype($coursegrades) != 'double' && gettype($intensivegrades) != 'double') {
             $intensivecourse->provgrades = '-';
             $intensivecourse->finalgrades = '-';
         } else {
@@ -1584,8 +1598,7 @@ function user_repeat_category ($userid, $category) {
                     AND co.category = :category
                ORDER BY gh.timemodified ASC
                   LIMIT 1';
-    $firstgrade = $DB->get_record_sql($sql,
-            array('source' => 'mod/quiz', 'category' => $category));
+    $firstgrade = $DB->get_record_sql($sql, array('source' => 'mod/quiz', 'category' => $category));
 
     $sqlcourse = 'SELECT ue.id, ue.timestart, ue.timeend
                     FROM {user_enrolments} ue
@@ -1595,8 +1608,7 @@ function user_repeat_category ($userid, $category) {
                      AND c.category = :category
                      AND ue.userid = :userid
                 ORDER BY ue.timeend DESC';
-    $actualcourses = $DB->get_records_sql($sqlcourse,
-            array('category' => $category, 'type' => 'manual', 'userid' => $userid));
+    $actualcourses = $DB->get_records_sql($sqlcourse, array('category' => $category, 'type' => 'manual', 'userid' => $userid));
     $firstcourse = 0;
     $endcourse = 0;
     foreach ($actualcourses as $course) {
