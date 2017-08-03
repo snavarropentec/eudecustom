@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -576,9 +575,10 @@ function update_intensive_dates ($convnum, $cid, $userid) {
                 AND name LIKE $intcname
 				AND eventtype LIKE 'user'";
         $event = $DB->get_record_sql($sql, array('userid' => $start->userid, 'timestart' => $start->timestart));
-        $event->timestart = $newdate;
-        $eventid = $DB->update_record('event', $event);
-
+        if ($event) {
+            $event->timestart = $newdate;
+            $eventid = $DB->update_record('event', $event);
+        }
         return $recordupdated;
     } else {
         return false;

@@ -69,8 +69,8 @@ if (optional_param('generateeventlist', 0, PARAM_TEXT)) {
         switch ($event->courseid) {
             case 0:
                 if (strpos($event->name, '[[MI]]') === 0 && $event->eventtype == 'user' &&
-                        (optional_param('intensivemodulebegin', 0,PARAM_TEXT) ||
-                        optional_param('intensivemodulebegin_modal', 0,PARAM_TEXT))) {
+                        (optional_param('intensivemodulebegin', 0, PARAM_TEXT) ||
+                        optional_param('intensivemodulebegin_modal', 0, PARAM_TEXT))) {
                     $event->class = 'intensivemodule';
                     $event->name = get_string('eventkeyintensivemodulebegin', 'local_eudecustom') . ' ' . str_replace('[[MI]]',
                             '', $event->name);
