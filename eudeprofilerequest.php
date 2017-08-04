@@ -86,7 +86,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                     }
                     $tr->cells[] = $cell;
                     $html = html_writer::tag('span', $row->attempts, array('class' => 'attempts'));
-                    if ($row->attempts > 0 && 
+                    if ($row->attempts > 0 &&
                             $row->info != 'No hay notas disponibles.' &&
                             $row->info != 'Grade Information for the course') {
                         $html .= html_writer::empty_tag('i',
