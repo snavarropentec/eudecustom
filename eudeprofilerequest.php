@@ -182,7 +182,9 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                         }
                         $tr->cells[] = $cell;
                         $html = html_writer::tag('span', $row->attempts, array('class' => 'attempts'));
-                        if ($row->attempts > 0) {
+                        if ($row->attempts > 0 &&
+                            $row->info != 'No hay notas disponibles.' &&
+                            $row->info != 'Grade Information for the course') {
                             $html .= html_writer::empty_tag('i',
                                             array('id' => 'info', 'class' => 'fa fa-info-circle',
                                         'title' => $newd->info,
@@ -199,21 +201,23 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                 }
             }
             $categorygrades = get_grade_category($category, $USER->id);
+            $tr = new \html_table_row();
+            $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
+            $cell = new \html_table_cell(get_string('totalgrade', 'local_eudecustom'));
+            $tr->cells[] = $cell;
+            $cell = new \html_table_cell('');
+            $tr->cells[] = $cell;
+            $cell = new \html_table_cell('');
+            $tr->cells[] = $cell;
             if ($categorygrades != -1) {
-                $tr = new \html_table_row();
-                $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
-                $cellavg = new \html_table_cell('Nota media del programa');
-                $tr->cells[] = $cellavg;
-                $cellavg = new \html_table_cell('');
-                $tr->cells[] = $cellavg;
-                $cellavg = new \html_table_cell('');
-                $tr->cells[] = $cellavg;
-                $cellavg = new \html_table_cell($categorygrades);
-                $tr->cells[] = $cellavg;
-                $cellavg = new \html_table_cell('');
-                $tr->cells[] = $cellavg;
-                $table->data[] = $tr;
+                $cell = new \html_table_cell($categorygrades);
+            } else {
+                $cell = new \html_table_cell('-');
             }
+            $tr->cells[] = $cell;
+            $cell = new \html_table_cell('');
+            $tr->cells[] = $cell;
+            $table->data[] = $tr;
             $html = html_writer::table($table);
             $response['table'] = $html;
             $response['student'] = '';
