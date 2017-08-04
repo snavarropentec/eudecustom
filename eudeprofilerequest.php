@@ -103,8 +103,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
             }
         }
         $categorygrades = get_grade_category($category, $studentid);
-        if ($categorygrades != -1) {
-            $tr = new \html_table_row();
+        $tr = new \html_table_row();
             $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
             $cell = new \html_table_cell('Nota media del programa');
             $tr->cells[] = $cell;
@@ -112,12 +111,15 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
             $tr->cells[] = $cell;
             $cell = new \html_table_cell('');
             $tr->cells[] = $cell;
+        if ($categorygrades != -1) {
             $cell = new \html_table_cell($categorygrades);
-            $tr->cells[] = $cell;
-            $cell = new \html_table_cell('');
-            $tr->cells[] = $cell;
-            $table->data[] = $tr;
+        } else {
+            $cell = new \html_table_cell('-');
         }
+        $tr->cells[] = $cell;
+        $cell = new \html_table_cell('');
+        $tr->cells[] = $cell;
+        $table->data[] = $tr;
         $html = html_writer::table($table);
         $response = $html;
         // If the request is only for the category we return the select to choose a student.
