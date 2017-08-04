@@ -203,20 +203,20 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
             $categorygrades = get_grade_category($category, $USER->id);
             $tr = new \html_table_row();
             $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
-            $cell = new \html_table_cell(get_string('totalgrade', 'local_eudecustom'));
-            $tr->cells[] = $cell;
-            $cell = new \html_table_cell('');
-            $tr->cells[] = $cell;
-            $cell = new \html_table_cell('');
-            $tr->cells[] = $cell;
+            $lastcell = new \html_table_cell(get_string('totalgrade', 'local_eudecustom'));
+            $tr->cells[] = $lastcell;
+            $lastcell = new \html_table_cell('');
+            $tr->cells[] = $lastcell;
+            $lastcell = new \html_table_cell('');
+            $tr->cells[] = $lastcell;
             if ($categorygrades != -1) {
-                $cell = new \html_table_cell($categorygrades);
+                $lastcell = new \html_table_cell($categorygrades);
             } else {
-                $cell = new \html_table_cell('-');
+                $lastcell = new \html_table_cell('-');
             }
-            $tr->cells[] = $cell;
-            $cell = new \html_table_cell('');
-            $tr->cells[] = $cell;
+            $tr->cells[] = $lastcell;
+            $lastcell = new \html_table_cell('');
+            $tr->cells[] = $lastcell;
             $table->data[] = $tr;
             $html = html_writer::table($table);
             $response['table'] = $html;
