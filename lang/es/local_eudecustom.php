@@ -146,3 +146,4 @@ $string['studenttypes'] = 'Escoge un tipo de estudiante';
 $string['student'] = 'Estudiantes en activo';
 $string['studentfinishing'] = 'Estudiantes que han acabado y aún pueden realizar entregas';
 $string['studentold'] = 'Estudiantes que han finalizado el curso';
+$string['totalgrade'] = 'Nota total del programa';

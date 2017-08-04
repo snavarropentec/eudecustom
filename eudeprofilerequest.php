@@ -86,7 +86,9 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                     }
                     $tr->cells[] = $cell;
                     $html = html_writer::tag('span', $row->attempts, array('class' => 'attempts'));
-                    if ($row->attempts > 0) {
+                    if ($row->attempts > 0 && 
+                            $row->info != 'No hay notas disponibles.' &&
+                            $row->info != 'Grade Information for the course') {
                         $html .= html_writer::empty_tag('i',
                                         array('id' => 'info', 'class' => 'fa fa-info-circle',
                                     'title' => $row->info,
@@ -105,7 +107,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
         $categorygrades = get_grade_category($category, $studentid);
         $tr = new \html_table_row();
             $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
-            $cell = new \html_table_cell('Nota media del programa');
+            $cell = new \html_table_cell(get_string('totalgrade', 'local_eudecustom'));
             $tr->cells[] = $cell;
             $cell = new \html_table_cell('');
             $tr->cells[] = $cell;

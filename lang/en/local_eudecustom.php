@@ -145,3 +145,4 @@ $string['studenttypes'] = 'Select type of students';
 $string['student'] = 'Active students';
 $string['studentfinishing'] = 'Period of grace students';
 $string['studentold'] = 'Completed course students';
+$string['totalgrade'] = 'Total grade';
