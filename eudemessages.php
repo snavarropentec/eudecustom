@@ -38,7 +38,7 @@ global $CFG;
 if (optional_param('searchmessage', null, PARAM_TEXT) == 'searchmessage') {
 
     if (!confirm_sesskey()) {
-        error('Bad Session Key');
+        print_error('Bad Session Key');
     } else {
         // If the search parameters return an existing user -> redirect to a conversation.
         if ($record = $DB->record_exists('user', array(
@@ -97,7 +97,7 @@ if (optional_param('sendmessage', null, PARAM_TEXT) == 'Enviar') {
 
     // If all the fields are set -> we send both a message and an email to the receiver.
     if (!confirm_sesskey()) {
-        error('Bad Session Key');
+        print_error('Bad Session Key');
     } else {
         $userfrom = $DB->get_record('user', array('id' => $USER->id));
         $subject = 'Asunto: ' . format_string(optional_param('subjectname', null, PARAM_TEXT));

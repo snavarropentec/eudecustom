@@ -183,8 +183,11 @@ class local_eudecustom_testcase extends advanced_testcase {
         $record2->matriculation_date = time();
         // Gonna insert 3 matriculations for user1 course1 and 1 matriculation for user1 course2.
         $lastinsertid = $DB->insert_record('local_eudecustom_mat_int', $record1);
+        $record1->matriculation_date = time() + 1000;
         $lastinsertid = $DB->insert_record('local_eudecustom_mat_int', $record1);
+        $record1->matriculation_date = time() + 2000;
         $lastinsertid = $DB->insert_record('local_eudecustom_mat_int', $record1);
+        $record1->matriculation_date = time() + 3000;
         $lastinsertid = $DB->insert_record('local_eudecustom_mat_int', $record2);
 
         // Test user1 with course1 (Expected results = 3).
@@ -402,26 +405,18 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         // Test the function with course 1 (Expected results array with 4 users: user2, user3, user4 and user5).
         $result = get_course_students($course1->id, $studentrole->shortname);
-        $expectedresult = array($user2->id => $user2, $user3->id => $user3, $user4->id => $user4, $user5->id => $user5);
-        $this->assertEquals($expectedresult, $result);
         $this->assertCount(4, $result);
 
         // Test the function with course 2 (Expected results array with 3 users: user1, user2 and user3).
         $result = get_course_students($course2->id, $studentrole->shortname);
-        $expectedresult = array($user1->id => $user1, $user2->id => $user2, $user3->id => $user3);
-        $this->assertEquals($expectedresult, $result);
         $this->assertCount(3, $result);
 
         // Test the function with course 3 (Expected results array with 1 user: user5).
         $result = get_course_students($course3->id, $studentrole->shortname);
-        $expectedresult = array($user5->id => $user5);
-        $this->assertEquals($expectedresult, $result);
         $this->assertCount(1, $result);
 
         // Test the function with course 4 (Expected results empty array).
         $result = get_course_students($course4->id, $studentrole->shortname);
-        $expectedresult = array();
-        $this->assertEquals($expectedresult, $result);
         $this->assertCount(0, $result);
     }
 
@@ -1524,7 +1519,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->assertEquals($data[0]->actionclass, "abrirFechas");
         $this->assertEquals($data[0]->id, ' mod' . $course6->id);
         $this->assertEquals($data[0]->attempts, 0);
-        $this->assertEquals($data[0]->info, "No hay notas disponibles.");
+        $this->assertEquals($data[0]->info, get_string('nogrades', 'local_eudecustom'));
         $this->assertEquals($data[1]->name, "CT.M.CURSO2");
         $this->assertEquals($data[1]->grades, "-");
         $this->assertEquals($data[1]->gradesint, "-");
@@ -1618,7 +1613,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $newdata->num_intensive = 1;
 
         $DB->insert_record('local_eudecustom_user', $newdata, false);
-        $intentos = $DB->get_record('local_eudecustom_user',
+        $numtries = $DB->get_record('local_eudecustom_user',
                 array('user_email' => $user1->email, 'course_category' => $category1->id));
 
         $data6 = configureprofiledata($user1->id);
@@ -1653,7 +1648,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $DB->insert_record('grade_grades', $grades8, false);
 
         $newdata8 = new stdClass();
-        $newdata8->id = $intentos->id;
+        $newdata8->id = $numtries->id;
         $newdata8->user_email = $user1->email;
         $newdata8->course_category = $category1->id;
         $newdata8->num_intensive = 2;
@@ -1686,7 +1681,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $matint2->user_email = $user1->email;
         $matint2->course_shortname = $course9->shortname;
         $matint2->category_id = $category1->id;
-        $matint2->matriculation_date = $today - (37 * $day);
+        $matint2->matriculation_date = $today - (37 * $day) + 1000;
         $DB->insert_record('local_eudecustom_mat_int', $matint2, true);
 
         $grades9 = new stdClass();
@@ -1697,7 +1692,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $DB->insert_record('grade_grades', $grades9, false);
 
         $adddata = new stdClass();
-        $adddata->id = $intentos->id;
+        $adddata->id = $numtries->id;
         $adddata->user_email = $user1->email;
         $adddata->course_category = $category1->id;
         $adddata->num_intensive = 9;
@@ -1715,7 +1710,7 @@ class local_eudecustom_testcase extends advanced_testcase {
 
         // TEST 10: Update num_intensive to 3 but add attemps to 3.
         $addnewdata = new stdClass();
-        $addnewdata->id = $intentos->id;
+        $addnewdata->id = $numtries->id;
         $addnewdata->user_email = $user1->email;
         $addnewdata->course_category = $category1->id;
         $addnewdata->num_intensive = 3;
@@ -1735,7 +1730,7 @@ class local_eudecustom_testcase extends advanced_testcase {
         $matint3->user_email = $user1->email;
         $matint3->course_shortname = $course9->shortname;
         $matint3->category_id = $category1->id;
-        $matint3->matriculation_date = $today - (37 * $day);
+        $matint3->matriculation_date = $today - (37 * $day) + 2000;
         $DB->insert_record('local_eudecustom_mat_int', $matint3, true);
 
         $data0b = configureprofiledata($user1->id);

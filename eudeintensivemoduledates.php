@@ -62,7 +62,7 @@ $data = new local_eudecustom_eudeintensivemoduledates();
 // We insert the form data in the db.
 if (optional_param('savedates', null, PARAM_TEXT) == 'savedates') {
     if (!confirm_sesskey()) {
-        error('Bad Session Key');
+        print_error('Bad Session Key');
     } else {
         $coursedata = array();
         foreach ($data->courses as $record) {

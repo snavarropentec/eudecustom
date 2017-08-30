@@ -1,6 +1,6 @@
 /* VENTANA FLOTANTE */
 
-#ventana-flotante {
+#page-local-eudecustom-eudeprofile #ventana-flotante {
     display: none;
     position: fixed; 
     z-index: 100; 
@@ -22,15 +22,15 @@
 }
 
 /* The Close Button */
-.cerrar {
+#page-local-eudecustom-eudeprofile #ventana-flotante .cerrar {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
 
-.cerrar:hover,
-.cerrar:focus {
+#page-local-eudecustom-eudeprofile #ventana-flotante .cerrar:hover,
+#page-local-eudecustom-eudeprofile #ventana-flotante .cerrar:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
@@ -38,28 +38,6 @@
 
 #page-local-eudecustom-eudeprofile #contenedor #contenido h3 {
     font-size: 2em;
-}
-
-button, input.form-submit, input[type="button"], input[type="submit"], input[type="reset"] {
-    margin-bottom: 0;
-    font-weight: 300;
-    text-align: center;
-    vertical-align: middle;
-    -ms-touch-action: manipulation;
-    touch-action: manipulation;
-    cursor: pointer;
-    background-image: none;
-    border: 1px solid transparent;
-    white-space: nowrap;
-    padding: 6px 16px;
-    font-size: 18px;
-    line-height: 1.6;
-    border-radius: 0px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    margin: 0 0 10px 5px;
 }
 
 /*CSS Eude Profile*/
@@ -83,10 +61,6 @@ button, input.form-submit, input[type="button"], input[type="submit"], input[typ
 #page-local-eudecustom-eudeprofile td.cell.c1 {
     padding: 0;
     height: 45px;
-}
-
-li.icon-box:hover {
-    background: radial-gradient(closest-side at 65% 50%, #6f193d 50%, #fff )
 }
 
 #page-local-eudecustom-eudeprofile span.eudeprofilespan {
@@ -128,23 +102,12 @@ li.icon-box:hover {
 }
 
 /* Extra Eudeprofile CSS */
-.editor_atto .menulateral {
-    display: none;
-}
-
-body#page-site-index {
-    font-size: 0;
-}
-
-#page{
-    font-size:18px;
-}
 
 #page-local-eudecustom-eudeprofile i.abrirFechas {
     cursor: pointer;
 }
 
-.total {
+#page-local-eudecustom-eudeprofile #tablecontainer .total {
     font-weight: bold;
     border-top: 2px solid #ddd;
 }
@@ -239,11 +202,6 @@ body#page-site-index {
     width: 14%;
     text-align: center;
     border: 0;
-}
-
-abbr[title], abbr[data-original-title] {
-    cursor: help;
-    border-bottom: 1px dotted #999;
 }
 
 #page-local-eudecustom-eudecalendar .minicalendar td {
@@ -391,7 +349,7 @@ abbr[title], abbr[data-original-title] {
     padding-top: 20px;
 }
 
-div[name="normalcourse"], div[name="activitysubmission"], div[name="testsubmission"], div[name="intensivecourse"], div[name="holidays"], div[name="questionnairedate"], div[name="eudeglobalevent"] {
+#page-local-eudecustom-eudecalendar .eudecalendar div[name="normalcourse"], #page-local-eudecustom-eudecalendar .eudecalendar div[name="activitysubmission"], #page-local-eudecustom-eudecalendar .eudecalendar div[name="testsubmission"], #page-local-eudecustom-eudecalendar .eudecalendar div[name="intensivecourse"], #page-local-eudecustom-eudecalendar .eudecalendar div[name="holidays"], #page-local-eudecustom-eudecalendar .eudecalendar div[name="questionnairedate"], #page-local-eudecustom-eudecalendar .eudecalendar div[name="eudeglobalevent"] {
     min-height: 14px;
     max-height: 30px;
     overflow: hidden;
@@ -450,7 +408,7 @@ div[name="normalcourse"], div[name="activitysubmission"], div[name="testsubmissi
     margin-top: 10px;
 }
 
-table th {
+#page-local-eudecustom-eudeintensivemoduledates #contenido-fecha-matriculas table th {
     width: auto !important;
 }
 
@@ -516,11 +474,11 @@ table th {
 }
 
 /* Teacher control panel view */
-.row-panel-list {
+#page-local-eudecustom-eudeteachercontrolpanel .row-panel-list {
     overflow-y: auto;
     height: 250px;
 }
-.eude_panel_bg .panelitem{
+#page-local-eudecustom-eudeteachercontrolpanel .eude_panel_bg .panelitem{
     list-style: none;
     border-bottom: 1px #6F1A3D solid;
     background-color: none;
@@ -530,7 +488,7 @@ table th {
     padding-left: 3px;
 }
 
-.linkselect {
+#page-local-eudecustom-eudeteachercontrolpanel .linkselect {
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 5px;
@@ -544,30 +502,30 @@ table th {
     cursor: pointer;
 	
 }
-.panelitem a {
+#page-local-eudecustom-eudeteachercontrolpanel .panelitem a {
     color: #565656;
 }
-.panelitem a:hover {
+#page-local-eudecustom-eudeteachercontrolpanel .panelitem a:hover {
     color: #6F1A3D;
 }
-.eude_panel_bg .itemname {
+#page-local-eudecustom-eudeteachercontrolpanel .eude_panel_bg .itemname {
     float: left;
     padding-top: 5px;
 }
-.eude_panel_bg .itemselect {
+#page-local-eudecustom-eudeteachercontrolpanel .eude_panel_bg .itemselect {
     float: right;
     padding-right: 2px;
 }
-.eude_panel_bg .itemselect-small {
+#page-local-eudecustom-eudeteachercontrolpanel .eude_panel_bg .itemselect-small {
     width: 100%;
     margin-bottom: 10px;
 }
 
-.linkselect option {
+#page-local-eudecustom-eudeteachercontrolpanel .linkselect option {
     padding-left: 15px;
     text-transform: uppercase;
 }
-.eude_panel_bg h4 {
+#page-local-eudecustom-eudeteachercontrolpanel .eude_panel_bg h4 {
     text-transform: uppercase;
 }
 
@@ -598,28 +556,3 @@ table th {
     background-image: none;
 }
 
-/* General fixes */
-#options a:focus, #options a:visited {
-    text-decoration: none;
-    outline: 0;
-}
-
-.previous_section .nav_icon, .next_section .nav_icon {
-    background-color: #6f193d;
-}
- @media (max-width: 420px) {
-    #mr-nav {
-        height: 75px;
-    }
-	 
-    #snap-home.logo {
-        width: 60%;
-    }
-    .pull-right .snap-login-button {
-        margin-right: -50px !important;
-    }
- }
- 
-.nav > li > a {
-    border-right: 1px silver solid !important;
- }

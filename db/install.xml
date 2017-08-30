@@ -10,7 +10,7 @@
                 <FIELD NAME="user_email" TYPE="char" LENGTH="100" NOTNULL="true" UNSIGNED="false" SEQUENCE="false" COMMENT="Foreign key to user.email."/>
                 <FIELD NAME="course_shortname" TYPE="char" LENGTH="100" NOTNULL="true" UNSIGNED="false" SEQUENCE="false" COMMENT="Foreign key to course.shortname."/>
                 <FIELD NAME="category_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" SEQUENCE="false" COMMENT="Foreign key to course_categories.id."/>
-                <FIELD NAME="matriculation_date" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="false" SEQUENCE="false" COMMENT="Matriculation date."/>
+                <FIELD NAME="matriculation_date" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" SEQUENCE="false" COMMENT="Matriculation date."/>
                 <FIELD NAME="conv_number" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="false" SEQUENCE="false" COMMENT="Convocatory number."/>
             </FIELDS>
             <KEYS>
@@ -19,6 +19,10 @@
                 <KEY NAME="course_shortname" TYPE="foreign" FIELDS="course_shortname" REFTABLE="course" REFFIELDS="shortname"/>
                 <KEY NAME="category_id" TYPE="foreign" FIELDS="category_id" REFTABLE="course_categories" REFFIELDS="id"/>
             </KEYS>
+            <INDEXES>
+                <INDEX NAME="idx_mat_int_full" UNIQUE="true" FIELDS="user_email, course_shortname, category_id, matriculation_date"/>
+                <INDEX NAME="idx_mat_int" UNIQUE="false" FIELDS="user_email, course_shortname, category_id"/>
+            </INDEXES>
         </TABLE>
         <TABLE NAME="local_eudecustom_user" COMMENT="User specific data.">
             <FIELDS>
@@ -32,6 +36,10 @@
                 <KEY NAME="user_email" TYPE="foreign" FIELDS="user_email" REFTABLE="user" REFFIELDS="email"/>
                 <KEY NAME="course_category" TYPE="foreign" FIELDS="course_category" REFTABLE="course_categories" REFFIELDS="id"/>
             </KEYS>
+            <INDEXES>
+                <INDEX NAME="idx_user_email" UNIQUE="false" FIELDS="user_email"/>
+                <INDEX NAME="idx_user_email_category" UNIQUE="true" FIELDS="user_email, course_category"/>
+            </INDEXES>
         </TABLE>
         <TABLE NAME="local_eudecustom_call_date" COMMENT="Course call dates.">
             <FIELDS>
@@ -46,6 +54,10 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="courseid"/>
                 <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
             </KEYS>
+            <INDEXES>
+                <INDEX NAME="idx_call_date_courseid" UNIQUE="false" FIELDS="courseid"/>
+                <INDEX NAME="idx_call_date_mat_dates" UNIQUE="false" FIELDS="courseid, fecha1, fecha2, fecha3, fecha4"/>
+            </INDEXES>
         </TABLE>
     </TABLES>
 </XMLDB>

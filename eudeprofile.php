@@ -79,7 +79,7 @@ if ((!$user = $DB->get_record('user', array('id' => $userid))) || ($user->delete
 // Update intensive course date.
 if (optional_param('date', 0, PARAM_INT)) {
     if (!confirm_sesskey(sesskey())) {
-        error('Bad Session Key');
+        print_error('Bad Session Key');
     } else {
         $convnum = optional_param('date', 0, PARAM_INT);
         $cid = optional_param('course', 0, PARAM_INT);

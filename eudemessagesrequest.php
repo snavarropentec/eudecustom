@@ -41,7 +41,7 @@ if (optional_param('messagecat', 0, PARAM_INT)) {
     $data = get_user_shortname_courses($USER->id, $category);
     $response = "";
     foreach ($data as $option) {
-        $response .= "<option value=$option->id>$option->shortname</option>";
+        $response .= html_writer::tag('option', $option->shortname, array('value' => $option->id));
     }
     echo json_encode($response);
 }
@@ -70,30 +70,23 @@ if (optional_param('messagecourse', 0, PARAM_INT)) {
         switch ($option->shortname) {
             case 'student':
                 if (!$students) {
-                    $response .= "<option value='student'>" . get_string('student', 'local_eudecustom') . "</option>";
+                    $response .= html_writer::tag('option', get_string('student', 'local_eudecustom'), array('value' => 'student'));
                     $students = true;
                 }
                 break;
             case 'studentval':
                 break;
             default:
-                $response .= "<option value=$option->userid>"
-                    . get_string($option->shortname, 'local_eudecustom')
-                    . ": " . $option->firstname
-                    . " "
-                    . $option->lastname
-                    . "</option>";
+                $response .= html_writer::tag('option',
+                    get_string($option->shortname, 'local_eudecustom') . ": " . $option->firstname . " " . $option->lastname,
+                    array('value' => $option->userid));
                 break;
         }
     }
     if ($manager = get_role_manager($coursecat->category)) {
-            $response .= "<option value=$manager->id>"
-                    . get_string('responsablemaster', 'local_eudecustom')
-                    . ": "
-                    . $manager->firstname
-                    . " "
-                    . $manager->lastname
-                    . "</option>";
+                $response .= html_writer::tag('option',
+                    get_string('responsablemaster', 'local_eudecustom') . ": " . $manager->firstname . " " . $manager->lastname,
+                    array('value' => $manager->id));
     }
 
     echo json_encode($response);

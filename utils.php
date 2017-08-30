@@ -46,23 +46,10 @@ function enrol_intensive_user ($enrol, $courseid, $userid, $timestart = 0, $time
     $data = $DB->get_record('enrol', array('enrol' => $enrol, 'courseid' => $courseid));
     $userdata = $DB->get_record('user', array('id' => $userid));
     $coursedata = $DB->get_record('course', array('id' => $courseid));
+    $rid = $DB->get_record('role', array('shortname' => 'student'));
 
-    // We make a new entry on table user_enrolments.
-    $ue = new stdClass();
-
-    $ue->status = !$status ? ENROL_USER_ACTIVE : $status;
-    $ue->enrolid = $data->id;
-    $ue->userid = $userid;
-    $ue->timestart = $timestart;
-    $ue->timeend = $timeend;
-    $ue->timecreated = time();
-    $ue->timemodified = $ue->timecreated;
-    if ($data = $DB->get_record('user_enrolments', array('userid' => $userid, 'enrolid' => $data->id))) {
-        $ue->id = $data->id;
-        $DB->update_record('user_enrolments', $ue);
-    } else {
-        $ue->id = $DB->insert_record('user_enrolments', $ue);
-    }
+    $enrolplugin = enrol_get_plugin('manual');
+    $enrolplugin->enrol_user($data, $userid, $rid->id, $timestart, $timeend, null, null);
 
     // We make a new entry on table local_eudecustom_mat_int.
     $record = new stdClass();
@@ -72,26 +59,6 @@ function enrol_intensive_user ($enrol, $courseid, $userid, $timestart = 0, $time
     $record->matriculation_date = $timestart;
     $record->conv_number = $convnum;
     $DB->insert_record('local_eudecustom_mat_int', $record);
-
-    // We make a new entry in role_assignments to give the user student role.
-    $ra = new stdClass();
-    $rid = $DB->get_record('role', array('shortname' => 'student'));
-    $rctxid = context_course::instance($courseid);
-    $ra->roleid = $rid->id;
-    $ra->contextid = $rctxid->id;
-    $ra->userid = $userid;
-    $ra->timemodified = $timestart;
-    $ra->modifierid = 2;
-    if ($data = $DB->get_record('role_assignments',
-            array(
-        'userid' => $userid,
-        'contextid' => $rctxid->id,
-        'roleid' => $rid->id))) {
-        $ra->id = $data->id;
-        $DB->update_record('role_assignments', $ra);
-    } else {
-        $ra->id = $DB->insert_record('role_assignments', $ra);
-    }
 
     // Check if a record exists in table local_eudecustom_user.
     $record = $DB->get_record('local_eudecustom_user', array('user_email' => $userdata->email, 'course_category' => $categoryid));
@@ -159,8 +126,8 @@ function get_categories_with_intensive_modules () {
     $sql = "SELECT cc.id, cc.name
               FROM {course_categories} cc
              WHERE cc.id IN (SELECT DISTINCT c.category
-                                FROM {course} c
-                               WHERE c.shortname LIKE '%.M.%')";
+                               FROM {course} c
+                              WHERE c.shortname LIKE '%.M.%')";
     $records = $DB->get_records_sql($sql, array());
     foreach ($records as $record) {
         $data[$record->name] = $record->id;
@@ -222,32 +189,30 @@ function count_total_intensives ($userid, $categoryid) {
 function get_name_categories_by_role ($userid, $role) {
     global $DB;
     if ($role == 'manager') {
-        $sql = 'SELECT distinct cc.name, cc.id
-              FROM {role_assignments} ra
-              JOIN {role} r ON r.id = ra.roleid
-              JOIN {context} c ON c.id = ra.contextid
-              JOIN {course_categories} cc ON cc.id = c.instanceid
-             WHERE userid = :userid
-               AND r.shortname = :role
-               AND c.contextlevel = :context';
-        $records = $DB->get_records_sql($sql,
-                array(
+        $sql = "SELECT distinct cc.name, cc.id
+                  FROM {role_assignments} ra
+                  JOIN {role} r ON r.id = ra.roleid
+                  JOIN {context} c ON c.id = ra.contextid
+                  JOIN {course_categories} cc ON cc.id = c.instanceid
+                 WHERE userid = :userid
+                       AND r.shortname = :role
+                       AND c.contextlevel = :context";
+        $records = $DB->get_records_sql($sql, array(
             'userid' => $userid,
             'role' => $role,
             'context' => CONTEXT_COURSECAT
         ));
     } else {
-        $sql = 'SELECT distinct cc.name, cc.id
-              FROM {role_assignments} ra
-              JOIN {role} r ON r.id = ra.roleid
-              JOIN {context} c ON c.id = ra.contextid
-              JOIN {course} co ON co.id = c.instanceid
-              JOIN {course_categories} cc ON cc.id = co.category
-             WHERE userid = :userid
-               AND r.shortname = :role
-               AND c.contextlevel = :context';
-        $records = $DB->get_records_sql($sql,
-                array(
+        $sql = "SELECT distinct cc.name, cc.id
+                  FROM {role_assignments} ra
+                  JOIN {role} r ON r.id = ra.roleid
+                  JOIN {context} c ON c.id = ra.contextid
+                  JOIN {course} co ON co.id = c.instanceid
+                  JOIN {course_categories} cc ON cc.id = co.category
+                 WHERE userid = :userid
+                       AND r.shortname = :role
+                       AND c.contextlevel = :context";
+        $records = $DB->get_records_sql($sql, array(
             'userid' => $userid,
             'role' => $role,
             'context' => CONTEXT_COURSE
@@ -272,26 +237,12 @@ function get_name_categories_by_role ($userid, $role) {
  */
 function get_course_students ($courseid, $rolename) {
     global $DB;
-    $sql = 'SELECT u.*
-              FROM {role_assignments} ra
-              JOIN {user} u ON u.id = ra.userid
-              JOIN {role} r ON r.id = ra.roleid
-              JOIN {context} cxt ON cxt.id = ra.contextid
-              JOIN {course} c ON c.id = cxt.instanceid
-             WHERE ra.userid = u.id
-               AND ra.contextid = cxt.id
-               AND cxt.contextlevel = :contextlevel
-               AND cxt.instanceid = :course
-               AND  r.shortname = :shortname
-             ORDER BY u.lastname';
-    $data = $DB->get_records_sql($sql,
-            array(
-        'contextlevel' => CONTEXT_COURSE,
-        'shortname' => $rolename,
-        'course' => $courseid,
-    ));
 
-    return $data;
+    $role = $DB->get_record('role', array('shortname' => $rolename));
+    $context = context_course::instance($courseid);
+    $users = get_role_users($role->id, $context);
+
+    return $users;
 }
 
 /**
@@ -306,7 +257,8 @@ function get_user_categories ($userid, $notintensives = true) {
 
     if ($notintensives) {
         $condition = "AND cc.id IN (SELECT DISTINCT c.category
-                                FROM {course} c WHERE c.shortname LIKE '%.M.%')";
+                                      FROM {course} c
+                                     WHERE c.shortname LIKE '%.M.%')";
     } else {
         $condition = '';
     }
@@ -318,8 +270,8 @@ function get_user_categories ($userid, $notintensives = true) {
               JOIN {course} co ON co.id = c.instanceid
               JOIN {course_categories} cc ON cc.id = co.category
              WHERE userid = :userid
-               AND c.contextlevel = :context
-               $condition";
+                   AND c.contextlevel = :context
+                   $condition";
     $records = $DB->get_records_sql($sql, array(
         'userid' => $userid,
         'context' => CONTEXT_COURSE
@@ -351,25 +303,24 @@ function get_shortname_courses_by_category ($userid, $role, $category) {
     global $DB;
     // If the user is manager return all the courses in that category.
     if (check_role_manager($userid, $category)) {
-        $sql = 'SELECT co.shortname, co.id
-              FROM {course} co
-             WHERE category = :category';
+        $sql = "SELECT co.shortname, co.id
+                  FROM {course} co
+                 WHERE category = :category";
         $records = $DB->get_records_sql($sql, array(
             'category' => $category
         ));
     } else {
-        $sql = 'SELECT co.shortname, co.id
-              FROM {role_assignments} ra
-              JOIN {role} r ON r.id = ra.roleid
-              JOIN {context} c ON c.id = ra.contextid
-              JOIN {course} co ON co.id = c.instanceid
-              JOIN {course_categories} cc ON cc.id = co.category
-             WHERE userid = :userid
-               AND r.shortname = :role
-               AND c.contextlevel = :context
-               AND co.category = :category';
-        $records = $DB->get_records_sql($sql,
-                array(
+        $sql = "SELECT co.shortname, co.id
+                  FROM {role_assignments} ra
+                  JOIN {role} r ON r.id = ra.roleid
+                  JOIN {context} c ON c.id = ra.contextid
+                  JOIN {course} co ON co.id = c.instanceid
+                  JOIN {course_categories} cc ON cc.id = co.category
+                 WHERE userid = :userid
+                       AND r.shortname = :role
+                       AND c.contextlevel = :context
+                       AND co.category = :category";
+        $records = $DB->get_records_sql($sql, array(
             'userid' => $userid,
             'role' => $role,
             'context' => CONTEXT_COURSE,
@@ -389,15 +340,14 @@ function get_shortname_courses_by_category ($userid, $role, $category) {
 function check_role_manager ($userid, $categoryid) {
     global $DB;
 
-    $sql = 'SELECT ra.userid
+    $sql = "SELECT ra.userid
               FROM {role_assignments} ra
               JOIN {role} r ON r.id = ra.roleid
               JOIN {context} cxt ON cxt.id = ra.contextid
              WHERE cxt.instanceid = :categoryid
-               AND cxt.contextlevel = :context
-               AND r.shortname = :role';
-    $record = $DB->get_record_sql($sql,
-            array(
+                   AND cxt.contextlevel = :context
+                   AND r.shortname = :role";
+    $record = $DB->get_record_sql($sql, array(
         'categoryid' => $categoryid,
         'context' => CONTEXT_COURSECAT,
         'role' => 'manager',
@@ -419,16 +369,15 @@ function check_role_manager ($userid, $categoryid) {
 function get_role_manager ($categoryid) {
     global $DB;
 
-    $sql = 'SELECT u.*
+    $sql = "SELECT u.*
               FROM {role_assignments} ra
               JOIN {role} r ON r.id = ra.roleid
               JOIN {context} cxt ON cxt.id = ra.contextid
               JOIN {user} u ON u.id = ra.userid
              WHERE cxt.instanceid = :categoryid
-               AND cxt.contextlevel = :context
-               AND r.shortname = :role';
-    $record = $DB->get_record_sql($sql,
-            array(
+                   AND cxt.contextlevel = :context
+                   AND r.shortname = :role";
+    $record = $DB->get_record_sql($sql, array(
         'categoryid' => $categoryid,
         'context' => CONTEXT_COURSECAT,
         'role' => 'manager',
@@ -450,17 +399,16 @@ function get_user_shortname_courses ($userid, $category) {
     if (check_role_manager($userid, $category)) {
         $records = $DB->get_records('course', array('category' => $category));
     } else {
-        $sql = 'SELECT co.shortname, co.id
-              FROM {role_assignments} ra
-              JOIN {role} r ON r.id = ra.roleid
-              JOIN {context} c ON c.id = ra.contextid
-              JOIN {course} co ON co.id = c.instanceid
-              JOIN {course_categories} cc ON cc.id = co.category
-             WHERE userid = :userid
-               AND c.contextlevel = :context
-               AND co.category = :category';
-        $records = $DB->get_records_sql($sql,
-                array(
+        $sql = "SELECT co.shortname, co.id
+                  FROM {role_assignments} ra
+                  JOIN {role} r ON r.id = ra.roleid
+                  JOIN {context} c ON c.id = ra.contextid
+                  JOIN {course} co ON co.id = c.instanceid
+                  JOIN {course_categories} cc ON cc.id = co.category
+                 WHERE userid = :userid
+                       AND c.contextlevel = :context
+                       AND co.category = :category";
+        $records = $DB->get_records_sql($sql, array(
             'userid' => $userid,
             'context' => CONTEXT_COURSE,
             'category' => $category
@@ -541,39 +489,36 @@ function update_intensive_dates ($convnum, $cid, $userid) {
             default:
                 break;
         }
-        $date = new stdClass();
-        $date->id = $start->id;
-        $date->timestart = $newdate;
         // Timeend is timestart + a week in seconds.
-        $date->timeend = $newdate + 604800;
-        $recordupdated = $DB->update_record('user_enrolments', $date);
-        $sql = 'SELECT id
-               FROM {local_eudecustom_mat_int}
-              WHERE course_shortname = :course_shortname
-                AND user_email = :user_email
-                AND category_id = :category_id
-           ORDER BY matriculation_date DESC
-              LIMIT 1';
-        $idmatint = $DB->get_record_sql($sql,
-                array('course_shortname' => $intensive->shortname,
+        $enrolplugin = enrol_get_plugin('manual');
+        $enrolplugin->enrol_user($enrol, $userid, null, $newdate, $newdate + 604800, null, null);
+
+        $sql = "SELECT id
+                  FROM {local_eudecustom_mat_int}
+                 WHERE course_shortname = :course_shortname
+                       AND user_email = :user_email
+                       AND category_id = :category_id
+              ORDER BY matriculation_date DESC
+                       LIMIT 1";
+        $idmatint = $DB->get_record_sql($sql, array(
+            'course_shortname' => $intensive->shortname,
             'user_email' => $userdata->email,
             'category_id' => $course->category));
         $newdata = new stdClass();
         $newdata->id = $idmatint->id;
         $newdata->matriculation_date = $newdate;
         $newdata->conv_number = $convnum;
-        if ($recordupdated) {
-            $recordupdated = $DB->update_record('local_eudecustom_mat_int', $newdata);
-        }
+
+        $recordupdated = $DB->update_record('local_eudecustom_mat_int', $newdata);
 
         // We need to update the event for the course because we changed the start date.
         $intcname = "'%[[MI]]" . $intensive->shortname . "%'";
         $sql = "SELECT *
-               FROM {event}
-              WHERE userid = :userid
-                AND timestart = :timestart
-                AND name LIKE $intcname
-				AND eventtype LIKE 'user'";
+                  FROM {event}
+                 WHERE userid = :userid
+                       AND timestart = :timestart
+                       AND name LIKE $intcname
+				       AND eventtype LIKE 'user'";
         $event = $DB->get_record_sql($sql, array('userid' => $start->userid, 'timestart' => $start->timestart));
         if ($event) {
             $event->timestart = $newdate;
@@ -626,14 +571,13 @@ function get_user_all_courses ($userid) {
               JOIN {context} ctx ON ctx.id = ra.contextid
               JOIN {course} c ON c.id = ctx.instanceid
              WHERE ctx.contextlevel = :context
-               AND c.shortname LIKE '%.M.%'
-               AND ra.roleid = :role
-               AND ra.contextid = ctx.id
-               AND ra.userid = :user
-               AND c.id > :site
+                   AND c.shortname LIKE '%.M.%'
+                   AND ra.roleid = :role
+                   AND ra.contextid = ctx.id
+                   AND ra.userid = :user
+                   AND c.id > :site
           ORDER BY c.visible DESC, c.sortorder ASC";
-    $data = $DB->get_records_sql($sql,
-            array(
+    $data = $DB->get_records_sql($sql, array(
         'userid' => $userid,
         'user' => $userid,
         'context' => CONTEXT_COURSE,
@@ -653,21 +597,21 @@ function get_info_grades ($courseid, $userid) {
     global $DB;
 
     $sql = "SELECT GG.feedback
-                FROM {grade_grades} GG
-                JOIN {grade_items} GI ON GG.itemid = GI.id
-                JOIN {course} GC ON GI.courseid = GC.id
-                WHERE GI.itemtype = 'course'
-                AND GC.id = :course
-                AND GG.userid = :userid";
+              FROM {grade_grades} GG
+              JOIN {grade_items} GI ON GG.itemid = GI.id
+              JOIN {course} GC ON GI.courseid = GC.id
+              WHERE GI.itemtype = 'course'
+                    AND GC.id = :course
+                    AND GG.userid = :userid";
     if ($DB->get_record_sql($sql, array('course' => $courseid, 'userid' => $userid))) {
         $record = $DB->get_record_sql($sql, array('course' => $courseid, 'userid' => $userid));
         if ($record->feedback == null || $record->feedback == "") {
-            return 'No hay notas disponibles.';
+            return get_string('nogrades', 'local_eudecustom');
         } else {
             return $record->feedback;
         }
     } else {
-        return 'No hay notas disponibles.';
+        return get_string('nogrades', 'local_eudecustom');
     }
 }
 
@@ -732,33 +676,33 @@ function configureprofiledata ($userid) {
                                           FROM {user_enrolments} u
                                           JOIN {enrol} e ON u.enrolid = e.id
                                          WHERE e.courseid = :courseid
-                                           AND u.userid = :userid
+                                               AND u.userid = :userid
                                       ORDER BY u.timestart DESC
-                                         LIMIT 1";
+                                               LIMIT 1";
                             } else {
-                                $sql = 'SELECT FROM_UNIXTIME(u.timestart,"%d/%m/%Y") AS time, u.timestart
+                                $sql = "SELECT FROM_UNIXTIME(u.timestart,'%d/%m/%Y') AS time, u.timestart
                                           FROM {user_enrolments} u
                                           JOIN {enrol} e
                                          WHERE u.enrolid = e.id
-                                           AND e.courseid = :courseid
-                                           AND u.userid = :userid
+                                               AND e.courseid = :courseid
+                                               AND u.userid = :userid
                                       ORDER BY u.timestart DESC
-                                         LIMIT 1';
+                                               LIMIT 1";
                             }
 
                             $time = $DB->get_record_sql($sql, array('courseid' => $modint->id, 'userid' => $userid));
                             if ($type || $type === 0) {
                                 $sql = "SELECT to_char(to_timestamp(fecha1),'DD/MM/YYYY') AS f1,
-                                    to_char(to_timestamp(fecha2),'DD/MM/YYYY') AS f2,
-                                    to_char(to_timestamp(fecha3),'DD/MM/YYYY') AS f3,
-                                    to_char(to_timestamp(fecha4),'DD/MM/YYYY') AS f4
-                                    FROM {local_eudecustom_call_date}
-                                    WHERE courseid = :courseid";
+                                               to_char(to_timestamp(fecha2),'DD/MM/YYYY') AS f2,
+                                               to_char(to_timestamp(fecha3),'DD/MM/YYYY') AS f3,
+                                               to_char(to_timestamp(fecha4),'DD/MM/YYYY') AS f4
+                                          FROM {local_eudecustom_call_date}
+                                         WHERE courseid = :courseid";
                             } else {
-                                $sql = 'SELECT FROM_UNIXTIME(fecha1,"%d/%m/%Y") AS f1, FROM_UNIXTIME(fecha2,"%d/%m/%Y") AS f2,
-                                    FROM_UNIXTIME(fecha3,"%d/%m/%Y") AS f3, FROM_UNIXTIME(fecha4,"%d/%m/%Y") AS f4
-                                    FROM {local_eudecustom_call_date}
-                                    WHERE courseid = :courseid';
+                                $sql = "SELECT FROM_UNIXTIME(fecha1,'%d/%m/%Y') AS f1, FROM_UNIXTIME(fecha2,'%d/%m/%Y') AS f2,
+                                               FROM_UNIXTIME(fecha3,'%d/%m/%Y') AS f3, FROM_UNIXTIME(fecha4,'%d/%m/%Y') AS f4
+                                          FROM {local_eudecustom_call_date}
+                                         WHERE courseid = :courseid";
                             }
                             $convoc = $DB->get_record_sql($sql, array('courseid' => $modint->id));
                             $matriculado = false;
@@ -790,8 +734,8 @@ function configureprofiledata ($userid) {
                                               FROM {local_eudecustom_call_date} f
                                               JOIN {course} c ON f.courseid = c.id
                                              WHERE c.category = :category
-                                             ORDER BY fecha ASC
-                                             LIMIT 1";
+                                          ORDER BY fecha ASC
+                                                   LIMIT 1";
                                     $startconv = $DB->get_record_sql($sql, array('category' => $modint->category));
 
                                     if ($startconv->fecha > ($daytoday + $weekinseconds) && $owner == true) {
@@ -805,8 +749,7 @@ function configureprofiledata ($userid) {
                                 $object->action = 'notenroled';
                                 $object->actionid = '';
                                 $userdata = $DB->get_record('user', array('id' => $userid));
-                                $numint = $DB->get_record('local_eudecustom_user',
-                                        array(
+                                $numint = $DB->get_record('local_eudecustom_user', array(
                                     'user_email' => $userdata->email,
                                     'course_category' => $mycourse->category));
                                 if (!$numint) {
@@ -910,35 +853,30 @@ function configureprofiledata ($userid) {
 function add_tpv_hidden_inputs ($response) {
     global $USER;
     global $CFG;
-    $response .= html_writer::empty_tag('input',
-                    array(
+    $response .= html_writer::empty_tag('input', array(
                 'type' => 'hidden',
                 'id' => 'user',
                 'name' => 'user',
                 'class' => 'form-control',
                 'value' => $USER->id));
-    $response .= html_writer::empty_tag('input',
-                    array(
+    $response .= html_writer::empty_tag('input', array(
                 'type' => 'hidden',
                 'id' => 'course',
                 'name' => 'course',
                 'class' => 'form-control'));
-    $response .= html_writer::empty_tag('input',
-                    array('type' => 'hidden',
+    $response .= html_writer::empty_tag('input', array('type' => 'hidden',
                 'id' => 'amount',
                 'name' => 'amount',
                 'class' => 'form-control',
                 'value' => $CFG->local_eudecustom_intensivemoduleprice));
-    $response .= html_writer::empty_tag('input',
-                    array('type' => 'hidden',
+    $response .= html_writer::empty_tag('input', array('type' => 'hidden',
                 'id' => 'sesskey',
                 'name' => 'sesskey',
                 'class' => 'form-control',
                 'value' => sesskey()));
     $response .= html_writer::end_div();
     $response .= html_writer::end_div();
-    $response .= html_writer::empty_tag('input',
-                    array(
+    $response .= html_writer::empty_tag('input', array(
                 'type' => 'submit',
                 'name' => 'abrirFechas',
                 'class' => 'btn btn-lg btn-primary btn-block abrirFechas',
@@ -963,16 +901,12 @@ function get_usercourses_by_rol ($userid) {
                  JOIN {course} C ON C.id = CTX.instanceid
                  JOIN {course_categories} CC ON CC.id = C.category
                 WHERE userid = :userid
-                  AND CTX.contextlevel = :context
-                  AND (C.shortname LIKE '%.M.%'
-                   OR C.shortname LIKE 'MI.%')
-                  AND (R.shortname = :role1
-                   OR R.shortname = :role2
-                   OR R.shortname = :role3)
+                      AND CTX.contextlevel = :context
+                      AND (C.shortname LIKE '%.M.%' OR C.shortname LIKE 'MI.%')
+                      AND (R.shortname = :role1 OR R.shortname = :role2 OR R.shortname = :role3)
              ORDER BY C.category, C.id";
 
-    $rolrecords = $DB->get_records_sql($rolsql,
-            array(
+    $rolrecords = $DB->get_records_sql($rolsql, array(
         'userid' => $userid,
         'role1' => 'editingteacher',
         'role2' => 'manager',
@@ -1021,15 +955,15 @@ function get_students_course_data ($courseid, $actualmodule, $role) {
     global $DB;
     // Get last enrolment in this course.
     $sql = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name
-                    FROM {course} C
-                    JOIN {course_categories} CC ON C.category = CC.id
-                    JOIN {context} CTX ON C.id = CTX.instanceid
-                    JOIN {role_assignments} RA ON RA.contextid = CTX.id
-                    JOIN {user_enrolments} UE ON UE.userid = RA.userid
-                    JOIN {enrol} E ON E.id = UE.enrolid AND E.courseid = C.id
-                   WHERE RA.roleid = :role
-                     AND C.id = :courseid
-                ORDER BY UE.timestart ASC
+              FROM {course} C
+              JOIN {course_categories} CC ON C.category = CC.id
+              JOIN {context} CTX ON C.id = CTX.instanceid
+              JOIN {role_assignments} RA ON RA.contextid = CTX.id
+              JOIN {user_enrolments} UE ON UE.userid = RA.userid
+              JOIN {enrol} E ON E.id = UE.enrolid AND E.courseid = C.id
+             WHERE RA.roleid = :role
+                   AND C.id = :courseid
+          ORDER BY UE.timestart ASC
                    LIMIT 1";
     $res = $DB->get_record_sql($sql, array(
         'role' => $role,
@@ -1052,14 +986,14 @@ function get_students_course_data ($courseid, $actualmodule, $role) {
     } else {
         // In case there are not any student enrolled, it should be ordered in actual courses.
         $sql2 = "SELECT C.id, C.shortname, C.fullname, UE.timestart, UE.timeend, UE.userid, CC.name
-                    FROM {course} C
-                    JOIN {course_categories} CC ON C.category = CC.id
-                    JOIN {context} CTX ON C.id = CTX.instanceid
-                    JOIN {role_assignments} RA ON RA.contextid = CTX.id
-                    JOIN {user_enrolments} UE ON UE.userid = RA.userid
-                    JOIN {enrol} E ON E.id = UE.enrolid AND E.courseid = C.id
-                   WHERE C.id = :courseid
-                   LIMIT 1";
+                   FROM {course} C
+                   JOIN {course_categories} CC ON C.category = CC.id
+                   JOIN {context} CTX ON C.id = CTX.instanceid
+                   JOIN {role_assignments} RA ON RA.contextid = CTX.id
+                   JOIN {user_enrolments} UE ON UE.userid = RA.userid
+                   JOIN {enrol} E ON E.id = UE.enrolid AND E.courseid = C.id
+                  WHERE C.id = :courseid
+                        LIMIT 1";
         $res = $DB->get_record_sql($sql2, array(
             'courseid' => $courseid
         ));
@@ -1077,15 +1011,15 @@ function get_students_course_data ($courseid, $actualmodule, $role) {
 function add_course_activities ($record) {
     global $DB;
 
-    $forumsql = 'SELECT id, course, type, name
+    $forumsql = "SELECT id, course, type, name
                    FROM {forum}
-                  WHERE course = :course';
+                  WHERE course = :course";
 
     $forums = $DB->get_records_sql($forumsql, array('course' => $record->id));
 
-    $assignsql = 'SELECT id, course, name
+    $assignsql = "SELECT id, course, name
                     FROM {assign}
-                   WHERE course = :course';
+                   WHERE course = :course";
 
     $assigns = $DB->get_records_sql($assignsql, array('course' => $record->id));
 
@@ -1205,19 +1139,18 @@ function get_actual_module ($catid, $role) {
 
     $actualmodule = 0;
     $sql = "SELECT C.id, C.shortname, C.category, UE.timestart
-                    FROM {course} C
-                    JOIN {course_categories} CC ON C.category = CC.id
-                    JOIN {context} CTX ON C.id = CTX.instanceid
-                    JOIN {role_assignments} RA ON RA.contextid = CTX.id
-                    JOIN {user_enrolments} UE ON UE.userid = RA.userid
-                    JOIN {enrol} E ON E.id = UE.enrolid AND E.courseid = C.id
-                   WHERE RA.roleid = :role
-                     AND C.category = :category
-                     AND UE.timestart < :now
-                ORDER BY UE.timestart DESC
+              FROM {course} C
+              JOIN {course_categories} CC ON C.category = CC.id
+              JOIN {context} CTX ON C.id = CTX.instanceid
+              JOIN {role_assignments} RA ON RA.contextid = CTX.id
+              JOIN {user_enrolments} UE ON UE.userid = RA.userid
+              JOIN {enrol} E ON E.id = UE.enrolid AND E.courseid = C.id
+             WHERE RA.roleid = :role
+                   AND C.category = :category
+                   AND UE.timestart < :now
+          ORDER BY UE.timestart DESC
                    LIMIT 1";
-    $res = $DB->get_record_sql($sql,
-            array(
+    $res = $DB->get_record_sql($sql, array(
         'role' => $role,
         'category' => $catid,
         'now' => $now,
@@ -1249,17 +1182,17 @@ function get_intensivecourse_data ($course, $studentid) {
         $intensivecourse = new stdClass();
         $intensivecourse->name = $course->shortname;
         $intensivecourse->id = $modint->id;
-        $userdata = $DB->get_record('user', array('id' => $studentid));
+        $userdata = core_user::get_user($studentid);
         // Check if the user has enroled in the intensive module to print the last matriculation date.
-        $sql = 'SELECT *
+        $sql = "SELECT *
                   FROM {local_eudecustom_mat_int}
                  WHERE user_email = :user_email
-                   AND course_shortname = :course_shortname
-                   AND category_id = :category_id
+                       AND course_shortname = :course_shortname
+                       AND category_id = :category_id
               ORDER BY matriculation_date DESC
-                 LIMIT 1';
-        if ($intdate = $DB->get_record_sql($sql,
-                array('user_email' => $userdata->email,
+                       LIMIT 1";
+        if ($intdate = $DB->get_record_sql($sql, array(
+            'user_email' => $userdata->email,
             'course_shortname' => $modint->shortname,
             'category_id' => $course->category))) {
             $intensivecourse->actions = date("d/m/o", $intdate->matriculation_date);
@@ -1356,8 +1289,8 @@ function integrate_previous_data ($data) {
                     $record1->matriculation_date = $unixdate;
                     $record1->conv_number = $convnumber;
                     $DB->insert_record('local_eudecustom_mat_int', $record1);
-                    $record2 = $DB->get_record('local_eudecustom_user',
-                            array('user_email' => $useremail, 'course_category' => $coursecategory->category));
+                    $record2 = $DB->get_record('local_eudecustom_user', array(
+                        'user_email' => $useremail, 'course_category' => $coursecategory->category));
                     // Create/Update entry in local_eudecustom_user.
                     if ($record2) {
                         $record2->num_intensive = $record2->num_intensive + 1;
@@ -1376,12 +1309,12 @@ function integrate_previous_data ($data) {
                  */
                 case 'DELETE':
                     // Count the records to delete and delete afterwards.
-                    $records = $DB->get_records('local_eudecustom_mat_int',
-                            array('user_email' => $useremail,
+                    $records = $DB->get_records('local_eudecustom_mat_int', array(
+                        'user_email' => $useremail,
                         'course_shortname' => $courseshortname,
                         'category_id' => $coursecategory->category));
-                    $DB->delete_records('local_eudecustom_mat_int',
-                            array('user_email' => $useremail,
+                    $DB->delete_records('local_eudecustom_mat_int', array(
+                        'user_email' => $useremail,
                         'course_shortname' => $courseshortname,
                         'category_id' => $coursecategory->category));
                     // Delete/Update entry in local_eudecustom_user.
@@ -1434,8 +1367,7 @@ function get_intensive_action ($data) {
         $cell = html_writer::tag('button', $data->actiontitle, array('class' => $data->actionclass, 'id' => $data->actionid));
     } else if ($data->action == 'outweek') {
         $html = html_writer::tag('span', $data->actiontitle, array('class' => 'eudeprofilespan'));
-        $html .= html_writer::tag('i', '·',
-                        array(
+        $html .= html_writer::tag('i', '·', array(
                     'id' => $data->actionid,
                     'class' => 'fa fa-pencil-square-o ' . $data->actionclass,
                     'aria-hidden' => 'true'));
@@ -1543,13 +1475,13 @@ function get_grade_category ($category, $user) {
 
     global $DB;
 
-    $sql = 'SELECT co.id, gg.finalgrade, gg.rawgrademax
-                   FROM {grade_grades} gg
-                   JOIN {grade_items} gi ON gg.itemid = gi.id
-                   JOIN {course} co ON gi.courseid = co.id
-                  WHERE gi.itemtype = :type
-                    AND co.category = :category
-                    AND gg.userid = :userid';
+    $sql = "SELECT co.id, gg.finalgrade, gg.rawgrademax
+              FROM {grade_grades} gg
+              JOIN {grade_items} gi ON gg.itemid = gi.id
+              JOIN {course} co ON gi.courseid = co.id
+             WHERE gi.itemtype = :type
+                   AND co.category = :category
+                   AND gg.userid = :userid";
 
     $grades = $DB->get_records_sql($sql, array(
         'type' => 'course', 'category' => $category, 'userid' => $user));
@@ -1592,24 +1524,24 @@ function sort_array_of_array (&$array, $subfield) {
 function user_repeat_category ($userid, $category) {
     global $DB;
 
-    $sql = 'SELECT gh.id, gh.timemodified
-                   FROM {grade_grades_history} gh
-                   JOIN {grade_items} gi ON gh.oldid = gi.id
-                   JOIN {course} co ON gi.courseid = co.id
-                  WHERE gh.source = :source
-                    AND co.category = :category
-               ORDER BY gh.timemodified ASC
-                  LIMIT 1';
+    $sql = "SELECT gh.id, gh.timemodified
+              FROM {grade_grades_history} gh
+              JOIN {grade_items} gi ON gh.oldid = gi.id
+              JOIN {course} co ON gi.courseid = co.id
+             WHERE gh.source = :source
+                   AND co.category = :category
+          ORDER BY gh.timemodified ASC
+                   LIMIT 1";
     $firstgrade = $DB->get_record_sql($sql, array('source' => 'mod/quiz', 'category' => $category));
 
-    $sqlcourse = 'SELECT ue.id, ue.timestart, ue.timeend
+    $sqlcourse = "SELECT ue.id, ue.timestart, ue.timeend
                     FROM {user_enrolments} ue
                     JOIN {enrol} e ON e.id = ue.enrolid
                     JOIN {course} c ON e.courseid = c.id
                    WHERE e.enrol = :type
-                     AND c.category = :category
-                     AND ue.userid = :userid
-                ORDER BY ue.timeend DESC';
+                         AND c.category = :category
+                         AND ue.userid = :userid
+                ORDER BY ue.timeend DESC";
     $actualcourses = $DB->get_records_sql($sqlcourse, array('category' => $category, 'type' => 'manual', 'userid' => $userid));
     $firstcourse = 0;
     $endcourse = 0;

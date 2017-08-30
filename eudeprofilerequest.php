@@ -87,8 +87,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                     $tr->cells[] = $cell;
                     $html = html_writer::tag('span', $row->attempts, array('class' => 'attempts'));
                     if ($row->attempts > 0 &&
-                            $row->info != 'No hay notas disponibles.' &&
-                            $row->info != 'Grade Information for the course') {
+                            $row->info != get_string('nogrades', 'local_eudecustom')) {
                         $html .= html_writer::empty_tag('i',
                                         array('id' => 'info', 'class' => 'fa fa-info-circle',
                                     'title' => $row->info,
@@ -138,15 +137,18 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
             // Sort the array for the lastname of the students.
             sort_array_of_array($students, 'lastname');
             if (count($students)) {
-                $html = '<label>' . get_string('choosestudent', 'local_eudecustom') . '</label>';
-                $html .= "<select id='menucategoryname' class='select custom-select menucategoryname' name='categoryname'>";
-                $html .= "<option value=''>-- Alumno --</option>";
+                $html = html_writer::tag('label', get_string('choosestudent', 'local_eudecustom'), array());
+                $html .= html_writer::start_tag('select',
+                    array('id' => 'menucategoryname', 'name' => 'categoryname',
+                          'class' => 'select custom-select menucategoryname'));
+                $html .= html_writer::tag('option', '-- Alumno --', array('value' => ''));
 
                 foreach ($students as $student) {
-                    $html .= "<option value=$student->id>$student->lastname, $student->firstname</option>";
+                    $html .= html_writer::tag('option', $student->lastname . ', ' . $student->firstname,
+                        array('value' => $student->id));
                 }
 
-                $html .= '</select>';
+                $html .= html_writer::end_tag('select');;
 
                 $response['student'] .= $html;
             }
@@ -183,8 +185,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                         $tr->cells[] = $cell;
                         $html = html_writer::tag('span', $row->attempts, array('class' => 'attempts'));
                         if ($row->attempts > 0 &&
-                            $row->info != 'No hay notas disponibles.' &&
-                            $row->info != 'Grade Information for the course') {
+                            $row->info != get_string('nogrades', 'local_eudecustom')) {
                             $html .= html_writer::empty_tag('i',
                                             array('id' => 'info', 'class' => 'fa fa-info-circle',
                                         'title' => $newd->info,

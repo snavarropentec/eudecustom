@@ -53,7 +53,7 @@ $sesskey = sesskey();
 
 if (optional_param('processtext', null, PARAM_TEXT) == 'processtext') {
     if (!confirm_sesskey()) {
-        error('Bad Session Key');
+        print_error('Bad Session Key');
     } else {
         $data = optional_param('integrationtext', null, PARAM_TEXT);
         if (integrate_previous_data ($data)) {

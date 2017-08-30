@@ -134,8 +134,8 @@ class behat_local_eudecustom extends behat_base {
 
         $sql = "SELECT *
                   FROM {eudest_enrols}
-                 WHERE pend_event=1";
-        $records = $DB->get_records_sql($sql, array());
+                 WHERE pend_event = :event";
+        $records = $DB->get_records_sql($sql, array('event' => 1));
 
         foreach ($records as $record) {
             $evname = "[[COURSE]]$record->shortname";
@@ -160,8 +160,8 @@ class behat_local_eudecustom extends behat_base {
 
         $sql = "SELECT *
                   FROM {eudest_masters}
-                 WHERE pend_holidays=1";
-        $masters = $DB->get_records_sql($sql, array());
+                 WHERE pend_holidays = :holidays";
+        $masters = $DB->get_records_sql($sql, array('holidays' => 1));
 
         $nodeholidays = [];
         foreach ($masters as $master) {

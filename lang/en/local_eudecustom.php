@@ -146,3 +146,5 @@ $string['student'] = 'Active students';
 $string['studentfinishing'] = 'Period of grace students';
 $string['studentold'] = 'Completed course students';
 $string['totalgrade'] = 'Total grade';
+$string['nogrades'] = 'No grades available.';
+$string['gradeinfomsg'] = 'Grade Information for the course';

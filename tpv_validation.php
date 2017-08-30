@@ -34,7 +34,7 @@ global $CFG;
 global $SESSION;
 
 if (!confirm_sesskey(sesskey())) {
-    error('Bad Session Key');
+    print_error('Bad Session Key');
 } else {
     $miobj = new RedsysAPI;
     $version = optional_param('Ds_SignatureVersion', 0, PARAM_TEXT);
@@ -81,12 +81,16 @@ if (!confirm_sesskey(sesskey())) {
             enrol_intensive_user('manual', $mi->id, $USER->id, $newdate, $newdate + 604800, $convnum, $mycourse->category);
             $name = $USER->firstname . ' ' . $USER->lastname;
             $module = $mi->shortname . ' - (' . $mi->fullname . ')';
-            header('Location: tpv_ok.php?name=' . $name . '&module=' . $module . '&payment=ok');
+            $url = new moodle_url($CFG->wwwroot.'/local/eudecustom/tpv_ok.php',
+                array('name' => $name, 'module' => $module, 'payment' => 'ok'));
+            redirect($url);
         } else {
-            header('Location: tpv_ko_message.php');
+            $url = new moodle_url($CFG->wwwroot . '/local/eudecustom/tpv_ko_message.php', array());
+            redirect($url);
         }
     } else {
-        header('Location: tpv_ko_message.php');
+        $url = new moodle_url($CFG->wwwroot . '/local/eudecustom/tpv_ko_message.php', array());
+        redirect($url);
     }
 }
 

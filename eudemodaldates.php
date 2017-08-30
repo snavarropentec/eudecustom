@@ -37,9 +37,9 @@ $PAGE->requires->jquery();
 $html = html_writer::start_div('', array('id' => 'contenedor'));
 $html .= html_writer::tag('button', 'x', array('class' => 'cerrar'));
 $courseid = optional_param('idcourse', 0, PARAM_INT);
-$curso = $DB->get_record('course', array('id' => $courseid));
-$idname = explode('.M.', $curso->shortname);
-$namecourse = explode('[', $curso->shortname);
+$course = $DB->get_record('course', array('id' => $courseid));
+$idname = explode('.M.', $course->shortname);
+$namecourse = explode('[', $course->shortname);
 if (isset($namecourse[0])) {
     $idname = explode('.M.', $namecourse[0]);
 } else {
@@ -56,11 +56,12 @@ $html .= html_writer::tag('h3', get_string('selectcalldate', 'local_eudecustom')
 $html .= html_writer::start_div('form-group');
 $html .= html_writer::tag('label', get_string('startingcalldate', 'local_eudecustom'));
 $sql = "SELECT *
-            FROM {local_eudecustom_call_date} f
-            JOIN {course} c
-            WHERE f.courseid = c.id AND c.category = :category
-            ORDER BY fecha1 ASC
-            LIMIT 1";
+          FROM {local_eudecustom_call_date} f
+          JOIN {course} c
+         WHERE f.courseid = c.id
+               AND c.category = :category
+      ORDER BY fecha1 ASC
+               LIMIT 1";
 $startconv = $DB->get_record_sql($sql, array('category' => $modulo->category));
 $today = time();
 $weekinseconds = 604800;
