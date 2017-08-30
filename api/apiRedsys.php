@@ -91,7 +91,7 @@ class redsysapi{
         $iv = implode(array_map("chr", $bytes));
 
         // Se cifra.
-        $ciphertext = mcrypt_encrypt(MCRYPT_3DES, $key, $message, MCRYPT_MODE_CBC, $iv);// PHP 4 >= 4.0.2 .
+        $ciphertext = openssl_encrypt(MCRYPT_3DES, $key, $message, MCRYPT_MODE_CBC, $iv);// PHP 4 >= 4.0.2 .
         return $ciphertext;
     }
 
