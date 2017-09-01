@@ -14,13 +14,14 @@ Feature: Prueba
       | name | idnumber |
       | RRHH | 1        |
       | MBA  | 2        |
+      | Intensives | 3  |
     And the following "courses" exist:
       | fullname    | shortname | format | category |
       | Course 0    | RRHH.M.C0   | weeks  | 1        |
       | Course 1    | MBA.M.C1    | weeks  | 2        |
       | Course 2    | MBA.M.C2    | weeks  | 2        |
-      | MI.Course 1 | MI.C1 | weeks  | 2        |
-      | MI.Course 2 | MI.C2 | weeks  | 2        |
+      | MI.Course 1 | MI.C1 | weeks  | 3        |
+      | MI.Course 2 | MI.C2 | weeks  | 3        |
     And the following "course enrolments" exist:
       | user     | course    | role    | timestart  |
       | student1 | RRHH.M.C0   | student | 1480192416 |

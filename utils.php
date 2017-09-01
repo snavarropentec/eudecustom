@@ -1382,10 +1382,10 @@ function get_intensive_action ($data, $userid = null) {
     } else if ($data->action == 'outweek') {
         $html = html_writer::tag('span', $data->actiontitle, array('class' => 'eudeprofilespan'));
         if (!is_siteadmin($USER->id)) {
-          $html .= html_writer::tag('i', '·', array(
-            'id' => $data->actionid,
-            'class' => 'fa fa-pencil-square-o ' . $data->actionclass,
-            'aria-hidden' => 'true'));  
+            $html .= html_writer::tag('i', '·', array(
+                'id' => $data->actionid,
+                'class' => 'fa fa-pencil-square-o ' . $data->actionclass,
+                'aria-hidden' => 'true'));
         }
         $html .= html_writer::empty_tag('input',
                     array('type' => 'hidden', 'id' => 'hiddenuserid', 'value' => $userid));
