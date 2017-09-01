@@ -81,7 +81,6 @@ class eudeprofile_renderer extends \plugin_renderer_base {
      * @param string $selectcat string with category name.
      * @return string html to output.
      */
-
     public function eude_profile_intensives($categories, $edit = false, $selectcat = null) {
         global $CFG;
         $response = '';

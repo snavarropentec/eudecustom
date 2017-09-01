@@ -527,19 +527,12 @@ define(['jquery', 'jqueryui'], function ($) {
                 $('.letpv_abrir').click(function () {
                     var params = $(this).attr('id');
                     var studentid = $('#hiddenuserid').attr('value');
-                    
-                    /*
-                    if (params.length == 12) {
-                        idcourse = params[6];
-                    } else {
-                        idcourse = params.substring(params.length - 5, 6);
-                    }*/
+
                     idcourse = params.substring(params.indexOf('(') + 1, params.indexOf(','));
-                    
-                    //var tpv = params[params.length - 4];
-                    var tpv = params.substring(params.indexOf(',')+1,params.lastIndexOf(','));
-                    //var accion = params[params.length - 2];
-                    var accion = params.substring(params.lastIndexOf(',')+1,params.indexOf(')'));
+
+                    var tpv = params.substring(params.indexOf(',') + 1,params.lastIndexOf(','));
+
+                    var accion = params.substring(params.lastIndexOf(',') + 1,params.indexOf(')'));
                     $('#letpv_ventana-flotante').css('display', 'block');
                     $.ajax({
                         data: 'idcourse=' + idcourse,
@@ -556,13 +549,6 @@ define(['jquery', 'jqueryui'], function ($) {
                                         .attr('id', 'abrirFechas(' + idcourse + ',' + tpv + ',' + accion + ')');
 
                                 $('input.letpv_btn').click(function () {
-                                    //var params = $('input.btn').attr('id');
-                                    /*var idcourse;
-                                    if (params.length == 12) {
-                                        idcourse = params[12];
-                                    } else {
-                                        idcourse = params.substring(params.length - 5, 12);
-                                    }*/
                                     $('#letpv_ventana-flotante').css('display', 'block');
                                     $.ajax({
                                         data: 'idcourse=' + idcourse,
@@ -596,15 +582,8 @@ define(['jquery', 'jqueryui'], function ($) {
                 $('.abrirFechas').click(function () {
                     var params = $(this).attr('id');
                     var idcourse;
-                    /*
-                    if (params.length == 18) {
-                        idcourse = params[12];
-                    } else {
-                        idcourse = params.substring(params.length - 5, 12);
-                    }*/
                     idcourse = params.substring(params.indexOf('(') + 1, params.indexOf(','));
-                    //var tpv = params[params.length - 4];
-                    var tpv = params.substring(params.indexOf(',')+1, params.lastIndexOf(','));
+                    var tpv = params.substring(params.indexOf(',') + 1, params.lastIndexOf(','));
                     $('#letpv_ventana-flotante').css('display', 'block');
                     $.ajax({
                         data: 'idcourse=' + idcourse,

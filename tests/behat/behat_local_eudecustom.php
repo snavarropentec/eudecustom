@@ -132,9 +132,7 @@ class behat_local_eudecustom extends behat_base {
             return 0;
         }
 
-        $sql = "SELECT *
-                  FROM {eudest_enrols}
-                 WHERE pend_event = :event";
+        $sql = "SELECT * FROM {eudest_enrols} WHERE pend_event = :event";
         $records = $DB->get_records_sql($sql, array('event' => 1));
 
         foreach ($records as $record) {
@@ -158,18 +156,13 @@ class behat_local_eudecustom extends behat_base {
 
         $noticeholidays = $CFG->local_eudest_holydaynotice;
 
-        $sql = "SELECT *
-                  FROM {eudest_masters}
-                 WHERE pend_holidays = :holidays";
+        $sql = "SELECT * FROM {eudest_masters} WHERE pend_holidays = :holidays";
         $masters = $DB->get_records_sql($sql, array('holidays' => 1));
 
         $nodeholidays = [];
         foreach ($masters as $master) {
 
-            $sqlenrols = "SELECT *
-                             FROM {eudest_enrols}
-                            WHERE masterid = :masterid
-                         ORDER BY startdate asc";
+            $sqlenrols = "SELECT * FROM {eudest_enrols} WHERE masterid = :masterid ORDER BY startdate asc";
             $enrols = $DB->get_records_sql($sqlenrols, array("masterid" => $master->id));
 
             $gapdate = 0;
@@ -264,6 +257,9 @@ class behat_local_eudecustom extends behat_base {
     }
 
     /**
+     *
+     * This function add enrols
+     *
      * @When /^I add intensive enrols$/
      */
     public function intensive_enrols() {
@@ -343,6 +339,17 @@ class behat_local_eudecustom extends behat_base {
         $element->click();
     }
 
+    /**
+     * This function add events to calendar
+     * 
+     * @When /^I add events to calendar/
+     * @param string $name
+     * @param string $description
+     * @param integer $timestart
+     * @param integer $duration
+     * @param integer $userid
+     * 
+     */
     private function eude_add_event_to_calendar($name, $description, $timestart, $duration, $userid) {
         $event = new stdClass();
         $event->name = $name;
@@ -435,7 +442,9 @@ class behat_local_eudecustom extends behat_base {
     }
 
     /**
-     * @when /^I add events/
+     * This function add events
+     * 
+     * @When /^I add events/
      */
     public function add_events() {
         global $DB;

@@ -11,17 +11,17 @@ Feature: Prueba
       | student2 | Student   | 2        | student2@example.com |
       | student3 | Student   | 3        | student3@example.com |
     And the following "categories" exist:
-      | name | idnumber |
-      | RRHH | 1        |
-      | MBA  | 2        |
-      | Intensives | 3  |
+      | name        | idnumber  |
+      | RRHH        | 1         |
+      | MBA         | 2         |
+      | Intensives  | 3         |
     And the following "courses" exist:
       | fullname    | shortname | format | category |
-      | Course 0    | RRHH.M.C0   | weeks  | 1        |
-      | Course 1    | MBA.M.C1    | weeks  | 2        |
-      | Course 2    | MBA.M.C2    | weeks  | 2        |
-      | MI.Course 1 | MI.C1 | weeks  | 3        |
-      | MI.Course 2 | MI.C2 | weeks  | 3        |
+      | Course 0    | RRHH.M.C0 | weeks  | 1        |
+      | Course 1    | MBA.M.C1  | weeks  | 2        |
+      | Course 2    | MBA.M.C2  | weeks  | 2        |
+      | MI.Course 1 | MI.C1     | weeks  | 3        |
+      | MI.Course 2 | MI.C2     | weeks  | 3        |
     And the following "course enrolments" exist:
       | user     | course    | role    | timestart  |
       | student1 | RRHH.M.C0   | student | 1480192416 |
@@ -53,9 +53,7 @@ Feature: Prueba
     And I wait "2" seconds
     And I press "Early Access"
     And I press "x"
-    And I press "Retry module"
-    And I wait "2" seconds
-    Then I should see "Intensives"
+    Then I should see "Early Access"
 
   @javascript
   Scenario: View intensives modules like a student
