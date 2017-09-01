@@ -110,7 +110,7 @@ class eudeteachercontrolpanel_renderer extends \plugin_renderer_base {
         $response .= $this->header();
         $html = html_writer::start_div('row eude_panel_bg'); // Start content row.
         $html .= html_writer::start_div('col-md-12'); // Start main col.
-        $html .= html_writer::tag('h3', $USER->firstname . "&nbsp" . $USER->lastname); // Teacher name.
+        $html .= html_writer::tag('h3', format_string($USER->firstname . " " . $USER->lastname)); // Teacher name.
 
         // First row.
         $html .= html_writer::start_div('row'); // First table row.

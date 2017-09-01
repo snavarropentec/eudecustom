@@ -77,7 +77,7 @@ class eudeprofile_renderer extends \plugin_renderer_base {
     /**
      * Render the courses profile custom page for eude.
      * @param array $categories array with the categories of the courses this user is enroled.
-     * @param array $data array of eudecustom_profile objects.
+     * @param array $edit array of eudecustom_profile objects.
      * @param string $selectcat string with category name.
      * @return string html to output.
      */
@@ -93,7 +93,7 @@ class eudeprofile_renderer extends \plugin_renderer_base {
                 array('id' => 'categoryname'), '-- ' . get_string('category', 'local_eudecustom') . ' --');
             // Select for students.
             $html .= html_writer::start_tag('form',
-                    array('id' => 'student', 'name' => 'student', 'method' => 'post', 'action' => 'eudeprofile.php'));
+                    array('id' => 'letpv_student', 'name' => 'letpv_student', 'method' => 'post', 'action' => 'eudeprofile.php'));
             $html .= html_writer::end_tag('form');
             if ($selectcat != null) {
                 $html .= html_writer::tag('label', $selectcat, array('id' => 'categoryselect', 'style' => 'display:none'));
@@ -106,10 +106,10 @@ class eudeprofile_renderer extends \plugin_renderer_base {
                 array('class' => 'btn btn-default pull-right'));
             }
             // Table to display courses and additional info.
-            $html .= html_writer::start_div('', array('id' => 'tablecontainer'));
+            $html .= html_writer::start_div('', array('id' => 'letpv_tablecontainer'));
             $html .= html_writer::end_div();
             // Modal window to display additional content.
-            $html .= html_writer::start_div('', array('id' => 'ventana-flotante'));
+            $html .= html_writer::start_div('', array('id' => 'letpv_ventana-flotante'));
             $response .= $html;
         }
 
@@ -129,7 +129,7 @@ class eudeprofile_renderer extends \plugin_renderer_base {
         $html = '';
         switch ($data->action) {
             case 'insideweek':
-                $html .= html_writer::tag('span', $data->actiontitle, array('class' => 'eudeprofilespan'));
+                $html .= html_writer::tag('span', format_string($data->actiontitle), array('class' => 'eudeprofilespan'));
                 break;
             case 'outweek':
                 $html .= html_writer::tag('span', $data->actiontitle, array('class' => 'eudeprofilespan'));
@@ -138,7 +138,7 @@ class eudeprofile_renderer extends \plugin_renderer_base {
                                             'aria-hidden' => 'true'));
                 break;
             case 'notenroled':
-                $html .= html_writer::tag('button', $data->actiontitle,
+                $html .= html_writer::tag('button', format_string($data->actiontitle),
                         array('class' => $data->actionclass, 'id' => $data->actionid));
                 break;
             default:

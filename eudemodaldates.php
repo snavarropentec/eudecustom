@@ -35,7 +35,7 @@ $PAGE->set_context(context_system::instance());
 $PAGE->requires->jquery();
 
 $html = html_writer::start_div('', array('id' => 'contenedor'));
-$html .= html_writer::tag('button', 'x', array('class' => 'cerrar'));
+$html .= html_writer::tag('button', 'x', array('class' => 'letpv_cerrar'));
 $courseid = optional_param('idcourse', 0, PARAM_INT);
 $course = $DB->get_record('course', array('id' => $courseid));
 $idname = explode('.M.', $course->shortname);
@@ -87,19 +87,22 @@ if ($options) {
     }
     if ($DB->get_record('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $USER->id))) {
         $actual = $DB->get_record('user_enrolments', array('enrolid' => $enrol->id, 'userid' => $USER->id));
-        $html .= html_writer::select($options, 'date', array(
+        $html .= html_writer::select($options, 'letpv_date', array(
                                                     'id' => 'fechas',
                                                     'form' => 'fechas'),
                                                     '');
     } else {
-        $html .= html_writer::select($options, 'date', array(
+        $html .= html_writer::select($options, 'letpv_date', array(
                                                     'id' => 'fechas',
                                                     'form' => 'fechas'),
                                                     '');
     }
-
+    $studentid = null;
+    if (optional_param('studentid', 0, PARAM_INT)) {
+        $studentid = optional_param('studentid', 0, PARAM_INT);
+    }
     // Print hidden inputs.
-    $html = add_tpv_hidden_inputs($html);
+    $html = add_tpv_hidden_inputs($html, $studentid);
 
     $html .= html_writer::end_tag('form');
     $html .= html_writer::end_div();

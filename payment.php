@@ -57,7 +57,7 @@ $PAGE->requires->js_call_amd("local_eudecustom/eude", "payment");
 $output = $PAGE->get_renderer('local_eudecustom', 'eudeprofile');
 $SESSION->user = $USER->id;
 $SESSION->course = optional_param('course', 0, PARAM_INT);
-$SESSION->date = optional_param('date', 0, PARAM_INT);
+$SESSION->date = optional_param('letpv_date', 0, PARAM_INT);
 if (optional_param('amount', 1, PARAM_FLOAT) == 0) {
     $mycourse = $DB->get_record('course', array('id' => optional_param('course', 0, PARAM_INT)));
     $namecourse = explode('[', $mycourse->shortname);
@@ -88,7 +88,11 @@ if (optional_param('amount', 1, PARAM_FLOAT) == 0) {
                 break;
         }
         // Timeend is timestart + a week in seconds.
-        enrol_intensive_user('manual', $mi->id, $USER->id, $newdate, $newdate + 604800, $convnum, $mycourse->category);
+        $userid = $USER->id;
+        if (is_siteadmin($USER->id)) {
+            $userid = optional_param('user', 0, PARAM_INT);
+        }
+        enrol_intensive_user('manual', $mi->id, $userid, $newdate, $newdate + 604800, $convnum, $mycourse->category);
         $name = $USER->firstname . ' ' . $USER->lastname;
         $module = $mi->shortname . ' - (' . $mi->fullname . ')';
         header('Location: tpv_ok.php?name=' . $name . '&module=' . $module);

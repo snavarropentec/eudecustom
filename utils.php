@@ -539,7 +539,7 @@ function update_intensive_dates ($convnum, $cid, $userid) {
  */
 function grades ($cid, $userid) {
     global $DB;
-    $finalgrade = 0;
+    $finalgrade = null;
     $item = $DB->get_record('grade_items', array('courseid' => $cid, 'itemtype' => 'course'));
     if ($item && $DB->record_exists('grade_grades', array('itemid' => $item->id, 'userid' => $userid))) {
         $grades = $DB->get_record('grade_grades', array('itemid' => $item->id, 'userid' => $userid));
@@ -629,7 +629,7 @@ function configureprofiledata ($userid) {
     $data = array();
     $daytoday = time();
     $weekinseconds = 604800;
-    if ($userid == $USER->id) {
+    if (($userid == $USER->id) || is_siteadmin($USER->id)) {
         $owner = true;
     } else {
         $owner = false;
@@ -668,8 +668,8 @@ function configureprofiledata ($userid) {
                             // Add intensive module grades.
                             $mygradesint = grades($modint->id, $userid);
                             $object->name = $mycourse->shortname;
-                            $object->cat = ' cat' . $mycourse->category;
-                            $object->id = ' mod' . $mycourse->id;
+                            $object->cat = ' letpv_cat' . $mycourse->category;
+                            $object->id = ' letpv_mod' . $mycourse->id;
                             $type = strpos($CFG->dbtype, 'pgsql');
                             if ($type || $type === 0) {
                                 $sql = "SELECT to_char(to_timestamp(u.timestart),'DD/MM/YYYY') AS time, u.timestart
@@ -758,10 +758,10 @@ function configureprofiledata ($userid) {
                                 }
                                 if ($owner == true) {
                                     // Print action button.
-                                    if ((gettype($mygrades) != 'double' || $mygrades == null) && $intentos == 0) {
+                                    if ((gettype($mygrades) != 'double' || is_null($mygrades)) && $intentos == 0) {
                                         $object->actiontitle = get_string('bringforward', 'local_eudecustom');
                                         $object->actionid = 'abrir(' . $mycourse->id . ',0,0)';
-                                        $object->actionclass = 'abrir';
+                                        $object->actionclass = 'letpv_abrir';
                                     } else if ($mygradesint) {
                                         if ($mygradesint < 5) {
                                             if ($numint &&
@@ -774,14 +774,14 @@ function configureprofiledata ($userid) {
                                             } else {
                                                 $object->actiontitle = get_string('retest', 'local_eudecustom');
                                                 $object->actionid = 'abrir(' . $mycourse->id . ',0,1)';
-                                                $object->actionclass = 'abrir';
+                                                $object->actionclass = 'letpv_abrir';
                                             }
                                         } else if ($mygradesint == 10) {
                                             $object->action = 'insideweek';
                                         } else {
                                             $object->actiontitle = get_string('increasegrades', 'local_eudecustom');
                                             $object->actionid = 'abrir(' . $mycourse->id . ',0,2)';
-                                            $object->actionclass = 'abrir';
+                                            $object->actionclass = 'letpv_abrir';
                                         }
                                     } else {
                                         if ($mygrades < 5) {
@@ -795,14 +795,14 @@ function configureprofiledata ($userid) {
                                             } else {
                                                 $object->actiontitle = get_string('retest', 'local_eudecustom');
                                                 $object->actionid = 'abrir(' . $mycourse->id . ',0,1)';
-                                                $object->actionclass = 'abrir';
+                                                $object->actionclass = 'letpv_abrir';
                                             }
                                         } else if ($mygrades == 10) {
                                             $object->action = 'insideweek';
                                         } else {
                                             $object->actiontitle = get_string('increasegrades', 'local_eudecustom');
                                             $object->actionid = 'abrir(' . $mycourse->id . ',0,2)';
-                                            $object->actionclass = 'abrir';
+                                            $object->actionclass = 'letpv_abrir';
                                         }
                                     }
                                 } else {
@@ -848,27 +848,36 @@ function configureprofiledata ($userid) {
  * This function adds hidden inputs required in the tpv actions of the plugin
  *
  * @param string $response
+ * @param int $userid
  * @return string $response input string with added fields
  */
-function add_tpv_hidden_inputs ($response) {
+function add_tpv_hidden_inputs ($response, $userid = null) {
     global $USER;
     global $CFG;
+
+    $price = $CFG->local_eudecustom_intensivemoduleprice;
+    $user = $USER->id;
+    if (is_siteadmin($USER->id) && $userid) {
+        $price = 0;
+        $user = $userid;
+    }
+
     $response .= html_writer::empty_tag('input', array(
                 'type' => 'hidden',
                 'id' => 'user',
                 'name' => 'user',
                 'class' => 'form-control',
-                'value' => $USER->id));
+                'value' => $user));
     $response .= html_writer::empty_tag('input', array(
                 'type' => 'hidden',
-                'id' => 'course',
+                'id' => 'letpv_course',
                 'name' => 'course',
                 'class' => 'form-control'));
     $response .= html_writer::empty_tag('input', array('type' => 'hidden',
-                'id' => 'amount',
+                'id' => 'letpv_amount',
                 'name' => 'amount',
                 'class' => 'form-control',
-                'value' => $CFG->local_eudecustom_intensivemoduleprice));
+                'value' => $price));
     $response .= html_writer::empty_tag('input', array('type' => 'hidden',
                 'id' => 'sesskey',
                 'name' => 'sesskey',
@@ -879,7 +888,7 @@ function add_tpv_hidden_inputs ($response) {
     $response .= html_writer::empty_tag('input', array(
                 'type' => 'submit',
                 'name' => 'abrirFechas',
-                'class' => 'btn btn-lg btn-primary btn-block abrirFechas',
+                'class' => 'btn btn-lg btn-primary btn-block abrirFechas letpv_btn',
                 'value' => get_string('continue', 'local_eudecustom')));
     return $response;
 }
@@ -1128,8 +1137,8 @@ function get_user_courses ($userid) {
 
 /**
  * Gets the course module opened for students at the moment (actual enrolment)
- *
  * @param int $catid
+ * @param string $role
  * @return array $actualmodule
  */
 function get_actual_module ($catid, $role) {
@@ -1360,20 +1369,31 @@ function validatedate ($date, $format = 'Y-m-d H:i:s') {
  * This function get the action print of intensive courses
  *
  * @param object $data object with the course data.
+ * @param int $userid id of a user to get data for future enrolments.
  * @return string $html;
  */
-function get_intensive_action ($data) {
+function get_intensive_action ($data, $userid = null) {
+    global $USER;
     if ($data->action == 'notenroled') {
-        $cell = html_writer::tag('button', $data->actiontitle, array('class' => $data->actionclass, 'id' => $data->actionid));
+        $cell = html_writer::tag('button', $data->actiontitle,
+                array('class' => $data->actionclass, 'id' => $data->actionid));
+        $cell .= html_writer::empty_tag('input',
+                    array('type' => 'hidden', 'id' => 'hiddenuserid', 'value' => $userid));
     } else if ($data->action == 'outweek') {
         $html = html_writer::tag('span', $data->actiontitle, array('class' => 'eudeprofilespan'));
-        $html .= html_writer::tag('i', '·', array(
-                    'id' => $data->actionid,
-                    'class' => 'fa fa-pencil-square-o ' . $data->actionclass,
-                    'aria-hidden' => 'true'));
+        if (!is_siteadmin($USER->id)) {
+          $html .= html_writer::tag('i', '·', array(
+            'id' => $data->actionid,
+            'class' => 'fa fa-pencil-square-o ' . $data->actionclass,
+            'aria-hidden' => 'true'));  
+        }
+        $html .= html_writer::empty_tag('input',
+                    array('type' => 'hidden', 'id' => 'hiddenuserid', 'value' => $userid));
         $cell = new \html_table_cell($html);
     } else {
         $html = html_writer::tag('span', $data->actiontitle, array('class' => 'eudeprofilespan'));
+        $html .= html_writer::empty_tag('input',
+                    array('type' => 'hidden', 'id' => 'hiddenuserid', 'value' => $userid));
         $cell = new \html_table_cell($html);
     }
     return $cell;
@@ -1381,7 +1401,7 @@ function get_intensive_action ($data) {
 
 /**
  * This function generate html to print the event keys section
- *
+ * @param string $modal string with info for the html name.
  * @return string $html;
  */
 function generate_event_keys ($modal = '') {

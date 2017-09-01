@@ -523,50 +523,57 @@ define(['jquery', 'jqueryui'], function ($) {
         },
         profile: function () {
             function modalAction() {
-                $('.abrir').click(function () {
+                var idcourse;
+                $('.letpv_abrir').click(function () {
                     var params = $(this).attr('id');
-                    var idcourse;
+                    var studentid = $('#hiddenuserid').attr('value');
+                    
+                    /*
                     if (params.length == 12) {
                         idcourse = params[6];
                     } else {
                         idcourse = params.substring(params.length - 5, 6);
-                    }
-                    var tpv = params[params.length - 4];
-                    var accion = params[params.length - 2];
-                    $('#ventana-flotante').css('display', 'block');
+                    }*/
+                    idcourse = params.substring(params.indexOf('(') + 1, params.indexOf(','));
+                    
+                    //var tpv = params[params.length - 4];
+                    var tpv = params.substring(params.indexOf(',')+1,params.lastIndexOf(','));
+                    //var accion = params[params.length - 2];
+                    var accion = params.substring(params.lastIndexOf(',')+1,params.indexOf(')'));
+                    $('#letpv_ventana-flotante').css('display', 'block');
                     $.ajax({
                         data: 'idcourse=' + idcourse,
-                        url: 'eudemodaladvise.php',
+                        url: 'eudemodaladvise.php?studentid=' + studentid,
                         type: 'post',
                         success: function (response, status, thrownerror) {
                             try {
-                                $('#ventana-flotante').html(response);
-                                $('button.cerrar').click(function () {
-                                    $('#ventana-flotante').css('display', 'none');
+                                $('#letpv_ventana-flotante').html(response);
+                                $('button.letpv_cerrar').click(function () {
+                                    $('#letpv_ventana-flotante').css('display', 'none');
                                 });
-                                $('#course').attr('value', idcourse);
-                                $('input.btn')
+                                $('#letpv_course').attr('value', idcourse);
+                                $('input.letpv_btn')
                                         .attr('id', 'abrirFechas(' + idcourse + ',' + tpv + ',' + accion + ')');
 
-                                $('input.btn').click(function () {
-                                    var params = $('input.btn').attr('id');
-                                    var idcourse;
+                                $('input.letpv_btn').click(function () {
+                                    //var params = $('input.btn').attr('id');
+                                    /*var idcourse;
                                     if (params.length == 12) {
                                         idcourse = params[12];
                                     } else {
                                         idcourse = params.substring(params.length - 5, 12);
-                                    }
-                                    $('#ventana-flotante').css('display', 'block');
+                                    }*/
+                                    $('#letpv_ventana-flotante').css('display', 'block');
                                     $.ajax({
                                         data: 'idcourse=' + idcourse,
-                                        url: 'eudemodaldates.php',
+                                        url: 'eudemodaldates.php?studentid=' + studentid,
                                         type: 'post',
                                         success: function (response) {
-                                            $('#ventana-flotante').html(response);
-                                            $("button.cerrar").click(function () {
-                                                $('#ventana-flotante').css('display', 'none');
+                                            $('#letpv_ventana-flotante').html(response);
+                                            $("button.letpv_cerrar").click(function () {
+                                                $('#letpv_ventana-flotante').css('display', 'none');
                                             });
-                                            $('#course').attr('value', idcourse);
+                                            $('#letpv_course').attr('value', idcourse);
 
                                         }
                                     });
@@ -589,40 +596,43 @@ define(['jquery', 'jqueryui'], function ($) {
                 $('.abrirFechas').click(function () {
                     var params = $(this).attr('id');
                     var idcourse;
+                    /*
                     if (params.length == 18) {
                         idcourse = params[12];
                     } else {
                         idcourse = params.substring(params.length - 5, 12);
-                    }
-                    var tpv = params[params.length - 4];
-                    $('#ventana-flotante').css('display', 'block');
+                    }*/
+                    idcourse = params.substring(params.indexOf('(') + 1, params.indexOf(','));
+                    //var tpv = params[params.length - 4];
+                    var tpv = params.substring(params.indexOf(',')+1, params.lastIndexOf(','));
+                    $('#letpv_ventana-flotante').css('display', 'block');
                     $.ajax({
                         data: 'idcourse=' + idcourse,
                         url: 'eudemodaldates.php',
                         type: 'post',
                         success: function (response, status, thrownerror) {
                             try {
-                                $('#ventana-flotante').html(response);
-                                $("button.cerrar").click(function close() {
-                                    $('#ventana-flotante').css('display', 'none');
+                                $('#letpv_ventana-flotante').html(response);
+                                $("button.letpv_cerrar").click(function close() {
+                                    $('#letpv_ventana-flotante').css('display', 'none');
                                 });
-                                $('#course').attr('value', idcourse);
+                                $('#letpv_course').attr('value', idcourse);
 
-                                var course = $('input#course').val();
-                                var modulo = $('.mod' + course + ' .c1 span').text();
+                                var course = $('input#letpv_course').val();
+                                var modulo = $('.letpv_mod' + course + ' .c1 span').text();
 
-                                var convoc = $('select#menudate').children().length;
+                                var convoc = $('select#menuletpv_date').children().length;
                                 for (var i = 1; i <= convoc; i++) {
-                                    var opt = $('select#menudate option:nth-child(' + i + ')').text();
+                                    var opt = $('select#menuletpv_date option:nth-child(' + i + ')').text();
                                     if (modulo == opt) {
-                                        $('select#menudate option:nth-child(' + i + ')').attr('selected',
+                                        $('select#menuletpv_date option:nth-child(' + i + ')').attr('selected',
                                                 'selected');
                                     }
                                 }
                                 if (tpv == 1) {
-                                    $('#amount').attr('value', '0');
+                                    $('#letpv_amount').attr('value', '0');
                                 } else if (tpv == 2) {
-                                    $('#fechas').attr('action', 'eudeprofile.php');
+                                    $('form#fechas').attr('action', 'eudeprofile.php');
                                 }
                             } catch (ex) {
                                 window.console.log(ex.message);
@@ -646,14 +656,14 @@ define(['jquery', 'jqueryui'], function ($) {
                 if (category !== 0) {
                     for (var i = 0; i <= numberCat; i++) {
                         if (i != category) {
-                            $('.cat' + i).css('display', 'none');
+                            $('.letpv_cat' + i).css('display', 'none');
                         } else {
-                            $('.cat' + i).css('display', 'table-row');
+                            $('.letpv_cat' + i).css('display', 'table-row');
                         }
                     }
                 } else {
                     for (var j = 0; j < numberCat; j++) {
-                        $('.cat' + j).css('display', 'table-row');
+                        $('.letpv_cat' + j).css('display', 'table-row');
                     }
                 }
                 var catId = $('#menucategoryname').val();
@@ -664,10 +674,10 @@ define(['jquery', 'jqueryui'], function ($) {
                     success: function (response, status, thrownerror) {
                         try {
                             window.console.log(response);
-                            $('#student').empty();
-                            $('#student').append(response.student);
-                            $('#tablecontainer').empty();
-                            $('#tablecontainer').append(response.table);
+                            $('#letpv_student').empty();
+                            $('#letpv_student').append(response.student);
+                            $('#letpv_tablecontainer').empty();
+                            $('#letpv_tablecontainer').append(response.table);
                             modalAction();
                         } catch (ex) {
                             window.console.log(ex.message);
@@ -682,8 +692,8 @@ define(['jquery', 'jqueryui'], function ($) {
                     }
                 });
             });
-            $('#student').change(function () {
-                $('#student option:selected').each(function () {
+            $('#letpv_student').change(function () {
+                $('#letpv_student option:selected').each(function () {
                     var catId = $('#menucategoryname').val();
                     var studentId = $(this).val();
                     $.ajax({
@@ -692,8 +702,8 @@ define(['jquery', 'jqueryui'], function ($) {
                         type: 'post',
                         success: function (response, status, thrownerror) {
                             try {
-                                $('#tablecontainer').empty();
-                                $('#tablecontainer').append(response);
+                                $('#letpv_tablecontainer').empty();
+                                $('#letpv_tablecontainer').append(response);
                                 modalAction();
                             } catch (ex) {
                                 window.console.log(ex.message);
@@ -721,14 +731,14 @@ define(['jquery', 'jqueryui'], function ($) {
             if (category !== 0) {
                 for (var i = 0; i <= numberCat; i++) {
                     if (i != category) {
-                        $('.cat' + i).css('display', 'none');
+                        $('.letpv_cat' + i).css('display', 'none');
                     } else {
-                        $('.cat' + i).css('display', 'table-row');
+                        $('.letpv_cat' + i).css('display', 'table-row');
                     }
                 }
             } else {
                 for (var j = 0; j < numberCat; j++) {
-                    $('.cat' + j).css('display', 'table-row');
+                    $('.letpv_cat' + j).css('display', 'table-row');
                 }
             }
             $.ajax({
@@ -738,8 +748,8 @@ define(['jquery', 'jqueryui'], function ($) {
                 success: function (response, status, thrownerror) {
                     try {
                         window.console.log(response);
-                        $('#tablecontainer').empty();
-                        $('#tablecontainer').append(response.table);
+                        $('#letpv_tablecontainer').empty();
+                        $('#letpv_tablecontainer').append(response.table);
                         modalAction();
                     } catch (ex) {
                         window.console.log(ex.message);

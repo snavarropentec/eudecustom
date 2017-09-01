@@ -108,14 +108,14 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
             $html .= html_writer::start_tag('tr', array('class' => 'coursedata'));
             // Column for the shortname label and the hidden input.
             $html .= html_writer::start_tag('td');
-            $html .= html_writer::tag('span', $coursedata->shortname,
-                    array('class' => 'shortname', 'title' => $coursedata->shortname));
+            $html .= html_writer::tag('span', format_string($coursedata->shortname),
+                    array('class' => 'shortname', 'title' => format_string($coursedata->shortname)));
             $html .= html_writer::empty_tag('input',
                             array('type' => 'hidden',
-                                  'id' => $coursedata->shortname . '-shortname',
-                                  'class' => $coursedata->shortname . '-shortname',
+                                  'id' => format_string($coursedata->shortname . '-shortname'),
+                                  'class' => format_string($coursedata->shortname . '-shortname'),
                                   'name' => 'startdatemodal',
-                                  'value' => $coursedata->shortname,
+                                  'value' => format_string($coursedata->shortname),
                                   'readonly' => 'readonly')
                             );
             $html .= html_writer::end_tag('td');
@@ -124,9 +124,9 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
             $html .= html_writer::start_tag('td');
             $html .= html_writer::empty_tag('input',
                             array('type' => 'text',
-                                  'id' => 'date1-' . $coursedata->courseid,
+                                  'id' => format_string('date1-' . $coursedata->courseid),
                                   'class' => 'date1 inputdate',
-                                  'name' => 'date1-' . $coursedata->courseid,
+                                  'name' => format_string('date1-' . $coursedata->courseid),
                                   'placeholder' => 'dd/mm/aaaa',
                                   'value' => $coursedata->fecha1)
                             );
@@ -134,9 +134,9 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
             $html .= html_writer::start_tag('td');
             $html .= html_writer::empty_tag('input',
                             array('type' => 'text',
-                                  'id' => 'date2-' . $coursedata->courseid,
+                                  'id' => format_string('date2-' . $coursedata->courseid),
                                   'class' => 'date2 inputdate',
-                                  'name' => 'date2-' . $coursedata->courseid,
+                                  'name' => format_string('date2-' . $coursedata->courseid),
                                   'placeholder' => 'dd/mm/aaaa',
                                   'value' => $coursedata->fecha2)
                             );
@@ -145,9 +145,9 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
             $html .= html_writer::start_tag('td');
             $html .= html_writer::empty_tag('input',
                             array('type' => 'text',
-                                  'id' => 'date3-' . $coursedata->courseid,
+                                  'id' => format_string('date3-' . $coursedata->courseid),
                                   'class' => 'date3 inputdate',
-                                  'name' => 'date3-' . $coursedata->courseid,
+                                  'name' => format_string('date3-' . $coursedata->courseid),
                                   'placeholder' => 'dd/mm/aaaa',
                                   'value' => $coursedata->fecha3)
                             );
@@ -156,9 +156,9 @@ class eudeintensivemoduledates_renderer extends \plugin_renderer_base {
             $html .= html_writer::start_tag('td');
             $html .= html_writer::empty_tag('input',
                             array('type' => 'text',
-                                  'id' => 'date4-' . $coursedata->courseid,
+                                  'id' => format_string('date4-' . $coursedata->courseid),
                                   'class' => 'date4 inputdate',
-                                  'name' => 'date4-' . $coursedata->courseid,
+                                  'name' => format_string('date4-' . $coursedata->courseid),
                                   'placeholder' => 'dd/mm/aaaa',
                                   'value' => $coursedata->fecha4)
                             );

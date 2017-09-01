@@ -87,12 +87,11 @@ class redsysapi{
      */
     public function encrypt_3des($message, $key) {
         // Se establece un IV por defecto.
-        $bytes = array(0, 0, 0, 0, 0, 0, 0, 0);
-        $iv = implode(array_map("chr", $bytes));
+        $l = ceil(strlen($message) / 8) * 8;
+        $message = $message.str_repeat("\0", $l - strlen($message));
 
         // Se cifra.
-        $ciphertext = openssl_encrypt(MCRYPT_3DES, $key, $message, MCRYPT_MODE_CBC, $iv);// PHP 4 >= 4.0.2 .
-        return $ciphertext;
+        return substr(openssl_encrypt($message, 'des-ede3-cbc', $key, OPENSSL_RAW_DATA, "\0\0\0\0\0\0\0\0"), 0, $l);
     }
 
     /******  Base64 Functions  ******/

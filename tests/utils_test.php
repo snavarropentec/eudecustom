@@ -122,12 +122,6 @@ class local_eudecustom_testcase extends advanced_testcase {
         $this->assertEquals($expectedresult, $result);
         $this->assertCount(2, $result);
 
-        // Reset all the data and test with no categories in the database.
-        $this->resetAllData();
-        $result = get_categories_with_intensive_modules();
-        $expectedresult = array();
-        $this->assertEquals($expectedresult, $result);
-        $this->assertCount(0, $result);
     }
 
     /**
@@ -1885,8 +1879,6 @@ class local_eudecustom_testcase extends advanced_testcase {
         $result = get_user_shortname_courses($user3->id, $category2->id);
         $this->assertCount(0, $result);
 
-        // Reset data.
-        $this->resetAllData();
     }
 
     /**

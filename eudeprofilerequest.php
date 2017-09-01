@@ -65,16 +65,17 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                 if ($row) {
                     $actiondata = html_writer::tag('span', $row->actions, array('class' => 'eudeprofilespan'));
                     $tr = new \html_table_row();
-                    $tr->attributes['class'] = "cat" . $category . " mod" . $course->id;
+                    $tr->attributes['class'] = "letpv_cat" . $category . " letpv_mod" . $course->id;
                     $cell = new \html_table_cell($row->name);
                     $cell->attributes['title'] = $course->fullname;
                     $tr->cells[] = $cell;
-                    if ($USER->id == $studentid && !$studentvalrole) {
+                    if (($USER->id == $studentid && !$studentvalrole) || is_siteadmin($USER->id)) {
                         $ok = false;
+                        $newdata = configureprofiledata($studentid);
                         foreach ($newdata as $newd) {
                             if ($newd->name == $row->name) {
                                 $ok = true;
-                                $cell = get_intensive_action($newd);
+                                $cell = get_intensive_action($newd, $studentid);
                                 break;
                             }
                         }
@@ -105,7 +106,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
         }
         $categorygrades = get_grade_category($category, $studentid);
         $tr = new \html_table_row();
-            $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
+            $tr->attributes['class'] = "letpv_cat" . $category . " letpv_mod" . $course->id . " total";
             $cell = new \html_table_cell(get_string('totalgrade', 'local_eudecustom'));
             $tr->cells[] = $cell;
             $cell = new \html_table_cell('');
@@ -167,7 +168,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
                     if ($row) {
                         $actiondata = html_writer::tag('span', $row->actions, array('class' => 'eudeprofilespan'));
                         $tr = new \html_table_row();
-                        $tr->attributes['class'] = "cat" . $category . " mod" . $course->id;
+                        $tr->attributes['class'] = "cat" . $category . " letpv_mod" . $course->id;
                         $cell = new \html_table_cell($row->name);
                         $cell->attributes['title'] = $course->fullname;
                         $tr->cells[] = $cell;
@@ -203,7 +204,7 @@ if (optional_param('profilecat', 0, PARAM_INT)) {
             }
             $categorygrades = get_grade_category($category, $USER->id);
             $tr = new \html_table_row();
-            $tr->attributes['class'] = "cat" . $category . " mod" . $course->id . " total";
+            $tr->attributes['class'] = "cat" . $category . " letpv_mod" . $course->id . " total";
             $lastcell = new \html_table_cell(get_string('totalgrade', 'local_eudecustom'));
             $tr->cells[] = $lastcell;
             $lastcell = new \html_table_cell('');

@@ -79,7 +79,7 @@ class eudetpvmessages_renderer extends \plugin_renderer_base {
         $html .= html_writer::tag('p', get_string('module', 'local_eudecustom') .': '. $data->module);
         if ($data->module == 'ok') {
             $html .= html_writer::tag('p',
-                get_string('price', 'local_eudecustom') . $CFG->local_eudecustom_intensivemoduleprice . ' €');
+                format_string(get_string('price', 'local_eudecustom') . $CFG->local_eudecustom_intensivemoduleprice . ' €'));
         }
         $html .= html_writer::start_tag('a', array('href' => 'eudeprofile.php'));
         $html .= html_writer::tag('button', get_string('return', 'local_eudecustom'), array('class' => 'btn btn-primary'));

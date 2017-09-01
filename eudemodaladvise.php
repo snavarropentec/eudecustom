@@ -37,11 +37,19 @@ $PAGE->requires->jquery();
 
 global $CFG;
 
+$studentid = null;
+if (optional_param('studentid', 0, PARAM_INT)) {
+    $studentid = optional_param('studentid', 0, PARAM_INT);
+}
+$price = $CFG->local_eudecustom_intensivemoduleprice;
+if (is_siteadmin($USER->id)) {
+    $price = 0;
+}
 $html = html_writer::start_div('', array('id' => 'contenedor'));
-$html .= html_writer::tag('button', 'x', array('class' => 'cerrar'));
+$html .= html_writer::tag('button', 'x', array('class' => 'letpv_cerrar'));
 $html .= html_writer::start_div('', array('id' => 'contenido'));
 $html .= html_writer::tag('h3',
-        get_string('pricenotify', 'local_eudecustom') . $CFG->local_eudecustom_intensivemoduleprice . ' €.');
+        get_string('pricenotify', 'local_eudecustom') . $price . ' €.');
 $html .= html_writer::tag('p', get_string('continuewarning', 'local_eudecustom'));
 
 $html .= html_writer::start_tag('form', array(
@@ -49,7 +57,7 @@ $html .= html_writer::start_tag('form', array(
             'method' => 'post'));
 $html .= html_writer::start_div('form-group');
 
-$html = add_tpv_hidden_inputs($html);
+$html = add_tpv_hidden_inputs($html, $studentid);
 $html .= html_writer::end_div();
 $html .= html_writer::end_tag('form');
 $html .= html_writer::end_div();

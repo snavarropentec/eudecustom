@@ -301,7 +301,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
 
         // Paddding (the first week may have blank days in the beginning).
         for ($i = $display->minwday; $i < $startwday; ++$i) {
-            $content .= '<td class="dayblank">&nbsp;</td>' . "\n";
+            $content .= '<td class="dayblank"> </td>' . "\n";
         }
 
         $weekend = CALENDAR_DEFAULT_WEEKEND;
@@ -538,7 +538,7 @@ class eudecalendar_renderer extends \plugin_renderer_base {
 
         // Paddding (the last week may have blank days at the end).
         for ($i = $dayweek; $i <= $display->maxwday; ++$i) {
-            $content .= '<td class="dayblank">&nbsp;</td>';
+            $content .= '<td class="dayblank"> </td>';
         }
         $content .= '</tr>'; // Last row ends.
 
@@ -774,8 +774,6 @@ class eudecalendar_renderer extends \plugin_renderer_base {
     /**
      * Render the custom event list page for eudecustom plugin.
      * @param array $events array with the events to create a list.
-     * @param int $start starting date in unix format for event list.
-     * @param int $end finishing date in unix format for event list.
      * @return string html to output.
      */
     public function eude_eventslist_page ($events) {
